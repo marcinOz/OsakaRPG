@@ -30,29 +30,29 @@ export class TitleScene extends Phaser.Scene {
     // Retro monitor top bar
     const bar = this.add.graphics();
     bar.fillStyle(PAL.panel, 0.95);
-    bar.fillRect(0, 0, GAME_W, 14);
+    bar.fillRect(0, 0, GAME_W, 20);
     bar.fillStyle(PAL.steel, 1);
-    bar.fillRect(0, 13, GAME_W, 1);
-    txt(this, 6, 2, 'THE PACK: RETRO ENGINE v1.0 [16-BIT RETRO EDITION]', { color: PAL.cyan, big: false });
+    bar.fillRect(0, 19, GAME_W, 1);
+    txt(this, 12, 4, 'THE PACK: RETRO ENGINE v2.0 [HD PIXEL-PERFECT EDITION]', { color: PAL.cyan, big: false });
     // Window control buttons ▢ ▢ ✕
-    txt(this, GAME_W - 36, 2, '― ▢ ✕', { color: PAL.silver });
+    txt(this, GAME_W - 48, 4, '― ▢ ✕', { color: PAL.silver });
 
     // Main Logo
-    txt(this, GAME_W / 2, 60, 'THE PACK', {
+    txt(this, GAME_W / 2, 120, 'THE PACK', {
       color: PAL.yellow,
       big: true,
       align: 'center',
       origin: [0.5, 0.5],
     });
 
-    txt(this, GAME_W / 2, 82, 'LEGEND OF THE FOREST FIREPLACE', {
+    txt(this, GAME_W / 2, 155, 'LEGEND OF THE FOREST FIREPLACE', {
       color: PAL.cyanHi,
-      big: false,
+      big: true,
       align: 'center',
       origin: [0.5, 0.5],
     });
 
-    txt(this, GAME_W / 2, 98, 'Ekipa 36+ • Kronika Przyjaźni i Ognia', {
+    txt(this, GAME_W / 2, 185, 'Ekipa 36+ • Kronika Przyjaźni i Ognia', {
       color: PAL.silver,
       big: false,
       align: 'center',
@@ -71,13 +71,13 @@ export class TitleScene extends Phaser.Scene {
       { label: `FILTR CRT: ${crtState ? 'WŁĄCZONY' : 'WYŁĄCZONY'}` },
     ];
 
-    const menuW = 200;
+    const menuW = 340;
     const menuX = (GAME_W - menuW) / 2;
-    const menuY = 135;
+    const menuY = 260;
     this.menu = new Menu(this, menuX, menuY, menuW, menuItems);
 
     // Footer credits
-    txt(this, GAME_W / 2, GAME_H - 12, '© 2026 THE PACK CREW • [STRZAŁKI / Z: WYBIERZ]', {
+    txt(this, GAME_W / 2, GAME_H - 24, '© 2026 THE PACK CREW • [STRZAŁKI / Z: WYBIERZ]', {
       color: PAL.grey,
       align: 'center',
       origin: [0.5, 0.5],

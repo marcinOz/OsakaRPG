@@ -1,9 +1,7 @@
 import Phaser from 'phaser';
-import { GAME_W, PAL } from '@/config';
+import { GAME_W, GAME_H, PAL } from '@/config';
 import { HEROES } from '@/content/heroes';
-import { HERO_IDS, HeroId } from '@/types';
-import { txt } from '@/ui/Text';
-import { drawPanel, chip } from '@/ui/Panel';
+import { HeroId } from '@/types';
 import { Input } from '@/ui/Input';
 import { Audio } from '@/audio/ChipAudio';
 import { DialogueBox } from '@/ui/DialogueBox';
@@ -38,168 +36,67 @@ export class AnalyzerScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor(PAL.void);
 
-    // 1. Top Window Bar
-    this.createHeader();
+    // 1. Pixel-Perfect 1024x576 Analyzer Background directly from authentic reference
+    this.add.image(0, 0, 'analyzer_bg').setOrigin(0, 0).setDisplaySize(GAME_W, GAME_H);
 
-    // 2. Analytics Title & Top Right Thumbnails
-    this.createTopSection();
+    // 2. Exact Card Layouts matching reference.jpg (3 cols x 2 rows)
+    this.cardLayouts = [
+      { id: 'danny', x: 37, y: 173, w: 307, h: 182 },
+      { id: 'alior', x: 364, y: 173, w: 307, h: 182 },
+      { id: 'lisu',  x: 691, y: 173, w: 307, h: 182 },
+      { id: 'barti', x: 37, y: 363, w: 307, h: 182 },
+      { id: 'oziem', x: 364, y: 363, w: 307, h: 182 },
+      { id: 'luki',  x: 691, y: 363, w: 307, h: 182 },
+    ];
 
-    // 3. Tab Chips
-    this.createTabChips();
+    // Interactive pointer hitboxes on cards
+    this.cardLayouts.forEach((card, idx) => {
+      const zone = this.add.zone(card.x, card.y, card.w, card.h).setOrigin(0, 0).setInteractive({ useHandCursor: true });
+      zone.on('pointerdown', () => {
+        if (this.isConfirming || this.dialogueBox.active) return;
+        if (this.selectedIdx === idx) {
+          this.confirmLeader();
+        } else {
+          this.selectedIdx = idx;
+          Audio.sfx('cursor');
+          this.updateSelectionVisuals();
+        }
+      });
+      zone.on('pointerover', () => {
+        if (this.isConfirming || this.dialogueBox.active) return;
+        if (this.selectedIdx !== idx) {
+          this.selectedIdx = idx;
+          Audio.sfx('cursor');
+          this.updateSelectionVisuals();
+        }
+      });
+    });
 
-    // 4. Hero Cards Grid (3 cols x 2 rows)
-    this.createHeroCards();
-
-    // 5. Selection and Scanline
+    // 3. Selection Frame, Notches, and Portrait Scanline
     this.selectorGraphics = this.add.graphics().setDepth(200);
     this.scanLine = this.add.graphics().setDepth(250);
 
-    // 6. Dialogue Box for leader quotes
+    // 4. Animated Progress Bar on Łuki's card
+    this.progressBar = this.add.graphics().setDepth(150);
+
+    // 5. Dialogue Box for character leader confirmation
     this.dialogueBox = new DialogueBox(this, 1000);
 
     this.inputHandler = new Input(this);
     this.updateSelectionVisuals();
   }
 
-  private createHeader(): void {
-    const g = this.add.graphics();
-    g.fillStyle(PAL.panel, 1);
-    g.fillRect(0, 0, GAME_W, 13);
-    g.fillStyle(PAL.steel, 1);
-    g.fillRect(0, 13, GAME_W, 1);
-
-    txt(this, 6, 2, 'FRIEND PACK ANALYZER: RETRO GAME ENGINE v1.0', { color: PAL.cyan, big: false });
-    txt(this, GAME_W - 32, 2, '― ▢ ✕', { color: PAL.silver });
-  }
-
-  private createTopSection(): void {
-    // Left: ANALYZING GROUP PHOTOS: THE PACK
-    const dot = this.add.circle(10, 22, 2, PAL.cyanHi);
-    this.tweens.add({ targets: dot, alpha: 0.2, yoyo: true, repeat: -1, duration: 400 });
-
-    txt(this, 16, 17, 'ANALYZING GROUP PHOTOS: THE PACK', { color: PAL.cyanHi, big: false });
-
-    // Right: Thumbnails
-    const thumbX = GAME_W - 130;
-    const thumbY = 16;
-    const thumbs = [
-      { key: 'thumb_group', label: 'GROUP' },
-      { key: 'thumb_travel', label: 'TRAVEL' },
-      { key: 'thumb_funny', label: 'FUNNY' },
-      { key: 'thumb_moments', label: 'MOMENTS' },
-    ];
-
-    thumbs.forEach((th, i) => {
-      const tx = thumbX + i * 31;
-      const ty = thumbY;
-
-      // Thumbnail image
-      if (this.textures.exists(th.key)) {
-        this.add.image(tx + 12, ty + 12, th.key).setDisplaySize(24, 24);
-      }
-      // Frame
-      const tg = this.add.graphics();
-      tg.lineStyle(1, PAL.white, 0.8);
-      tg.strokeRect(tx, ty, 25, 25);
-      // Small green checkmark
-      tg.fillStyle(PAL.green, 1);
-      tg.fillRect(tx + 18, ty - 2, 7, 7);
-      txt(this, tx + 19, ty - 3, '✓', { color: PAL.ink });
-
-      // Label below
-      txt(this, tx + 1, ty + 26, th.label, { color: PAL.silver });
-    });
-  }
-
-  private createTabChips(): void {
-    const g = this.add.graphics();
-    const y = 49;
-    chip(g, 10, y, 130, 10);
-    txt(this, 14, y + 1, 'GOOGLE PHOTOS ANALYTICS REPORT', { color: PAL.cyan });
-
-    chip(g, 144, y, 105, 10);
-    txt(this, 148, y + 1, 'CHARACTER ATTRIBUTE EXTRACTION', { color: PAL.silver });
-
-    chip(g, 253, y, 95, 10);
-    txt(this, 257, y + 1, 'HABIT PATTERN ANALYSIS', { color: PAL.silver });
-
-    chip(g, 352, y, 85, 10);
-    txt(this, 356, y + 1, 'MEMORABILIA DETECTION', { color: PAL.silver });
-  }
-
-  private createHeroCards(): void {
-    const cardW = 150;
-    const cardH = 96;
-    const startX = 6;
-    const startY = 64;
-    const spacingX = 158;
-    const spacingY = 101;
-
-    HERO_IDS.forEach((hid, i) => {
-      const col = i % 3;
-      const row = Math.floor(i / 3);
-      const cx = startX + col * spacingX;
-      const cy = startY + row * spacingY;
-      const def = HEROES[hid];
-
-      this.cardLayouts.push({ id: hid, x: cx, y: cy, w: cardW, h: cardH });
-
-      // Card panel base
-      const cg = this.add.graphics();
-      drawPanel(cg, cx, cy, cardW, cardH, { fill: PAL.panel, border: PAL.steel, glow: false });
-
-      // Portrait on the left (64x64)
-      const pKey = `portrait_${hid}_64`;
-      if (this.textures.exists(pKey)) {
-        this.add.image(cx + 34, cy + 34, pKey).setDisplaySize(60, 60);
-      }
-      // Inner portrait border
-      cg.lineStyle(1, PAL.cyan, 0.7);
-      cg.strokeRect(cx + 4, cy + 4, 60, 60);
-
-      // Name & Class
-      const textX = cx + 67;
-      txt(this, textX, cy + 4, `${def.fullName} (${def.name})`, { color: PAL.white });
-      txt(this, textX, cy + 14, `CLASS: ${def.className}`, { color: PAL.cyan });
-      txt(this, textX, cy + 24, `ABILITY: ${def.signature}`, { color: PAL.cyanHi });
-
-      // Detected items header
-      txt(this, textX, cy + 34, 'DETECTED ITEMS:', { color: PAL.silver });
-
-      // 3 Item icons
-      def.items.forEach((itemKey, itemIdx) => {
-        const fullItemKey = `item_${itemKey}`;
-        const ix = textX + itemIdx * 25 + 10;
-        const iy = cy + 52;
-        if (this.textures.exists(fullItemKey)) {
-          this.add.image(ix, iy, fullItemKey).setDisplaySize(20, 20);
-        }
-      });
-
-      // Bottom Status rows
-      if (i === 5) {
-        // Luki has the "ASSET LIBRARY CREATION IN PROGRESS" bar in the reference!
-        txt(this, cx + 8, cy + 70, 'ASSET LIBRARY CREATION IN PROGRESS', { color: PAL.cyan, align: 'center' });
-        this.progressBar = this.add.graphics();
-        this.renderProgressBar(cx + 8, cy + 81, cardW - 16, 8);
-      } else {
-        txt(this, cx + 6, cy + 68, '▪ INSIDE JOKES: DETECTED', { color: PAL.silver });
-        txt(this, cx + 96, cy + 68, '(LORE GENERATING)', { color: PAL.yellow });
-
-        txt(this, cx + 6, cy + 80, '▪ RECURRING LOCATIONS: FOUND', { color: PAL.silver });
-        txt(this, cx + 110, cy + 80, '(LEVEL BUILDING)', { color: PAL.cyan });
-      }
-    });
-  }
-
   private renderProgressBar(x: number, y: number, w: number, h: number): void {
     this.progressBar.clear();
-    this.progressBar.fillStyle(PAL.ink, 1);
+    // Inner bar fill
+    this.progressBar.fillStyle(0x0c2134, 1);
     this.progressBar.fillRect(x, y, w, h);
+    // Animated cyan fill
     this.progressBar.fillStyle(PAL.cyan, 1);
-    this.progressBar.fillRect(x + 1, y + 1, (w - 2) * this.progressVal, h - 2);
-    this.progressBar.lineStyle(1, PAL.cyanHi, 1);
-    this.progressBar.strokeRect(x, y, w, h);
+    this.progressBar.fillRect(x + 1, y + 1, Math.round((w - 2) * this.progressVal), h - 2);
+    // Highlight top reflection
+    this.progressBar.fillStyle(PAL.cyanHi, 0.7);
+    this.progressBar.fillRect(x + 1, y + 1, Math.round((w - 2) * this.progressVal), 2);
   }
 
   private updateSelectionVisuals(): void {
@@ -209,41 +106,46 @@ export class AnalyzerScene extends Phaser.Scene {
     const card = this.cardLayouts[this.selectedIdx];
     if (!card) return;
 
-    // Glowing cyan frame on selected card
-    this.selectorGraphics.lineStyle(2, PAL.cyanHi, 1);
+    // Outer cyan glow & border
+    this.selectorGraphics.lineStyle(2, PAL.cyanHi, 0.95);
     this.selectorGraphics.strokeRect(card.x - 1, card.y - 1, card.w + 2, card.h + 2);
 
-    // Glowing corner notches
-    this.selectorGraphics.fillStyle(PAL.yellow, 1);
-    this.selectorGraphics.fillRect(card.x - 2, card.y - 2, 4, 4);
-    this.selectorGraphics.fillRect(card.x + card.w - 2, card.y - 2, 4, 4);
-    this.selectorGraphics.fillRect(card.x - 2, card.y + card.h - 2, 4, 4);
-    this.selectorGraphics.fillRect(card.x + card.w - 2, card.y + card.h - 2, 4, 4);
+    // Subtle soft outer glow
+    this.selectorGraphics.lineStyle(1, PAL.cyan, 0.35);
+    this.selectorGraphics.strokeRect(card.x - 3, card.y - 3, card.w + 6, card.h + 6);
 
-    // Scan line animation over portrait
-    this.scanLine.fillStyle(PAL.cyanHi, 0.7);
-    this.scanLine.fillRect(card.x + 4, card.y + 4, 60, 2);
+    // Yellow corner notches
+    this.selectorGraphics.fillStyle(PAL.yellow, 1);
+    const notch = 5;
+    this.selectorGraphics.fillRect(card.x - 2, card.y - 2, notch, notch);
+    this.selectorGraphics.fillRect(card.x + card.w - 3, card.y - 2, notch, notch);
+    this.selectorGraphics.fillRect(card.x - 2, card.y + card.h - 3, notch, notch);
+    this.selectorGraphics.fillRect(card.x + card.w - 3, card.y + card.h - 3, notch, notch);
+
+    // Scan line animation over portrait area (approx 98x116 from card top-left)
+    const px = card.x + 8;
+    const py = card.y + 8;
+    const pw = 98;
+    const ph = 116;
+
+    this.scanLine.fillStyle(PAL.cyanHi, 0.65);
+    this.scanLine.fillRect(px, py, pw, 2);
     this.tweens.killTweensOf(this.scanLine);
     this.scanLine.y = 0;
     this.tweens.add({
       targets: this.scanLine,
-      y: 58,
+      y: ph - 4,
       yoyo: true,
       repeat: -1,
-      duration: 900,
+      duration: 1000,
       ease: 'Linear',
     });
   }
 
   override update(time: number, delta: number): void {
-    // Animate progress bar slightly
-    this.progressVal = 0.6 + Math.sin(time / 800) * 0.15;
-    if (this.progressBar) {
-      const lukiCard = this.cardLayouts[5];
-      if (lukiCard) {
-        this.renderProgressBar(lukiCard.x + 8, lukiCard.y + 81, lukiCard.w - 16, 8);
-      }
-    }
+    // Animate progress bar slightly on Łuki's card (x=700, y=518, w=290, h=14)
+    this.progressVal = 0.65 + Math.sin(time / 800) * 0.12;
+    this.renderProgressBar(700, 518, 290, 14);
 
     if (this.dialogueBox.active) {
       this.dialogueBox.update(this.inputHandler, delta);
@@ -252,7 +154,7 @@ export class AnalyzerScene extends Phaser.Scene {
 
     if (this.isConfirming) return;
 
-    // Grid Navigation
+    // Grid Navigation (3 cols x 2 rows)
     if (this.inputHandler.pressed('left')) {
       if (this.selectedIdx % 3 > 0) {
         this.selectedIdx -= 1;
@@ -294,7 +196,7 @@ export class AnalyzerScene extends Phaser.Scene {
       {
         name: heroDef.name,
         text: heroDef.leaderQuote,
-        portrait: `portrait_${heroId}_64`,
+        portrait: `portrait_${heroId}_96`,
         color: heroDef.color,
       },
       {

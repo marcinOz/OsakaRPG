@@ -13,8 +13,8 @@ export interface BoxLine {
   pitch?: number;          // blip pitch
 }
 
-const BOX_H = 70;
-const PAD = 6;
+const BOX_H = 110;
+const PAD = 10;
 
 /**
  * Bottom-screen dialogue window in the Analyzer panel style.
@@ -39,16 +39,16 @@ export class DialogueBox {
   cps = 45; // characters per second
 
   constructor(private scene: Phaser.Scene, depth = 1000) {
-    const y = GAME_H - BOX_H - 4;
+    const y = GAME_H - BOX_H - 10;
     this.root = scene.add.container(0, 0).setDepth(depth).setScrollFactor(0);
     this.g = scene.add.graphics();
-    this.portrait = scene.add.image(4 + PAD + 32, y + BOX_H / 2, '__DEFAULT').setVisible(false);
-    this.nameT = txt(scene, 0, y + PAD, '', { color: PAL.yellow });
-    this.bodyT = txt(scene, 0, y + PAD + 12, '', { color: PAL.white, maxWidth: 300 });
-    this.arrow = scene.add.triangle(GAME_W - 16, y + BOX_H - 10, 0, 0, 6, 0, 3, 4, PAL.cyan).setOrigin(0, 0);
+    this.portrait = scene.add.image(12 + PAD + 44, y + BOX_H / 2, '__DEFAULT').setVisible(false);
+    this.nameT = txt(scene, 0, y + PAD, '', { color: PAL.yellow, big: true });
+    this.bodyT = txt(scene, 0, y + PAD + 18, '', { color: PAL.white, maxWidth: GAME_W - 200 });
+    this.arrow = scene.add.triangle(GAME_W - 28, y + BOX_H - 16, 0, 0, 8, 0, 4, 6, PAL.cyan).setOrigin(0, 0);
     this.root.add([this.g, this.portrait, this.nameT, this.bodyT, this.arrow]);
     this.root.setVisible(false);
-    scene.tweens.add({ targets: this.arrow, y: '+=2', yoyo: true, repeat: -1, duration: 300 });
+    scene.tweens.add({ targets: this.arrow, y: '+=3', yoyo: true, repeat: -1, duration: 300 });
   }
 
   get active(): boolean {
@@ -70,11 +70,11 @@ export class DialogueBox {
     this.shown = this.full.length;
     this.setBody(this.full);
     this.arrow.setVisible(false);
-    const y0 = GAME_H - BOX_H - 4 + PAD + (prompt?.text ? 28 : 12);
+    const y0 = GAME_H - BOX_H - 10 + PAD + (prompt?.text ? 36 : 14);
     const x0 = this.textX();
     this.choiceTexts.forEach((t) => t.destroy());
     this.choiceTexts = options.map((o, i) => {
-      const t = txt(this.scene, x0 + 10 + (i % 3) * 0 , y0 + i * 11, `[${i + 1}] ${o}`, { color: PAL.cyan });
+      const t = txt(this.scene, x0 + 10, y0 + i * 16, `[${i + 1}] ${o}`, { color: PAL.cyan, big: true });
       this.root.add(t);
       return t;
     });
@@ -142,26 +142,26 @@ export class DialogueBox {
   }
 
   private textX(): number {
-    return this.portrait.visible ? 4 + PAD + 64 + 8 : 4 + PAD + 4;
+    return this.portrait.visible ? 12 + PAD + 88 + 14 : 12 + PAD + 8;
   }
 
   private layout(l: BoxLine): void {
-    const y = GAME_H - BOX_H - 4;
+    const y = GAME_H - BOX_H - 10;
     this.g.clear();
-    drawPanel(this.g, 4, y, GAME_W - 8, BOX_H);
+    drawPanel(this.g, 12, y, GAME_W - 24, BOX_H);
     const hasP = !!l.portrait && this.scene.textures.exists(l.portrait);
     this.portrait.setVisible(hasP);
     if (hasP) {
-      this.portrait.setTexture(l.portrait!).setDisplaySize(64, 64);
-      drawPanel(this.g, 4 + PAD - 1, y + 2, 66, 66, { fill: PAL.teal, border: PAL.cyan, glow: false });
+      this.portrait.setTexture(l.portrait!).setDisplaySize(88, 88);
+      drawPanel(this.g, 12 + PAD, y + Math.round((BOX_H - 90) / 2), 90, 90, { fill: PAL.panel, border: PAL.cyan, glow: false });
       this.root.bringToTop(this.portrait);
     }
     const x = this.textX();
     this.nameT.setPosition(x, y + PAD);
     (this.nameT as any).setText(l.name ? l.name.toUpperCase() + ':' : '');
     if ('setTint' in this.nameT && this.nameT instanceof Phaser.GameObjects.BitmapText) this.nameT.setTint(l.color ?? PAL.yellow);
-    this.bodyT.setPosition(x, y + PAD + (l.name ? 12 : 4));
-    const mw = GAME_W - 8 - (x - 4) - PAD - 10;
+    this.bodyT.setPosition(x, y + PAD + (l.name ? 20 : 6));
+    const mw = GAME_W - 24 - (x - 12) - PAD - 20;
     if (this.bodyT instanceof Phaser.GameObjects.BitmapText) this.bodyT.setMaxWidth(mw);
     else this.bodyT.setWordWrapWidth(mw, true);
   }

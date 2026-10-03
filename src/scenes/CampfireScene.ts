@@ -47,10 +47,10 @@ export class CampfireScene extends Phaser.Scene {
     this.add.image(GAME_W / 2, GAME_H / 2, 'campfire_bg').setDisplaySize(GAME_W, GAME_H);
 
     // Weather: floating rising embers from fire pit
-    this.weatherHandle = addWeather(this, 'embers', { x: GAME_W / 2, y: 175 });
+    this.weatherHandle = addWeather(this, 'embers', { x: GAME_W / 2, y: 440 });
 
     // Animated central campfire
-    this.fireSprite = this.add.sprite(GAME_W / 2, 175, 'fire', 0).setDepth(200);
+    this.fireSprite = this.add.sprite(GAME_W / 2, 440, 'fire', 0).setDepth(200);
     this.fireSprite.play('anim_fire');
 
     // 6 Seated Friends around the fire
@@ -71,23 +71,23 @@ export class CampfireScene extends Phaser.Scene {
 
   private createPartyStatsHud(): void {
     const hg = this.add.graphics().setDepth(500);
-    drawPanel(hg, 4, 3, GAME_W - 8, 30, { fill: PAL.navy, border: PAL.steel });
+    drawPanel(hg, 16, 12, GAME_W - 32, 52, { fill: PAL.navy, border: PAL.steel });
 
-    txt(this, 8, 5, '[PARTY STATS]', { color: PAL.yellow });
+    txt(this, 30, 16, '[PARTY STATS - ROZDZIAŁ 7: OGNISKO]', { color: PAL.yellow });
 
     // Row 1
-    txt(this, 8, 14, 'DANNY [HP: 100/100]  |  ALIOR [MP: 85/85]  |  LISU [SPD: MAX]', { color: PAL.cyan });
+    txt(this, 30, 28, 'DANNY [HP: 100/100]  |  ALIOR [MP: 85/85]  |  LISU [SPD: MAX]', { color: PAL.cyan });
     // Row 2
-    txt(this, 8, 22, 'BARTI [BUFF: BASS]   |  OZIEM [FIRE: ON]   |  ŁUKI [RESCUE: READY]', { color: PAL.cyanHi });
+    txt(this, 30, 42, 'BARTI [BUFF: BASS]   |  OZIEM [FIRE: ON]   |  ŁUKI [RESCUE: READY]', { color: PAL.cyanHi });
   }
 
   private setupSeatedFriends(): void {
     // Left side heroes (facing right toward fire)
     const leftHeroes = ['danny', 'alior', 'lisu'];
     const leftPositions = [
-      { x: GAME_W / 2 - 65, y: 175 },
-      { x: GAME_W / 2 - 40, y: 185 },
-      { x: GAME_W / 2 - 85, y: 168 },
+      { x: GAME_W / 2 - 140, y: 440 },
+      { x: GAME_W / 2 - 90, y: 460 },
+      { x: GAME_W / 2 - 190, y: 430 },
     ];
 
     leftHeroes.forEach((hid, i) => {
@@ -100,9 +100,9 @@ export class CampfireScene extends Phaser.Scene {
     // Right side heroes (facing left toward fire)
     const rightHeroes = ['barti', 'oziem', 'luki'];
     const rightPositions = [
-      { x: GAME_W / 2 + 40, y: 185 },
-      { x: GAME_W / 2 + 65, y: 175 },
-      { x: GAME_W / 2 + 85, y: 168 },
+      { x: GAME_W / 2 + 90, y: 460 },
+      { x: GAME_W / 2 + 140, y: 440 },
+      { x: GAME_W / 2 + 190, y: 430 },
     ];
 
     rightHeroes.forEach((hid, i) => {
@@ -114,9 +114,9 @@ export class CampfireScene extends Phaser.Scene {
 
   private createActionBar(): void {
     const bg = this.add.graphics().setDepth(400);
-    drawPanel(bg, 4, GAME_H - 18, GAME_W - 8, 15, { fill: PAL.panel, border: PAL.steel });
+    drawPanel(bg, 16, GAME_H - 42, GAME_W - 32, 32, { fill: PAL.panel, border: PAL.steel });
 
-    txt(this, 16, GAME_H - 15, '[1] Dodaj drewna       [2] Puść O.S.T.R. z głośnika       [3] Wznieś toast', {
+    txt(this, 36, GAME_H - 32, '[1] Dodaj drewna       [2] Puść O.S.T.R. z głośnika       [3] Wznieś toast', {
       color: PAL.cyanHi,
     });
   }

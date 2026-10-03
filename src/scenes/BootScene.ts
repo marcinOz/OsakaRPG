@@ -36,6 +36,7 @@ export class BootScene extends Phaser.Scene {
     this.load.image('battle_marina_bg', 'assets/bg/battle_marina.png');
     this.load.image('battle_rift_bg', 'assets/bg/battle_rift.png');
     this.load.image('sunrise_bg', 'assets/bg/sunrise.png');
+    this.load.image('analyzer_bg', 'assets/bg/analyzer_bg.png');
 
     // UI Thumbnails
     this.load.image('thumb_group', 'assets/ui/thumb_group.png');
@@ -53,26 +54,26 @@ export class BootScene extends Phaser.Scene {
     this.load.image('tiles_marina', 'assets/tiles/marina.png');
 
     // Spritesheets
-    this.load.spritesheet('fire', 'assets/bg/fire.png', { frameWidth: 32, frameHeight: 40 });
-    this.load.spritesheet('enemy_bolKregoslupa', 'assets/enemies/bolKregoslupa.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_slacki', 'assets/enemies/slacki.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_sasiadSzkodnik', 'assets/enemies/sasiadSzkodnik.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_autoTuneHipster', 'assets/enemies/autoTuneHipster.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_drogiePiwo', 'assets/enemies/drogiePiwo.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_kark', 'assets/enemies/kark.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_straznik', 'assets/enemies/straznik.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_panJanusz', 'assets/enemies/panJanusz.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_kredyt', 'assets/enemies/kredyt.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_audyt', 'assets/enemies/audyt.png', { frameWidth: 48, frameHeight: 48 });
-    this.load.spritesheet('enemy_rwaKulszowa', 'assets/enemies/rwaKulszowa.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('fire', 'assets/bg/fire.png', { frameWidth: 64, frameHeight: 80 });
+    const bossEnemies = ['sasiadSzkodnik', 'kark', 'panJanusz', 'kredyt', 'audyt'];
+    const allEnemies = [
+      'bolKregoslupa', 'slacki', 'sasiadSzkodnik', 'autoTuneHipster', 'drogiePiwo',
+      'kark', 'straznik', 'panJanusz', 'kredyt', 'audyt', 'rwaKulszowa'
+    ];
+    for (const eid of allEnemies) {
+      const sz = bossEnemies.includes(eid) ? 128 : 96;
+      this.load.spritesheet(`enemy_${eid}`, `assets/enemies/${eid}.png`, { frameWidth: sz, frameHeight: sz });
+    }
 
     // Heroes
     for (const hid of HERO_IDS) {
+      this.load.image(`portrait_${hid}_128`, `assets/portraits/${hid}_128.png`);
       this.load.image(`portrait_${hid}_96`, `assets/portraits/${hid}_96.png`);
       this.load.image(`portrait_${hid}_64`, `assets/portraits/${hid}_64.png`);
-      this.load.spritesheet(`${hid}_walk`, `assets/sprites/${hid}_walk.png`, { frameWidth: 16, frameHeight: 24 });
-      this.load.spritesheet(`${hid}_battle`, `assets/sprites/${hid}_battle.png`, { frameWidth: 32, frameHeight: 40 });
-      this.load.spritesheet(`${hid}_sit`, `assets/sprites/${hid}_sit.png`, { frameWidth: 24, frameHeight: 24 });
+      this.load.image(`card_${hid}`, `assets/cards/${hid}.png`);
+      this.load.spritesheet(`${hid}_walk`, `assets/sprites/${hid}_walk.png`, { frameWidth: 32, frameHeight: 48 });
+      this.load.spritesheet(`${hid}_battle`, `assets/sprites/${hid}_battle.png`, { frameWidth: 64, frameHeight: 80 });
+      this.load.spritesheet(`${hid}_sit`, `assets/sprites/${hid}_sit.png`, { frameWidth: 32, frameHeight: 32 });
     }
 
     // Items
@@ -128,7 +129,7 @@ export class BootScene extends Phaser.Scene {
     for (const hid of HERO_IDS) {
       const dirs = ['down', 'left', 'right', 'up'];
       dirs.forEach((dir, r) => {
-        const start = r * 3;
+        const start = r * 4;
         const key = `anim_${hid}_walk_${dir}`;
         if (!this.anims.exists(key)) {
           this.anims.create({
@@ -137,7 +138,7 @@ export class BootScene extends Phaser.Scene {
               { key: `${hid}_walk`, frame: start },
               { key: `${hid}_walk`, frame: start + 1 },
               { key: `${hid}_walk`, frame: start + 2 },
-              { key: `${hid}_walk`, frame: start + 1 },
+              { key: `${hid}_walk`, frame: start + 3 },
             ],
             frameRate: 6,
             repeat: -1,

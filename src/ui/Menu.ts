@@ -18,19 +18,19 @@ export class Menu {
   private texts: TextObj[] = [];
   private cursor: Phaser.GameObjects.Triangle;
   idx = 0;
-  rowH = 11;
+  rowH = 18;
 
   constructor(private scene: Phaser.Scene, public x: number, public y: number, public w: number, private items: MenuItem[], depth = 900) {
     this.root = scene.add.container(0, 0).setDepth(depth).setScrollFactor(0);
     this.g = scene.add.graphics();
-    this.cursor = scene.add.triangle(0, 0, 0, 0, 4, 3, 0, 6, PAL.yellow).setOrigin(0, 0);
+    this.cursor = scene.add.triangle(0, 0, 0, 0, 6, 4, 0, 8, PAL.yellow).setOrigin(0, 0);
     this.root.add([this.g, this.cursor]);
     this.setItems(items);
     scene.tweens.add({ targets: this.cursor, x: '+=2', yoyo: true, repeat: -1, duration: 250 });
   }
 
   get h(): number {
-    return this.items.length * this.rowH + 8;
+    return this.items.length * this.rowH + 12;
   }
 
   setItems(items: MenuItem[]): void {
@@ -39,7 +39,7 @@ export class Menu {
     this.g.clear();
     drawPanel(this.g, this.x, this.y, this.w, this.h);
     this.texts = items.map((it, i) => {
-      const t = txt(this.scene, this.x + 12, this.y + 5 + i * this.rowH, it.label, { color: it.disabled ? PAL.grey : PAL.white });
+      const t = txt(this.scene, this.x + 16, this.y + 6 + i * this.rowH, it.label, { color: it.disabled ? PAL.grey : PAL.white, big: true });
       this.root.add(t);
       return t;
     });
@@ -70,7 +70,7 @@ export class Menu {
   }
 
   private place(): void {
-    this.cursor.setPosition(this.x + 4, this.y + 6 + this.idx * this.rowH);
+    this.cursor.setPosition(this.x + 6, this.y + 7 + this.idx * this.rowH);
     this.texts.forEach((t, i) => {
       const it = this.items[i];
       const c = it.disabled ? PAL.grey : i === this.idx ? PAL.yellow : PAL.white;

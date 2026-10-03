@@ -44,10 +44,10 @@ export class OutroScene extends Phaser.Scene {
 
   private setupSeatedFriends(): void {
     const heroes = ['danny', 'alior', 'lisu', 'barti', 'oziem', 'luki'];
-    const startX = GAME_W / 2 - 100;
+    const startX = GAME_W / 2 - 200;
     heroes.forEach((hid, i) => {
-      const x = startX + i * 40;
-      const y = 205;
+      const x = startX + i * 80;
+      const y = 485;
       const spr = this.add.sprite(x, y, `${hid}_sit`, 0).setDepth(100);
       spr.play(`anim_${hid}_sit`);
     });
@@ -71,31 +71,32 @@ export class OutroScene extends Phaser.Scene {
 
     // Dim overlay
     const overlay = this.add.graphics().setDepth(200);
-    overlay.fillStyle(0x00030b, 0.85);
+    overlay.fillStyle(0x00030b, 0.88);
     overlay.fillRect(0, 0, GAME_W, GAME_H);
 
     // Photo frame container
     const pg = this.add.graphics().setDepth(210);
-    drawPanel(pg, 40, 20, GAME_W - 80, GAME_H - 40, { fill: PAL.navy, border: PAL.yellow });
+    drawPanel(pg, 80, 40, GAME_W - 160, GAME_H - 80, { fill: PAL.navy, border: PAL.yellow });
 
-    txt(this, GAME_W / 2 - 120, 28, '★ FRIEND PACK ANALYZER v1.0 ★', { color: PAL.yellow, big: true });
-    txt(this, GAME_W / 2 - 110, 48, 'KRONIKA PRZYJAŹNI – LEGENDA LEŚNEGO OGNISKA', { color: PAL.cyanHi });
+    txt(this, GAME_W / 2, 60, '★ FRIEND PACK ANALYZER v1.0 ★', { color: PAL.yellow, big: true, origin: [0.5, 0.5] });
+    txt(this, GAME_W / 2, 85, 'KRONIKA PRZYJAŹNI – LEGENDA LEŚNEGO OGNISKA', { color: PAL.cyanHi, origin: [0.5, 0.5] });
 
-    // 6 Hero Portraits row in the commemorative frame
+    // 6 Hero Portraits row in the commemorative frame (using native uncompressed 96x96)
     const heroes = ['danny', 'alior', 'lisu', 'barti', 'oziem', 'luki'];
+    const startPx = GAME_W / 2 - 350;
     heroes.forEach((hid, i) => {
-      const px = 72 + i * 56;
-      const py = 95;
-      this.add.image(px, py, `portrait_${hid}_64`).setDisplaySize(48, 48).setDepth(220);
-      txt(this, px - 18, py + 28, hid.toUpperCase(), { color: PAL.white });
+      const px = startPx + i * 140;
+      const py = 190;
+      this.add.image(px, py, `portrait_${hid}_96`).setDisplaySize(88, 88).setDepth(220);
+      txt(this, px, py + 56, hid.toUpperCase(), { color: PAL.white, origin: [0.5, 0.5] });
     });
 
     // Stats summary
-    txt(this, 60, 150, `LIDER: ${this.state.leader.toUpperCase()}    CZAS: 2026 REUNION    STATUS: WOLNA EKIPA`, { color: PAL.green });
-    txt(this, 60, 166, 'POKONANE WYZWANIA: BÓL PLECÓW, SLACKI, SĄSIAD, HIPSTERZY, KARK, PAN JANUSZ', { color: PAL.cyan });
-    txt(this, 60, 182, 'DOROSŁOŚĆ: POKONANA    KLIMAT: 100%    FPS: 60 (BEZ LAGÓW)', { color: PAL.yellow });
+    txt(this, GAME_W / 2, 330, `LIDER: ${this.state.leader.toUpperCase()}    CZAS: 2026 REUNION    STATUS: WOLNA EKIPA`, { color: PAL.green, origin: [0.5, 0.5] });
+    txt(this, GAME_W / 2, 360, 'POKONANE WYZWANIA: BÓL PLECÓW, SLACKI, SĄSIAD, HIPSTERZY, KARK, PAN JANUSZ', { color: PAL.cyan, origin: [0.5, 0.5] });
+    txt(this, GAME_W / 2, 390, 'DOROSŁOŚĆ: POKONANA    KLIMAT: 100%    FPS: 60 (BEZ LAGÓW)', { color: PAL.yellow, origin: [0.5, 0.5] });
 
-    txt(this, GAME_W / 2 - 70, 215, '[ NACIŚNIJ SPACJA / Z ]', { color: PAL.fireHi });
+    txt(this, GAME_W / 2, 450, '[ NACIŚNIJ SPACJA / Z ]', { color: PAL.fireHi, origin: [0.5, 0.5] });
   }
 
   override update(_time: number, delta: number): void {

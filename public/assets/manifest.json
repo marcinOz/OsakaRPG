@@ -1,257 +1,208 @@
 {
+  "resolution": {
+    "width": 1024,
+    "height": 576,
+    "tile": 32
+  },
   "images": {
     "title_bg": "assets/bg/title.png",
     "campfire_bg": "assets/bg/campfire.png",
     "battle_apartment_bg": "assets/bg/battle_apartment.png",
     "battle_city_bg": "assets/bg/battle_city.png",
+    "battle_garage_bg": "assets/bg/battle_garage.png",
+    "battle_pub_bg": "assets/bg/battle_pub.png",
+    "battle_alley_bg": "assets/bg/battle_alley.png",
+    "battle_marina_bg": "assets/bg/battle_marina.png",
     "battle_forest_bg": "assets/bg/battle_forest.png",
+    "battle_rift_bg": "assets/bg/battle_rift.png",
+    "sunrise_bg": "assets/bg/sunrise.png",
+    "analyzer_bg": "assets/bg/analyzer_bg.png",
+    "tiles_apartment": "assets/tiles/apartment.png",
+    "tiles_city": "assets/tiles/city.png",
+    "tiles_garage": "assets/tiles/garage.png",
+    "tiles_pub": "assets/tiles/pub.png",
+    "tiles_alley": "assets/tiles/alley.png",
+    "tiles_marina": "assets/tiles/marina.png",
+    "tiles_forest": "assets/tiles/forest.png",
     "thumb_group": "assets/ui/thumb_group.png",
     "thumb_travel": "assets/ui/thumb_travel.png",
     "thumb_funny": "assets/ui/thumb_funny.png",
     "thumb_moments": "assets/ui/thumb_moments.png",
-    "tiles_apartment": "assets/tiles/apartment.png",
-    "tiles_city": "assets/tiles/city.png",
-    "tiles_forest": "assets/tiles/forest.png",
-    "battle_garage_bg": "assets/bg/battle_garage.png",
-    "battle_pub_bg": "assets/bg/battle_pub.png",
-    "tiles_garage": "assets/tiles/garage.png",
-    "tiles_pub": "assets/tiles/pub.png",
-    "battle_alley_bg": "assets/bg/battle_alley.png",
-    "battle_marina_bg": "assets/bg/battle_marina.png",
-    "battle_rift_bg": "assets/bg/battle_rift.png",
-    "sunrise_bg": "assets/bg/sunrise.png",
-    "tiles_alley": "assets/tiles/alley.png",
-    "tiles_marina": "assets/tiles/marina.png"
-  },
-  "portraits": {
+    "portrait_danny_128": "assets/portraits/danny_128.png",
     "portrait_danny_96": "assets/portraits/danny_96.png",
     "portrait_danny_64": "assets/portraits/danny_64.png",
+    "card_danny": "assets/cards/danny.png",
+    "portrait_alior_128": "assets/portraits/alior_128.png",
     "portrait_alior_96": "assets/portraits/alior_96.png",
     "portrait_alior_64": "assets/portraits/alior_64.png",
+    "card_alior": "assets/cards/alior.png",
+    "portrait_lisu_128": "assets/portraits/lisu_128.png",
     "portrait_lisu_96": "assets/portraits/lisu_96.png",
     "portrait_lisu_64": "assets/portraits/lisu_64.png",
+    "card_lisu": "assets/cards/lisu.png",
+    "portrait_barti_128": "assets/portraits/barti_128.png",
     "portrait_barti_96": "assets/portraits/barti_96.png",
     "portrait_barti_64": "assets/portraits/barti_64.png",
+    "card_barti": "assets/cards/barti.png",
+    "portrait_oziem_128": "assets/portraits/oziem_128.png",
     "portrait_oziem_96": "assets/portraits/oziem_96.png",
     "portrait_oziem_64": "assets/portraits/oziem_64.png",
+    "card_oziem": "assets/cards/oziem.png",
+    "portrait_luki_128": "assets/portraits/luki_128.png",
     "portrait_luki_96": "assets/portraits/luki_96.png",
-    "portrait_luki_64": "assets/portraits/luki_64.png"
-  },
-  "items": {
-    "item_shield": "assets/items/shield.png",
-    "item_gauntlets": "assets/items/gauntlets.png",
-    "item_shaker": "assets/items/shaker.png",
-    "item_controller": "assets/items/controller.png",
-    "item_cartridge": "assets/items/cartridge.png",
-    "item_goggles": "assets/items/goggles.png",
-    "item_binoculars": "assets/items/binoculars.png",
-    "item_fox": "assets/items/fox.png",
-    "item_sneakers": "assets/items/sneakers.png",
-    "item_vinyl": "assets/items/vinyl.png",
-    "item_turntable": "assets/items/turntable.png",
-    "item_speaker": "assets/items/speaker.png",
-    "item_rope": "assets/items/rope.png",
-    "item_multitool": "assets/items/multitool.png",
-    "item_campfire": "assets/items/campfire.png",
-    "item_divingGoggles": "assets/items/divingGoggles.png",
-    "item_lifebuoy": "assets/items/lifebuoy.png",
-    "item_backpack": "assets/items/backpack.png"
+    "portrait_luki_64": "assets/portraits/luki_64.png",
+    "card_luki": "assets/cards/luki.png"
   },
   "spritesheets": {
     "fire": {
       "path": "assets/bg/fire.png",
-      "frameWidth": 32,
-      "frameHeight": 40
+      "frameWidth": 64,
+      "frameHeight": 80
     },
     "enemy_bolKregoslupa": {
       "path": "assets/enemies/bolKregoslupa.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 96,
+      "frameHeight": 96
     },
     "enemy_slacki": {
       "path": "assets/enemies/slacki.png",
-      "frameWidth": 48,
-      "frameHeight": 48
-    },
-    "danny_walk": {
-      "path": "assets/sprites/danny_walk.png",
-      "frameWidth": 16,
-      "frameHeight": 24
-    },
-    "danny_battle": {
-      "path": "assets/sprites/danny_battle.png",
-      "frameWidth": 32,
-      "frameHeight": 40
-    },
-    "danny_sit": {
-      "path": "assets/sprites/danny_sit.png",
-      "frameWidth": 24,
-      "frameHeight": 24
-    },
-    "alior_walk": {
-      "path": "assets/sprites/alior_walk.png",
-      "frameWidth": 16,
-      "frameHeight": 24
-    },
-    "alior_battle": {
-      "path": "assets/sprites/alior_battle.png",
-      "frameWidth": 32,
-      "frameHeight": 40
-    },
-    "alior_sit": {
-      "path": "assets/sprites/alior_sit.png",
-      "frameWidth": 24,
-      "frameHeight": 24
-    },
-    "lisu_walk": {
-      "path": "assets/sprites/lisu_walk.png",
-      "frameWidth": 16,
-      "frameHeight": 24
-    },
-    "lisu_battle": {
-      "path": "assets/sprites/lisu_battle.png",
-      "frameWidth": 32,
-      "frameHeight": 40
-    },
-    "lisu_sit": {
-      "path": "assets/sprites/lisu_sit.png",
-      "frameWidth": 24,
-      "frameHeight": 24
-    },
-    "barti_walk": {
-      "path": "assets/sprites/barti_walk.png",
-      "frameWidth": 16,
-      "frameHeight": 24
-    },
-    "barti_battle": {
-      "path": "assets/sprites/barti_battle.png",
-      "frameWidth": 32,
-      "frameHeight": 40
-    },
-    "barti_sit": {
-      "path": "assets/sprites/barti_sit.png",
-      "frameWidth": 24,
-      "frameHeight": 24
-    },
-    "oziem_walk": {
-      "path": "assets/sprites/oziem_walk.png",
-      "frameWidth": 16,
-      "frameHeight": 24
-    },
-    "oziem_battle": {
-      "path": "assets/sprites/oziem_battle.png",
-      "frameWidth": 32,
-      "frameHeight": 40
-    },
-    "oziem_sit": {
-      "path": "assets/sprites/oziem_sit.png",
-      "frameWidth": 24,
-      "frameHeight": 24
-    },
-    "luki_walk": {
-      "path": "assets/sprites/luki_walk.png",
-      "frameWidth": 16,
-      "frameHeight": 24
-    },
-    "luki_battle": {
-      "path": "assets/sprites/luki_battle.png",
-      "frameWidth": 32,
-      "frameHeight": 40
-    },
-    "luki_sit": {
-      "path": "assets/sprites/luki_sit.png",
-      "frameWidth": 24,
-      "frameHeight": 24
-    },
-    "fx_shield": {
-      "path": "assets/fx/shield.png",
-      "frameWidth": 32,
-      "frameHeight": 32
-    },
-    "fx_glitch": {
-      "path": "assets/fx/glitch.png",
-      "frameWidth": 32,
-      "frameHeight": 32
-    },
-    "fx_smoke": {
-      "path": "assets/fx/smoke.png",
-      "frameWidth": 32,
-      "frameHeight": 32
-    },
-    "fx_bass": {
-      "path": "assets/fx/bass.png",
-      "frameWidth": 32,
-      "frameHeight": 32
-    },
-    "fx_leaves": {
-      "path": "assets/fx/leaves.png",
-      "frameWidth": 32,
-      "frameHeight": 32
-    },
-    "fx_splash": {
-      "path": "assets/fx/splash.png",
-      "frameWidth": 32,
-      "frameHeight": 32
-    },
-    "fx_hit": {
-      "path": "assets/fx/hit.png",
-      "frameWidth": 32,
-      "frameHeight": 32
+      "frameWidth": 96,
+      "frameHeight": 96
     },
     "enemy_sasiadSzkodnik": {
       "path": "assets/enemies/sasiadSzkodnik.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "enemy_autoTuneHipster": {
       "path": "assets/enemies/autoTuneHipster.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 96,
+      "frameHeight": 96
     },
     "enemy_drogiePiwo": {
       "path": "assets/enemies/drogiePiwo.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 96,
+      "frameHeight": 96
     },
     "enemy_kark": {
       "path": "assets/enemies/kark.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "enemy_straznik": {
       "path": "assets/enemies/straznik.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 96,
+      "frameHeight": 96
     },
     "enemy_panJanusz": {
       "path": "assets/enemies/panJanusz.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "enemy_kredyt": {
       "path": "assets/enemies/kredyt.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "enemy_audyt": {
       "path": "assets/enemies/audyt.png",
-      "frameWidth": 48,
-      "frameHeight": 48
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "enemy_rwaKulszowa": {
       "path": "assets/enemies/rwaKulszowa.png",
-      "frameWidth": 48,
-      "frameHeight": 48
-    }
-  },
-  "fonts": {
-    "pixel": {
-      "png": "assets/fonts/pixel.png",
-      "fnt": "assets/fonts/pixel.fnt"
+      "frameWidth": 96,
+      "frameHeight": 96
     },
-    "pixel_big": {
-      "png": "assets/fonts/pixel_big.png",
-      "fnt": "assets/fonts/pixel_big.fnt"
+    "danny_walk": {
+      "path": "assets/sprites/danny_walk.png",
+      "frameWidth": 32,
+      "frameHeight": 48
+    },
+    "danny_battle": {
+      "path": "assets/sprites/danny_battle.png",
+      "frameWidth": 64,
+      "frameHeight": 80
+    },
+    "danny_sit": {
+      "path": "assets/sprites/danny_sit.png",
+      "frameWidth": 32,
+      "frameHeight": 32
+    },
+    "alior_walk": {
+      "path": "assets/sprites/alior_walk.png",
+      "frameWidth": 32,
+      "frameHeight": 48
+    },
+    "alior_battle": {
+      "path": "assets/sprites/alior_battle.png",
+      "frameWidth": 64,
+      "frameHeight": 80
+    },
+    "alior_sit": {
+      "path": "assets/sprites/alior_sit.png",
+      "frameWidth": 32,
+      "frameHeight": 32
+    },
+    "lisu_walk": {
+      "path": "assets/sprites/lisu_walk.png",
+      "frameWidth": 32,
+      "frameHeight": 48
+    },
+    "lisu_battle": {
+      "path": "assets/sprites/lisu_battle.png",
+      "frameWidth": 64,
+      "frameHeight": 80
+    },
+    "lisu_sit": {
+      "path": "assets/sprites/lisu_sit.png",
+      "frameWidth": 32,
+      "frameHeight": 32
+    },
+    "barti_walk": {
+      "path": "assets/sprites/barti_walk.png",
+      "frameWidth": 32,
+      "frameHeight": 48
+    },
+    "barti_battle": {
+      "path": "assets/sprites/barti_battle.png",
+      "frameWidth": 64,
+      "frameHeight": 80
+    },
+    "barti_sit": {
+      "path": "assets/sprites/barti_sit.png",
+      "frameWidth": 32,
+      "frameHeight": 32
+    },
+    "oziem_walk": {
+      "path": "assets/sprites/oziem_walk.png",
+      "frameWidth": 32,
+      "frameHeight": 48
+    },
+    "oziem_battle": {
+      "path": "assets/sprites/oziem_battle.png",
+      "frameWidth": 64,
+      "frameHeight": 80
+    },
+    "oziem_sit": {
+      "path": "assets/sprites/oziem_sit.png",
+      "frameWidth": 32,
+      "frameHeight": 32
+    },
+    "luki_walk": {
+      "path": "assets/sprites/luki_walk.png",
+      "frameWidth": 32,
+      "frameHeight": 48
+    },
+    "luki_battle": {
+      "path": "assets/sprites/luki_battle.png",
+      "frameWidth": 64,
+      "frameHeight": 80
+    },
+    "luki_sit": {
+      "path": "assets/sprites/luki_sit.png",
+      "frameWidth": 32,
+      "frameHeight": 32
     }
   }
 }

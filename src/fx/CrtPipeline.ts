@@ -25,20 +25,20 @@ void main(void) {
         return;
     }
 
-    // Chromatic aberration
-    float ca = 0.0015;
+    // Chromatic aberration (tuned for 1024x576)
+    float ca = 0.0008;
     float r = texture2D(uMainSampler, vec2(uv.x + ca, uv.y)).r;
     float g = texture2D(uMainSampler, uv).g;
     float b = texture2D(uMainSampler, vec2(uv.x - ca, uv.y)).b;
     vec3 color = vec3(r, g, b);
 
-    // Scanlines (based on 270 vertical pixel rows)
-    float scanline = sin(uv.y * 270.0 * 3.14159) * 0.5 + 0.5;
-    color *= (0.85 + 0.15 * scanline);
+    // Scanlines (based on 576 vertical pixel rows)
+    float scanline = sin(uv.y * 576.0 * 3.14159) * 0.5 + 0.5;
+    color *= (0.92 + 0.08 * scanline);
 
     // Subtle vignette
     float vig = 16.0 * uv.x * uv.y * (1.0 - uv.x) * (1.0 - uv.y);
-    color *= clamp(pow(vig, 0.12), 0.0, 1.0);
+    color *= clamp(pow(vig, 0.08), 0.0, 1.0);
 
     gl_FragColor = vec4(color, 1.0);
 }

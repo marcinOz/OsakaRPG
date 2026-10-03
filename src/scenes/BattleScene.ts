@@ -68,9 +68,9 @@ export class BattleScene extends Phaser.Scene {
 
     // Bottom Combat Log Panel
     const lg = this.add.graphics();
-    drawPanel(lg, 4, GAME_H - 34, GAME_W - 8, 30, { fill: PAL.navy, border: PAL.steel });
+    drawPanel(lg, 16, GAME_H - 68, GAME_W - 32, 56, { fill: PAL.navy, border: PAL.steel });
     this.uiContainer.add(lg);
-    this.logText = txt(this, 12, GAME_H - 26, 'WALKA ROZPOCZĘTA!', { color: PAL.cyanHi });
+    this.logText = txt(this, 28, GAME_H - 52, 'WALKA ROZPOCZĘTA!', { color: PAL.cyanHi });
     this.uiContainer.add(this.logText);
 
     // Spawn Heroes on Right (facing left)
@@ -84,8 +84,8 @@ export class BattleScene extends Phaser.Scene {
 
   private heroCombatantsVisuals(): void {
     this.engine.heroes.forEach((h, i) => {
-      const hx = GAME_W - 80 - i * 36;
-      const hy = 110 + i * 40;
+      const hx = GAME_W - 160 - (i % 2) * 80;
+      const hy = 180 + i * 85;
       const spr = this.add.sprite(hx, hy, `${h.defId}_battle`, 0).setDepth(150);
       spr.setOrigin(0.5, 0.5);
       this.heroSprites.set(h.uid, spr);
@@ -94,8 +94,8 @@ export class BattleScene extends Phaser.Scene {
 
   private enemyCombatantsVisuals(): void {
     this.engine.enemies.forEach((e, i) => {
-      const ex = 80 + i * 45;
-      const ey = 120 + i * 35;
+      const ex = 180 + (i % 2) * 90;
+      const ey = 190 + i * 85;
       const spr = this.add.sprite(ex, ey, e.sprite ?? 'enemy_bolKregoslupa', 0).setDepth(150);
       spr.setOrigin(0.5, 0.5);
       if (this.anims.exists(`anim_${e.sprite}`)) {
@@ -134,22 +134,22 @@ export class BattleScene extends Phaser.Scene {
     this.engine.heroes.forEach((h, _i) => {
       const spr = this.heroSprites.get(h.uid);
       if (!spr) return;
-      const gx = spr.x - 24;
-      const gy = spr.y - 28;
+      const gx = spr.x - 36;
+      const gy = spr.y - 52;
 
       // Name & HP
-      gauge(this.gaugesGraphics, gx, gy, 48, 4, h.hp / h.max.hp, PAL.green);
-      gauge(this.gaugesGraphics, gx, gy + 5, 48, 3, h.mp / h.max.mp, PAL.cyan);
-      gauge(this.gaugesGraphics, gx, gy + 9, 48, 2, h.atb / 100, PAL.yellow);
+      gauge(this.gaugesGraphics, gx, gy, 72, 6, h.hp / h.max.hp, PAL.green);
+      gauge(this.gaugesGraphics, gx, gy + 8, 72, 5, h.mp / h.max.mp, PAL.cyan);
+      gauge(this.gaugesGraphics, gx, gy + 15, 72, 4, h.atb / 100, PAL.yellow);
     });
 
     // Render Enemy Gauges
     this.engine.enemies.forEach((e) => {
       const spr = this.enemySprites.get(e.uid);
       if (!spr || !e.alive) return;
-      const gx = spr.x - 20;
-      const gy = spr.y - 30;
-      gauge(this.gaugesGraphics, gx, gy, 40, 4, e.hp / e.max.hp, PAL.red);
+      const gx = spr.x - 45;
+      const gy = spr.y - 65;
+      gauge(this.gaugesGraphics, gx, gy, 90, 6, e.hp / e.max.hp, PAL.red);
     });
   }
 
@@ -218,7 +218,7 @@ export class BattleScene extends Phaser.Scene {
       { label: 'OBRONA' },
     ];
 
-    this.commandMenu = new Menu(this, 12, GAME_H - 100, 110, items, 950);
+    this.commandMenu = new Menu(this, 24, GAME_H - 220, 160, items, 950);
   }
 
   private handleCommandMenu(): void {
@@ -243,13 +243,13 @@ export class BattleScene extends Phaser.Scene {
         const sdef = SKILLS[sid];
         return { label: `${sdef.name} (${sdef.mpCost}MP)`, hint: sdef.description };
       });
-      this.subMenu = new Menu(this, 130, GAME_H - 100, 150, skillItems, 960);
+      this.subMenu = new Menu(this, 195, GAME_H - 220, 240, skillItems, 960);
     } else if (pick === 2) {
       // Items submenu
       this.commandMenu.setVisible(false);
       const itemKeys = Object.keys(this.state.inventory);
       const menuItems = itemKeys.map((k) => ({ label: `${ITEMS[k]?.name ?? k} x${this.state.inventory[k]}` }));
-      this.subMenu = new Menu(this, 130, GAME_H - 100, 140, menuItems, 960);
+      this.subMenu = new Menu(this, 195, GAME_H - 220, 220, menuItems, 960);
     } else if (pick === 3) {
       // Defend
       this.commandMenu.destroy();

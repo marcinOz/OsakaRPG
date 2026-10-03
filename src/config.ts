@@ -1,7 +1,7 @@
-/** Global render + layout constants. Internal resolution is 480x270 (16:9), integer-scaled. */
-export const GAME_W = 480;
-export const GAME_H = 270;
-export const TILE = 16;
+/** Global render + layout constants. Internal resolution is 1024x576 (16:9), integer-scaled. */
+export const GAME_W = 1024;
+export const GAME_H = 576;
+export const TILE = 32;
 
 /** Master palette – UI / environment base sampled from the Friend Pack Analyzer reference. */
 export const PAL = {
