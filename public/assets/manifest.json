@@ -28,6 +28,18 @@
     "thumb_travel": "assets/ui/thumb_travel.png",
     "thumb_funny": "assets/ui/thumb_funny.png",
     "thumb_moments": "assets/ui/thumb_moments.png",
+    "phone_frame": "assets/ui/phone_frame.png",
+    "avatar_group": "assets/ui/avatar_group.png",
+    "avatar_danny": "assets/ui/avatar_danny.png",
+    "avatar_alior": "assets/ui/avatar_alior.png",
+    "avatar_lisu": "assets/ui/avatar_lisu.png",
+    "avatar_barti": "assets/ui/avatar_barti.png",
+    "avatar_oziem": "assets/ui/avatar_oziem.png",
+    "avatar_luki": "assets/ui/avatar_luki.png",
+    "chat_bubble_in": "assets/ui/chat_bubble_in.png",
+    "chat_bubble_out": "assets/ui/chat_bubble_out.png",
+    "keycaps": "assets/ui/keycaps.png",
+    "keys_legend": "assets/ui/keys_legend.png",
     "portrait_danny_128": "assets/portraits/danny_128.png",
     "portrait_danny_96": "assets/portraits/danny_96.png",
     "portrait_danny_64": "assets/portraits/danny_64.png",
@@ -203,6 +215,16 @@
       "path": "assets/sprites/luki_sit.png",
       "frameWidth": 32,
       "frameHeight": 32
+    },
+    "exit_beacon": {
+      "path": "assets/fx/exit_beacon.png",
+      "frameWidth": 32,
+      "frameHeight": 48
+    },
+    "exit_locked": {
+      "path": "assets/fx/exit_locked.png",
+      "frameWidth": 32,
+      "frameHeight": 48
     }
   }
 }

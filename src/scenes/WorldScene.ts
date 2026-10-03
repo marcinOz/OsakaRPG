@@ -23,6 +23,82 @@ interface TrailPoint {
   dir: string;
 }
 
+interface MapExitDef {
+  x: number;
+  y: number;
+  targetMap: string;
+  targetX: number;
+  targetY: number;
+  isUnlocked: (state: GameData) => boolean;
+  lockedReason: string;
+}
+
+const MAP_EXITS: Record<string, MapExitDef> = {
+  apartment: {
+    x: 10,
+    y: 11,
+    targetMap: 'city',
+    targetX: 5,
+    targetY: 4,
+    isUnlocked: (_state) => true,
+    lockedReason: '',
+  },
+  city: {
+    x: 16,
+    y: 5,
+    targetMap: 'garage',
+    targetX: 2,
+    targetY: 5,
+    isUnlocked: (state) => hasFlag(state, 'bought_coffee'),
+    lockedReason: '[!] Najpierw muszę kupić kawę i elektrolity w Żabce!',
+  },
+  garage: {
+    x: 16,
+    y: 6,
+    targetMap: 'pub',
+    targetX: 2,
+    targetY: 5,
+    isUnlocked: (state) => hasFlag(state, 'danny_alior_joined'),
+    lockedReason: '[!] Najpierw musimy ogarnąć sprawę w garażu!',
+  },
+  pub: {
+    x: 16,
+    y: 6,
+    targetMap: 'alley',
+    targetX: 2,
+    targetY: 5,
+    isUnlocked: (state) => hasFlag(state, 'barti_joined'),
+    lockedReason: '[!] Najpierw musimy pomóc Bartiemu przy konsoli!',
+  },
+  alley: {
+    x: 16,
+    y: 5,
+    targetMap: 'marina',
+    targetX: 2,
+    targetY: 4,
+    isUnlocked: (state) => hasFlag(state, 'lisu_joined'),
+    lockedReason: '[!] Nie możemy iść dalej bez Lisa!',
+  },
+  marina: {
+    x: 14,
+    y: 4,
+    targetMap: 'forest',
+    targetX: 3,
+    targetY: 5,
+    isUnlocked: (state) => hasFlag(state, 'luki_joined'),
+    lockedReason: '[!] Najpierw musimy wyłowić Łukiego z wody!',
+  },
+  forest: {
+    x: 8,
+    y: 4,
+    targetMap: 'campfire',
+    targetX: 0,
+    targetY: 0,
+    isUnlocked: (state) => hasFlag(state, 'oziem_joined'),
+    lockedReason: '[!] Odszukajmy najpierw Oziema przy szałasie!',
+  },
+};
+
 export class WorldScene extends Phaser.Scene {
   private state!: GameData;
   private inputHandler!: Input;
@@ -38,6 +114,11 @@ export class WorldScene extends Phaser.Scene {
   private hudText!: Phaser.GameObjects.BitmapText | Phaser.GameObjects.Text;
   private isBusy = false;
   private currentMap = 'apartment';
+
+  private exitBeaconSprite: Phaser.GameObjects.Sprite | null = null;
+  private toastContainer: Phaser.GameObjects.Container | null = null;
+  private toastCooldown = 0;
+  private isPhoneOpen = false;
 
   private mapW = 18;
   private mapH = 12;
@@ -108,6 +189,10 @@ export class WorldScene extends Phaser.Scene {
     this.hudText = txt(this, 10, 8, '', { color: PAL.cyan });
     this.hudContainer.add(this.hudText);
     this.updateHud();
+
+    // Persistent Action Keys Legend HUD (560x28, frame 0 = overworld)
+    const legendImg = this.add.image(GAME_W / 2, GAME_H - 18, 'keys_legend', 0);
+    this.hudContainer.add(legendImg);
 
     this.dialogueBox = new DialogueBox(this, 1000);
     this.inputHandler = new Input(this);
@@ -221,6 +306,10 @@ export class WorldScene extends Phaser.Scene {
     this.propSprites = [];
     this.npcSprites.forEach((n) => n.destroy());
     this.npcSprites = [];
+    if (this.exitBeaconSprite) {
+      this.exitBeaconSprite.destroy();
+      this.exitBeaconSprite = null;
+    }
     this.solids = [];
     for (let y = 0; y < this.mapH; y++) {
       this.solids[y] = [];
@@ -244,6 +333,8 @@ export class WorldScene extends Phaser.Scene {
     } else if (mapName === 'forest') {
       this.buildForestMap();
     }
+
+    this.setupExitBeacon(mapName);
   }
 
   private buildApartmentMap(): void {
@@ -456,34 +547,304 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private async showPhonePopup(): Promise<void> {
-    const pop = this.add.container(GAME_W / 2, GAME_H / 2).setDepth(850).setScrollFactor(0);
-    const pg = this.add.graphics();
-    drawPanel(pg, -110, -70, 220, 140, { fill: PAL.panel, border: PAL.cyanHi });
-    pop.add(pg);
+    if (this.isPhoneOpen) return;
+    this.isPhoneOpen = true;
+    this.isBusy = true;
 
-    pop.add(txt(this, -90, -62, 'WHATSAPP: EKIPA 36+ [REUNION NIGHT]', { color: PAL.yellow }));
+    // Dark semi-transparent overlay
+    const overlay = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.65)
+      .setDepth(920)
+      .setScrollFactor(0)
+      .setInteractive();
 
-    CH01.groupChat.forEach((msg, i) => {
-      const isLeader = msg.from === this.state.leader;
-      const color = isLeader ? PAL.cyan : PAL.white;
-      pop.add(txt(this, -100, -42 + i * 16, `${msg.from.toUpperCase()}: ${msg.text}`, { color, maxWidth: 200 }));
+    // Centered smartphone modal container
+    const pop = this.add.container(GAME_W / 2, GAME_H / 2)
+      .setDepth(930)
+      .setScrollFactor(0);
+
+    // Phone frame (400x540)
+    const phone = this.add.image(0, 0, 'phone_frame');
+    pop.add(phone);
+
+    const leaderId = this.state.leader;
+    const isDannyLeader = leaderId === 'danny';
+
+    interface ChatMsg {
+      fromId: HeroId;
+      name: string;
+      color: string;
+      text: string;
+      time: string;
+      isOutgoing: boolean;
+    }
+
+    const messages: ChatMsg[] = [
+      {
+        fromId: isDannyLeader ? 'barti' : 'danny',
+        name: isDannyLeader ? 'Barti' : 'Danny',
+        color: isDannyLeader ? '#99BBFF' : '#FFAA33',
+        text: 'Siema ekipa! Dzisiaj o 20:00 zbiórka w garażu. Nie ma wymówek!',
+        time: '08:02',
+        isOutgoing: false,
+      },
+      {
+        fromId: 'alior',
+        name: 'Alior',
+        color: '#00FFFF',
+        text: 'Ogarnąłem projektor i UFC 300! Będą grane turnieje!',
+        time: '08:05',
+        isOutgoing: false,
+      },
+      {
+        fromId: 'lisu',
+        name: 'Lisu',
+        color: '#FF5555',
+        text: 'Kupiłem kiełbasy i browary, wbijam tyłami przez Starówkę!',
+        time: '08:09',
+        isOutgoing: false,
+      },
+      {
+        fromId: leaderId,
+        name: `${leaderId.toUpperCase()} (TY)`,
+        color: '#25D366',
+        text: 'Dobra, zbieram się z łóżka. Tylko ogarnę kawę w Żabce i lecę do garażu.',
+        time: '08:14 ✓✓',
+        isOutgoing: true,
+      },
+    ];
+
+    const startY = -120;
+    const rowStep = 74;
+
+    messages.forEach((m, idx) => {
+      const my = startY + idx * rowStep;
+      if (!m.isOutgoing) {
+        // Incoming bubble: Left side
+        const avatar = this.add.image(-158, my, `avatar_${m.fromId}`).setDisplaySize(32, 32);
+        pop.add(avatar);
+
+        const bubble = this.add.image(-10, my, 'chat_bubble_in');
+        pop.add(bubble);
+
+        const nameText = this.add.text(-138, my - 22, m.name, {
+          fontFamily: 'Helvetica Neue, Arial, sans-serif',
+          fontSize: '11px',
+          fontStyle: 'bold',
+          color: m.color,
+        });
+        pop.add(nameText);
+
+        const bodyText = this.add.text(-138, my - 8, m.text, {
+          fontFamily: 'Helvetica Neue, Arial, sans-serif',
+          fontSize: '10px',
+          color: '#E9EDEF',
+          wordWrap: { width: 205 },
+        });
+        pop.add(bodyText);
+
+        const timeText = this.add.text(105, my + 13, m.time, {
+          fontFamily: 'Helvetica Neue, Arial, sans-serif',
+          fontSize: '9px',
+          color: '#8696A0',
+        }).setOrigin(1, 0.5);
+        pop.add(timeText);
+      } else {
+        // Outgoing bubble: Right side
+        const bubble = this.add.image(10, my, 'chat_bubble_out');
+        pop.add(bubble);
+
+        const avatar = this.add.image(158, my, `avatar_${m.fromId}`).setDisplaySize(32, 32);
+        pop.add(avatar);
+
+        const nameText = this.add.text(-118, my - 22, m.name, {
+          fontFamily: 'Helvetica Neue, Arial, sans-serif',
+          fontSize: '11px',
+          fontStyle: 'bold',
+          color: m.color,
+        });
+        pop.add(nameText);
+
+        const bodyText = this.add.text(-118, my - 8, m.text, {
+          fontFamily: 'Helvetica Neue, Arial, sans-serif',
+          fontSize: '10px',
+          color: '#E9EDEF',
+          wordWrap: { width: 205 },
+        });
+        pop.add(bodyText);
+
+        const timeText = this.add.text(98, my + 13, m.time, {
+          fontFamily: 'Helvetica Neue, Arial, sans-serif',
+          fontSize: '9px',
+          color: '#8696A0',
+        }).setOrigin(1, 0.5);
+        pop.add(timeText);
+      }
     });
 
-    pop.add(txt(this, 0, 56, '[NACIŚNIJ ENTER / Z]', { color: PAL.silver, align: 'center', origin: [0.5, 0.5] }));
+    // Action button "[Z] DALEJ ▶"
+    const btnZone = this.add.zone(127, 228, 110, 36).setInteractive({ useHandCursor: true });
+    pop.add(btnZone);
+
+    // Initial entrance animation
+    pop.setScale(0.85);
+    pop.setAlpha(0);
+    this.tweens.add({
+      targets: pop,
+      scale: 1,
+      alpha: 1,
+      duration: 200,
+      ease: 'Back.easeOut',
+    });
+
     Audio.sfx('notification');
 
     await new Promise<void>((resolve) => {
+      let dismissed = false;
+
+      const dismiss = () => {
+        if (dismissed) return;
+        dismissed = true;
+        Audio.sfx('confirm');
+
+        this.tweens.add({
+          targets: [pop, overlay],
+          scale: 0.85,
+          alpha: 0,
+          duration: 180,
+          ease: 'Quad.easeIn',
+          onComplete: () => {
+            pop.destroy();
+            overlay.destroy();
+            this.isPhoneOpen = false;
+            this.isBusy = false;
+            resolve();
+          },
+        });
+      };
+
+      btnZone.on('pointerdown', dismiss);
+      overlay.on('pointerdown', dismiss);
+
       const checkInput = () => {
-        if (this.inputHandler.okOrTap()) {
-          Audio.sfx('confirm');
-          pop.destroy();
-          resolve();
+        if (dismissed) return;
+        if (this.inputHandler.okOrTap() || this.inputHandler.pressed('cancel') || this.inputHandler.pressed('menu')) {
+          dismiss();
         } else {
           this.time.delayedCall(50, checkInput);
         }
       };
       this.time.delayedCall(200, checkInput);
     });
+  }
+
+  private setupExitBeacon(mapName: string): void {
+    if (this.exitBeaconSprite) {
+      this.exitBeaconSprite.destroy();
+      this.exitBeaconSprite = null;
+    }
+
+    const exitDef = MAP_EXITS[mapName];
+    if (!exitDef) return;
+
+    const px = exitDef.x * TILE + TILE / 2;
+    const py = exitDef.y * TILE + TILE / 2;
+    const unlocked = exitDef.isUnlocked(this.state);
+
+    this.exitBeaconSprite = this.add.sprite(px, py, 'exit_beacon', 0);
+    this.exitBeaconSprite.setOrigin(0.5, 0.75);
+    this.exitBeaconSprite.setDepth(25);
+    this.exitBeaconSprite.play(unlocked ? 'anim_exit_beacon' : 'anim_exit_locked');
+
+    this.tweens.add({
+      targets: this.exitBeaconSprite,
+      y: py - 4,
+      duration: 800,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+  }
+
+  private updateExitBeacon(): void {
+    const exitDef = MAP_EXITS[this.currentMap];
+    if (!exitDef || !this.exitBeaconSprite) return;
+
+    const unlocked = exitDef.isUnlocked(this.state);
+    const targetKey = unlocked ? 'anim_exit_beacon' : 'anim_exit_locked';
+    if (this.exitBeaconSprite.anims.currentAnim?.key !== targetKey) {
+      this.exitBeaconSprite.play(targetKey);
+      if (unlocked) {
+        Audio.sfx('crit');
+        this.cameras.main.flash(150, 0, 255, 200);
+      }
+    }
+  }
+
+  private showToast(msg: string, force = false): void {
+    const now = this.time.now;
+    if (!force && now < this.toastCooldown) return;
+    this.toastCooldown = now + 1500;
+
+    if (this.toastContainer) {
+      this.toastContainer.destroy();
+      this.toastContainer = null;
+    }
+
+    Audio.sfx('hit');
+
+    const tc = this.add.container(GAME_W / 2, 42).setDepth(960).setScrollFactor(0);
+    const tg = this.add.graphics();
+    const padW = Math.max(360, msg.length * 9 + 40);
+    drawPanel(tg, -padW / 2, -16, padW, 32, { fill: PAL.void, border: PAL.red, glow: true });
+    tc.add(tg);
+
+    const t = txt(this, 0, 0, msg, { color: PAL.yellow, origin: [0.5, 0.5] });
+    tc.add(t);
+
+    tc.setAlpha(0);
+    this.tweens.add({
+      targets: tc,
+      alpha: 1,
+      duration: 150,
+      yoyo: true,
+      hold: 1800,
+      ease: 'Quad.easeInOut',
+      onComplete: () => {
+        tc.destroy();
+        if (this.toastContainer === tc) this.toastContainer = null;
+      },
+    });
+    this.toastContainer = tc;
+  }
+
+  private checkExitTriggers(): void {
+    if (this.isBusy || this.dialogueBox.active) return;
+    const exitDef = MAP_EXITS[this.currentMap];
+    if (!exitDef) return;
+
+    const px = this.playerSprite.x / TILE;
+    const py = this.playerSprite.y / TILE;
+    const exitCenterX = exitDef.x + 0.5;
+    const exitCenterY = exitDef.y + 0.5;
+
+    const dist = Phaser.Math.Distance.Between(px, py, exitCenterX, exitCenterY);
+    const actionPressed = this.inputHandler.okOrTap();
+
+    // Trigger condition: within 1.25 tiles, or within 1.6 tiles and action key pressed
+    if (dist <= 1.25 || (dist <= 1.6 && actionPressed)) {
+      const unlocked = exitDef.isUnlocked(this.state);
+      if (!unlocked) {
+        this.showToast(exitDef.lockedReason, actionPressed);
+      } else {
+        if (this.currentMap === 'marina') {
+          this.triggerBoatCrossing();
+        } else if (this.currentMap === 'forest') {
+          this.triggerForestCamp();
+        } else {
+          this.transitionToMap(exitDef.targetMap, exitDef.targetX, exitDef.targetY);
+        }
+      }
+    }
   }
 
   override update(_time: number, delta: number): void {
@@ -498,6 +859,12 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (this.isBusy) return;
+
+    // Check menu / phone shortcut (M / TAB)
+    if (!this.isPhoneOpen && this.inputHandler.pressed('menu')) {
+      this.showPhonePopup();
+      return;
+    }
 
     // Movement
     const axis = this.inputHandler.axis();
@@ -533,12 +900,14 @@ export class WorldScene extends Phaser.Scene {
       this.playerSprite.play(`anim_${this.state.leader}_walk_${dir}`, true);
 
       this.checkTriggers(tileX, tileY);
+      this.checkExitTriggers();
     } else {
       this.playerSprite.stop();
       this.followerSprites.forEach((spr) => {
         spr.stop();
         spr.setDepth(spr.y + 12);
       });
+      this.checkExitTriggers();
     }
   }
 
@@ -575,19 +944,9 @@ export class WorldScene extends Phaser.Scene {
         this.startSlackEncounter();
         return;
       }
-      if (x === 10 && y >= this.mapH - 1) {
-        this.transitionToMap('city', 5, 4);
-        return;
-      }
     } else if (this.currentMap === 'city') {
       if (x === 4 && y === 4 && !hasFlag(this.state, 'bought_coffee')) {
-        setFlag(this.state, 'bought_coffee', true);
         this.buyCoffee();
-        return;
-      }
-      if (x >= 16 && y === 5) {
-        // Enter Chapter 2 Garage!
-        this.transitionToMap('garage', 2, 5);
         return;
       }
     } else if (this.currentMap === 'garage') {
@@ -596,20 +955,10 @@ export class WorldScene extends Phaser.Scene {
         this.triggerGarageEncounter();
         return;
       }
-      // Exit garage to Pub
-      if (x >= 16 && y === 6 && hasFlag(this.state, 'danny_alior_joined')) {
-        this.transitionToMap('pub', 2, 5);
-        return;
-      }
     } else if (this.currentMap === 'pub') {
       // Approach Barti at DJ desk
       if ((x === 9 || x === 10) && (y === 4 || y === 5) && !hasFlag(this.state, 'pub_cleared')) {
         this.triggerPubEncounter();
-        return;
-      }
-      // Exit pub to Alley
-      if (x >= 16 && y === 6 && hasFlag(this.state, 'barti_joined')) {
-        this.transitionToMap('alley', 2, 5);
         return;
       }
     } else if (this.currentMap === 'alley') {
@@ -618,20 +967,10 @@ export class WorldScene extends Phaser.Scene {
         this.triggerAlleyEncounter();
         return;
       }
-      // Exit alley to Marina (Chapter 5)
-      if (x >= 16 && y === 5 && hasFlag(this.state, 'lisu_joined')) {
-        this.transitionToMap('marina', 2, 4);
-        return;
-      }
     } else if (this.currentMap === 'marina') {
       // Approach Łuki at pier edge (x: 10, y: 4)
       if ((x === 9 || x === 10) && (y === 3 || y === 4 || y === 5) && !hasFlag(this.state, 'luki_rescued')) {
         this.triggerMarinaRescue();
-        return;
-      }
-      // Board boat to forest (x: 14, y: 4)
-      if ((x === 14 || x === 15) && (y === 4 || y === 5) && hasFlag(this.state, 'luki_joined')) {
-        this.triggerBoatCrossing();
         return;
       }
     } else if (this.currentMap === 'forest') {
@@ -680,7 +1019,9 @@ export class WorldScene extends Phaser.Scene {
   private async buyCoffee(): Promise<void> {
     this.isBusy = true;
     removeWorldStatus(this.state, 'kacGigant');
+    setFlag(this.state, 'bought_coffee', true);
     this.updateHud();
+    this.updateExitBeacon();
 
     const runner = new DialogueRunner(CH01.city.kioskBuy, this.state.leader);
     await this.dialogueBox.play(runner.allResolved());
@@ -805,6 +1146,7 @@ export class WorldScene extends Phaser.Scene {
     addToParty(this.state, 'alior');
     this.syncFollowerSprites();
     this.updateHud();
+    this.updateExitBeacon();
 
     const runner = new DialogueRunner(CH02.afterBoss, this.state.leader);
     await this.dialogueBox.play(runner.allResolved());
@@ -845,6 +1187,7 @@ export class WorldScene extends Phaser.Scene {
     addToParty(this.state, 'barti');
     this.syncFollowerSprites();
     this.updateHud();
+    this.updateExitBeacon();
 
     const runner = new DialogueRunner(CH03.afterFight, this.state.leader);
     await this.dialogueBox.play(runner.allResolved());
@@ -888,6 +1231,7 @@ export class WorldScene extends Phaser.Scene {
     addToParty(this.state, 'lisu');
     this.syncFollowerSprites();
     this.updateHud();
+    this.updateExitBeacon();
 
     const runner = new DialogueRunner(CH04.afterKark, this.state.leader, this.state.party);
     await this.dialogueBox.play(runner.allResolved());
@@ -914,6 +1258,7 @@ export class WorldScene extends Phaser.Scene {
       addToParty(this.state, 'luki');
       this.syncFollowerSprites();
       this.updateHud();
+      this.updateExitBeacon();
 
       const mSuccess = new DialogueRunner(CH05.rescueSuccess, this.state.leader, this.state.party);
       await this.dialogueBox.play(mSuccess.allResolved());

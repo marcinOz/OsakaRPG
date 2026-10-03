@@ -137,10 +137,7 @@ export class CampfireScene extends Phaser.Scene {
     const bg = this.add.graphics().setDepth(400);
     drawPanel(bg, 16, GAME_H - 46, GAME_W - 32, 38, { fill: PAL.panel, border: PAL.steel, glow: true });
 
-    txt(this, GAME_W / 2, GAME_H - 28, '[ 1 ] Dorzuć drewna do ognia       [ 2 ] Puść O.S.T.R. z głośnika       [ 3 ] Wznieś toast za ekipę', {
-      color: PAL.cyanHi,
-      origin: [0.5, 0.5],
-    });
+    this.add.image(GAME_W / 2, GAME_H - 27, 'keys_legend', 2).setDepth(500);
   }
 
   private async playCampfireIntro(): Promise<void> {

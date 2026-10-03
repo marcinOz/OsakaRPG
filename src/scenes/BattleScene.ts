@@ -101,6 +101,12 @@ export class BattleScene extends Phaser.Scene {
     this.enemyCombatantsVisuals();
 
     this.inputHandler = new Input(this);
+
+    // Action Keys Legend HUD (frame 1 = battle)
+    const legendImg = this.add.image(GAME_W / 2, 16, 'keys_legend', 1)
+      .setDepth(850)
+      .setScrollFactor(0);
+    this.uiContainer.add(legendImg);
   }
 
   private heroCombatantsVisuals(): void {

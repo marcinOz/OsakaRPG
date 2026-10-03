@@ -38,11 +38,25 @@ export class BootScene extends Phaser.Scene {
     this.load.image('sunrise_bg', 'assets/bg/sunrise.png');
     this.load.image('analyzer_bg', 'assets/bg/analyzer_bg.png');
 
-    // UI Thumbnails
+    // UI Thumbnails & Phone Modal
     this.load.image('thumb_group', 'assets/ui/thumb_group.png');
     this.load.image('thumb_travel', 'assets/ui/thumb_travel.png');
     this.load.image('thumb_funny', 'assets/ui/thumb_funny.png');
     this.load.image('thumb_moments', 'assets/ui/thumb_moments.png');
+    this.load.image('phone_frame', 'assets/ui/phone_frame.png');
+    this.load.image('avatar_group', 'assets/ui/avatar_group.png');
+    this.load.image('avatar_danny', 'assets/ui/avatar_danny.png');
+    this.load.image('avatar_alior', 'assets/ui/avatar_alior.png');
+    this.load.image('avatar_lisu', 'assets/ui/avatar_lisu.png');
+    this.load.image('avatar_barti', 'assets/ui/avatar_barti.png');
+    this.load.image('avatar_oziem', 'assets/ui/avatar_oziem.png');
+    this.load.image('avatar_luki', 'assets/ui/avatar_luki.png');
+    this.load.image('chat_bubble_in', 'assets/ui/chat_bubble_in.png');
+    this.load.image('chat_bubble_out', 'assets/ui/chat_bubble_out.png');
+    this.load.image('keycaps', 'assets/ui/keycaps.png');
+    this.load.spritesheet('keys_legend', 'assets/ui/keys_legend.png', { frameWidth: 560, frameHeight: 28 });
+    this.load.spritesheet('exit_beacon', 'assets/fx/exit_beacon.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('exit_locked', 'assets/fx/exit_locked.png', { frameWidth: 32, frameHeight: 48 });
 
     // Tilesets
     this.load.image('tiles_apartment', 'assets/tiles/apartment.png');
@@ -206,6 +220,24 @@ export class BootScene extends Phaser.Scene {
           repeat: 0,
         });
       }
+    }
+
+    // Exit beacons
+    if (!this.anims.exists('anim_exit_beacon')) {
+      this.anims.create({
+        key: 'anim_exit_beacon',
+        frames: this.anims.generateFrameNumbers('exit_beacon', { start: 0, end: 3 }),
+        frameRate: 6,
+        repeat: -1,
+      });
+    }
+    if (!this.anims.exists('anim_exit_locked')) {
+      this.anims.create({
+        key: 'anim_exit_locked',
+        frames: this.anims.generateFrameNumbers('exit_locked', { start: 0, end: 3 }),
+        frameRate: 6,
+        repeat: -1,
+      });
     }
   }
 }
