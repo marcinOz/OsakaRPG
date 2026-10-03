@@ -26,6 +26,7 @@ export class BattleScene extends Phaser.Scene {
   private logText!: Phaser.GameObjects.BitmapText | Phaser.GameObjects.Text;
   private commandMenu: Menu | null = null;
   private subMenu: Menu | null = null;
+  private subMenuMode: 'skill' | 'item' = 'skill';
 
   private returnScene = 'World';
   private bgKey = 'battle_apartment_bg';
@@ -222,13 +223,13 @@ export class BattleScene extends Phaser.Scene {
   override update(_time: number, delta: number): void {
     this.renderGauges();
 
-    if (this.commandMenu) {
-      this.handleCommandMenu();
+    if (this.subMenu) {
+      this.handleSubMenu();
       return;
     }
 
-    if (this.subMenu) {
-      this.handleSubMenu();
+    if (this.commandMenu) {
+      this.handleCommandMenu();
       return;
     }
 
@@ -315,10 +316,27 @@ export class BattleScene extends Phaser.Scene {
           }
         }
       } else if (ev.type === 'heal') {
-        const targetSpr = this.heroSprites.get(ev.uid);
+        const targetSpr = this.heroSprites.get(ev.uid) ?? this.enemySprites.get(ev.uid);
         if (targetSpr) {
           damageNumber(this, targetSpr.x, targetSpr.y, `+${ev.amount}`, PAL.green);
         }
+      } else if (ev.type === 'mp') {
+        const targetSpr = this.heroSprites.get(ev.uid);
+        if (targetSpr && ev.delta !== 0) {
+          damageNumber(this, targetSpr.x, targetSpr.y - 14, `${ev.delta > 0 ? '+' : ''}${ev.delta} MP`, PAL.cyan);
+        }
+      } else if (ev.type === 'revive') {
+        const hspr = this.heroSprites.get(ev.uid);
+        const hero = this.engine.heroes.find((h) => h.uid === ev.uid);
+        if (hspr && hero) {
+          hspr.setAlpha(1);
+          if (this.anims.exists(`anim_${hero.defId}_battle_idle`)) {
+            hspr.play(`anim_${hero.defId}_battle_idle`);
+          }
+          damageNumber(this, hspr.x, hspr.y, 'POWRÓT!', PAL.cyanHi);
+        }
+      } else if (ev.type === 'item') {
+        Audio.sfx('confirm');
       } else if (ev.type === 'miss') {
         const targetSpr = this.heroSprites.get(ev.uid) ?? this.enemySprites.get(ev.uid);
         if (targetSpr) {
@@ -362,9 +380,9 @@ export class BattleScene extends Phaser.Scene {
           }
         }
         // Play corresponding signature sound effect
-        if (ev.skillId in Audio) {
-          (Audio as any)[ev.skillId]?.();
-        } else {
+        try {
+          Audio.sfx(ev.skillId as any);
+        } catch {
           Audio.sfx('hit');
         }
       } else if (ev.type === 'ko') {
@@ -411,13 +429,15 @@ export class BattleScene extends Phaser.Scene {
     if (!hero) return;
 
     const items = [
-      { label: 'ATAK' },
-      { label: 'UMIEJĘTNOŚĆ' },
-      { label: 'PRZEDMIOT' },
-      { label: 'OBRONA' },
+      { label: 'ATAK', hint: 'Podstawowy atak fizyczny na wroga.' },
+      { label: 'UMIEJĘTNOŚĆ', hint: 'Użyj unikalnej umiejętności bojowej.', disabled: !hero.skills || hero.skills.length === 0 },
+      { label: 'PRZEDMIOT', hint: 'Użyj przedmiotu z ekwipunku drużyny.', disabled: Object.keys(this.state.inventory).length === 0 },
+      { label: 'OBRONA', hint: 'Przyjmij postawę obronną (-50% obrażeń, redukcja stresu).' },
     ];
 
-    this.commandMenu = new Menu(this, 24, GAME_H - 220, 160, items, 950);
+    this.commandMenu = new Menu(this, 24, GAME_H - 220, 160, items, 950, (it) => {
+      if (it.hint) (this.logText as any).setText(it.hint);
+    });
   }
 
   private handleCommandMenu(): void {
@@ -438,17 +458,39 @@ export class BattleScene extends Phaser.Scene {
     } else if (pick === 1) {
       // Skills submenu
       this.commandMenu.setVisible(false);
+      this.subMenuMode = 'skill';
       const skillItems = hero.skills.map((sid) => {
         const sdef = SKILLS[sid];
-        return { label: `${sdef.name} (${sdef.mpCost}MP)`, hint: sdef.description };
+        const canAfford = sdef ? hero.mp >= sdef.mpCost : false;
+        return {
+          label: `${sdef?.name ?? sid} (${sdef?.mpCost ?? 0}MP)`,
+          hint: sdef ? `${sdef.description} (Koszt: ${sdef.mpCost} MP)` : undefined,
+          disabled: !canAfford,
+        };
       });
-      this.subMenu = new Menu(this, 195, GAME_H - 220, 240, skillItems, 960);
+      this.subMenu = new Menu(this, 195, GAME_H - 220, 260, skillItems, 960, (it) => {
+        if (it.hint) (this.logText as any).setText(it.hint);
+      });
     } else if (pick === 2) {
       // Items submenu
       this.commandMenu.setVisible(false);
-      const itemKeys = Object.keys(this.state.inventory);
-      const menuItems = itemKeys.map((k) => ({ label: `${ITEMS[k]?.name ?? k} x${this.state.inventory[k]}` }));
-      this.subMenu = new Menu(this, 195, GAME_H - 220, 220, menuItems, 960);
+      this.subMenuMode = 'item';
+      const itemKeys = Object.keys(this.state.inventory).filter((k) => this.state.inventory[k] > 0);
+      if (itemKeys.length === 0) {
+        (this.logText as any).setText('Brak przedmiotów w ekwipunku!');
+        this.commandMenu.setVisible(true);
+        return;
+      }
+      const menuItems = itemKeys.map((k) => {
+        const idef = ITEMS[k];
+        return {
+          label: `${idef?.name ?? k} x${this.state.inventory[k]}`,
+          hint: idef?.description,
+        };
+      });
+      this.subMenu = new Menu(this, 195, GAME_H - 220, 240, menuItems, 960, (it) => {
+        if (it.hint) (this.logText as any).setText(it.hint);
+      });
     } else if (pick === 3) {
       // Defend
       this.commandMenu.destroy();
@@ -469,16 +511,41 @@ export class BattleScene extends Phaser.Scene {
       this.subMenu.destroy();
       this.subMenu = null;
       this.commandMenu?.setVisible(true);
+      const curr = this.commandMenu?.selectedItem;
+      if (curr?.hint) {
+        (this.logText as any).setText(curr.hint);
+      } else {
+        (this.logText as any).setText(`Tura: ${hero.name}. Wybierz działanie.`);
+      }
     } else if (pick >= 0) {
-      const skillId = hero.skills[pick];
-      this.subMenu.destroy();
-      this.subMenu = null;
-      this.commandMenu?.destroy();
-      this.commandMenu = null;
+      if (this.subMenuMode === 'skill') {
+        const skillId = hero.skills[pick];
+        if (!skillId) return;
+        this.subMenu.destroy();
+        this.subMenu = null;
+        this.commandMenu?.destroy();
+        this.commandMenu = null;
 
-      const foe = this.engine.enemies.find((e) => e.alive);
-      const evs = this.engine.act(hero.uid, skillId, foe?.uid);
-      this.processBattleEvents(evs);
+        const foe = this.engine.enemies.find((e) => e.alive);
+        const evs = this.engine.act(hero.uid, skillId, foe?.uid);
+        this.processBattleEvents(evs);
+      } else if (this.subMenuMode === 'item') {
+        const itemKeys = Object.keys(this.state.inventory).filter((k) => this.state.inventory[k] > 0);
+        const itemId = itemKeys[pick];
+        this.subMenu.destroy();
+        this.subMenu = null;
+        this.commandMenu?.destroy();
+        this.commandMenu = null;
+
+        if (itemId && this.state.inventory[itemId]) {
+          this.state.inventory[itemId]--;
+          if (this.state.inventory[itemId] <= 0) {
+            delete this.state.inventory[itemId];
+          }
+          const evs = this.engine.useItem(hero.uid, itemId);
+          this.processBattleEvents(evs);
+        }
+      }
     }
   }
 

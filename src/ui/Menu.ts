@@ -20,7 +20,15 @@ export class Menu {
   idx = 0;
   rowH = 18;
 
-  constructor(private scene: Phaser.Scene, public x: number, public y: number, public w: number, private items: MenuItem[], depth = 900) {
+  constructor(
+    private scene: Phaser.Scene,
+    public x: number,
+    public y: number,
+    public w: number,
+    private items: MenuItem[],
+    depth = 900,
+    private onHover?: (item: MenuItem, index: number) => void
+  ) {
     this.root = scene.add.container(0, 0).setDepth(depth).setScrollFactor(0);
     this.g = scene.add.graphics();
     this.cursor = scene.add.triangle(0, 0, 0, 0, 6, 4, 0, 8, PAL.yellow).setOrigin(0, 0);
@@ -33,6 +41,10 @@ export class Menu {
     return this.items.length * this.rowH + 12;
   }
 
+  get selectedItem(): MenuItem | undefined {
+    return this.items[this.idx];
+  }
+
   setItems(items: MenuItem[]): void {
     this.items = items;
     this.texts.forEach((t) => t.destroy());
@@ -43,12 +55,13 @@ export class Menu {
       this.root.add(t);
       return t;
     });
-    this.idx = Math.min(this.idx, items.length - 1);
+    this.idx = Math.min(this.idx, Math.max(0, items.length - 1));
     this.place();
   }
 
   setVisible(v: boolean): this {
     this.root.setVisible(v);
+    if (v) this.place();
     return this;
   }
 
@@ -66,6 +79,21 @@ export class Menu {
       Audio.sfx('confirm');
       return this.idx;
     }
+    const tap = input.tap();
+    if (tap && tap.x >= this.x && tap.x <= this.x + this.w && tap.y >= this.y && tap.y <= this.y + this.h) {
+      const clickedIdx = Math.floor((tap.y - (this.y + 6)) / this.rowH);
+      if (clickedIdx >= 0 && clickedIdx < this.items.length) {
+        if (clickedIdx === this.idx) {
+          if (this.items[this.idx].disabled) { Audio.sfx('miss'); return -1; }
+          Audio.sfx('confirm');
+          return this.idx;
+        } else {
+          this.idx = clickedIdx;
+          Audio.sfx('cursor');
+          this.place();
+        }
+      }
+    }
     return -1;
   }
 
@@ -77,5 +105,8 @@ export class Menu {
       if (t instanceof Phaser.GameObjects.BitmapText) t.setTint(c);
       else t.setColor('#' + c.toString(16).padStart(6, '0'));
     });
+    if (this.onHover && this.items[this.idx]) {
+      this.onHover(this.items[this.idx], this.idx);
+    }
   }
 }
