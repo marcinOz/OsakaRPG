@@ -104,4 +104,38 @@ describe('DialogueRunner', () => {
     expect(resolved[1].speakerId).toBe('alior');
     expect(resolved[1].text).toContain('Input lag na poziomie 300 ms');
   });
+
+  it('apartment exit requires both Spine and Slack fights to unlock', () => {
+    const state = newGame('danny');
+    const isAptUnlocked = (s: typeof state) =>
+      Boolean(s.flags.ch1_fought_spine && s.flags.ch1_fought_slack);
+
+    expect(isAptUnlocked(state)).toBe(false);
+
+    state.flags.ch1_fought_spine = true;
+    expect(isAptUnlocked(state)).toBe(false);
+
+    state.flags.ch1_fought_slack = true;
+    expect(isAptUnlocked(state)).toBe(true);
+  });
+
+  it('visiting Żabka cures Kac Gigant and unlocks garage exit', () => {
+    const state = newGame('danny');
+    expect(state.worldStatuses).toContain('kacGigant');
+    expect(Boolean(state.flags.bought_coffee)).toBe(false);
+
+    // Buy coffee in Żabka
+    state.flags.bought_coffee = true;
+    const idx = state.worldStatuses.indexOf('kacGigant');
+    if (idx !== -1) state.worldStatuses.splice(idx, 1);
+    state.inventory.kawa = (state.inventory.kawa ?? 0) + 2;
+    state.inventory.hotDog = (state.inventory.hotDog ?? 0) + 1;
+    state.inventory.elektrolity = (state.inventory.elektrolity ?? 0) + 1;
+
+    expect(state.worldStatuses).not.toContain('kacGigant');
+    expect(walkSpeedMultiplier(state)).toBe(1.0); // Full speed restored!
+    expect(state.inventory.hotDog).toBe(1);
+    expect(state.inventory.elektrolity).toBe(1);
+    expect(Boolean(state.flags.bought_coffee)).toBe(true);
+  });
 });

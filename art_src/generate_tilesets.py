@@ -19,7 +19,7 @@ os.makedirs(OUT_DIR, exist_ok=True)
 DARK_PLUM = (24, 16, 22, 255)
 
 def save_tileset(name, tiles):
-    sheet = Image.new("RGBA", (256, 32), (0, 0, 0, 0))
+    sheet = Image.new("RGBA", (len(tiles) * 32, 32), (0, 0, 0, 0))
     for i, t in enumerate(tiles):
         sheet.paste(t, (i * 32, 0))
     path = os.path.join(OUT_DIR, f"{name}.png")
@@ -177,40 +177,190 @@ def build_city():
     d4.rectangle([0, 14, 32, 20], fill=(195, 200, 210, 255), outline=(100, 105, 115, 255)) # granite curb
     tiles.append(t4)
 
-    # Tile 5: Żabka store green neon sign & shop window
+    # Tile 5: Żabka store neon signboard awning (bright green with yellow frog arc)
     t5 = t2.copy()
     d5 = ImageDraw.Draw(t5)
     # Bright green neon signboard
-    d5.rectangle([2, 4, 30, 16], fill=(15, 140, 45, 255), outline=(220, 255, 200, 255))
+    d5.rectangle([1, 4, 31, 18], fill=(12, 138, 42, 255), outline=(180, 255, 160, 255))
+    d5.line([(1, 18), (31, 18)], fill=(8, 90, 28, 255), width=2)
     # Żabka frog smile logo
-    d5.arc([10, 6, 22, 14], 0, 180, fill=(240, 255, 220, 255), width=2)
-    d5.point((12, 8), fill=(240, 255, 220, 255))
-    d5.point((20, 8), fill=(240, 255, 220, 255))
-    # Shop window
-    d5.rectangle([4, 18, 28, 30], fill=(180, 235, 210, 200), outline=(20, 50, 30, 255))
+    d5.arc([9, 6, 23, 16], 0, 180, fill=(240, 255, 210, 255), width=2)
+    d5.point((12, 9), fill=(240, 255, 210, 255))
+    d5.point((20, 9), fill=(240, 255, 210, 255))
+    # Awning shadow
+    d5.rectangle([2, 20, 30, 31], fill=(20, 35, 25, 255), outline=(10, 20, 15, 255))
     tiles.append(t5)
 
-    # Tile 6: Cast-iron streetlamp with warm sodium glow
+    # Tile 6: Automatic glass sliding entrance door with green frame & welcome mat
     t6 = t1.copy()
     d6 = ImageDraw.Draw(t6)
-    # Warm glow halo
-    d6.ellipse([4, 0, 28, 24], fill=(255, 210, 80, 80))
-    # Cast iron post
-    d6.line([(16, 8), (16, 30)], fill=(25, 28, 35, 255), width=3)
-    d6.ellipse([12, 28, 20, 31], fill=(25, 28, 35, 255)) # base
-    # Lamp head
-    d6.polygon([(11, 8), (21, 8), (18, 2), (14, 2)], fill=(25, 28, 35, 255))
-    d6.rectangle([13, 5, 19, 8], fill=(255, 240, 120, 255))
+    # Green metallic door frame
+    d6.rectangle([3, 0, 29, 28], fill=(22, 150, 52, 255), outline=(10, 70, 25, 255))
+    # Glass sliding panels with reflections
+    d6.rectangle([5, 2, 14, 25], fill=(160, 225, 240, 220), outline=(10, 80, 30, 255))
+    d6.rectangle([17, 2, 26, 25], fill=(160, 225, 240, 220), outline=(10, 80, 30, 255))
+    # Cyan glass reflection shine
+    d6.line([(7, 4), (12, 20)], fill=(230, 255, 255, 200), width=2)
+    d6.line([(19, 4), (24, 20)], fill=(230, 255, 255, 200), width=2)
+    # Door handles
+    d6.line([(13, 11), (13, 17)], fill=(240, 240, 245, 255), width=2)
+    d6.line([(18, 11), (18, 17)], fill=(240, 240, 245, 255), width=2)
+    # Green welcome doormat in front
+    d6.rounded_rectangle([4, 26, 28, 31], radius=2, fill=(16, 120, 38, 255), outline=(8, 60, 20, 255))
     tiles.append(t6)
 
-    # Tile 7: Crosswalk / exit transition
-    t7 = t0.copy()
+    # Tile 7: Żabka showcase display window (drinks & hot-dog neon glow)
+    t7 = t2.copy()
     d7 = ImageDraw.Draw(t7)
-    for x in range(2, 32, 8):
-        d7.rectangle([x, 4, x + 4, 28], fill=(245, 245, 250, 255))
+    d7.rectangle([3, 2, 29, 28], fill=(18, 85, 40, 255), outline=(10, 50, 22, 255))
+    d7.rectangle([5, 4, 27, 26], fill=(180, 235, 215, 230), outline=(20, 60, 30, 255))
+    # Hot-dog neon icon inside window
+    d7.rounded_rectangle([9, 8, 23, 14], radius=3, fill=(230, 90, 40, 255))
+    d7.line([(11, 11), (21, 11)], fill=(255, 210, 60, 255), width=2)
+    # Coffee cup neon icon
+    d7.rectangle([11, 16, 21, 23], fill=(235, 200, 140, 255), outline=(120, 80, 40, 255))
+    d7.line([(13, 18), (19, 18)], fill=(60, 35, 20, 255), width=2)
     tiles.append(t7)
 
+    # Tile 8: Cast-iron streetlamp with warm sodium glow
+    t8 = t1.copy()
+    d8 = ImageDraw.Draw(t8)
+    # Warm glow halo
+    d8.ellipse([4, 0, 28, 24], fill=(255, 210, 80, 80))
+    # Cast iron post
+    d8.line([(16, 8), (16, 30)], fill=(25, 28, 35, 255), width=3)
+    d8.ellipse([12, 28, 20, 31], fill=(25, 28, 35, 255)) # base
+    # Lamp head
+    d8.polygon([(11, 8), (21, 8), (18, 2), (14, 2)], fill=(25, 28, 35, 255))
+    d8.rectangle([13, 5, 19, 8], fill=(255, 240, 120, 255))
+    tiles.append(t8)
+
+    # Tile 9: Crosswalk / exit transition
+    t9 = t0.copy()
+    d9 = ImageDraw.Draw(t9)
+    for x in range(2, 32, 8):
+        d9.rectangle([x, 4, x + 4, 28], fill=(245, 245, 250, 255))
+    tiles.append(t9)
+
     save_tileset("city", tiles)
+
+# ============================================================================
+# 2B. ŻABKA INTERIOR TILESET
+# ============================================================================
+def build_zabka():
+    tiles = []
+    # Tile 0: Glossy checkerboard supermarket linoleum floor
+    t0 = Image.new("RGBA", (32, 32), (235, 238, 242, 255))
+    d0 = ImageDraw.Draw(t0)
+    for y in range(0, 32, 16):
+        for x in range(0, 32, 16):
+            if (x // 16 + y // 16) % 2 == 1:
+                d0.rectangle([x, y, x + 15, y + 15], fill=(218, 224, 232, 255))
+            d0.rectangle([x, y, x + 15, y + 15], outline=(195, 202, 212, 255))
+    tiles.append(t0)
+
+    # Tile 1: Beverage refrigerator back wall with cold blue light
+    t1 = Image.new("RGBA", (32, 32), (40, 48, 60, 255))
+    d1 = ImageDraw.Draw(t1)
+    # Glass cooler door frame
+    d1.rectangle([2, 1, 29, 31], fill=(16, 75, 115, 255), outline=(180, 220, 245, 255))
+    # Cold blue interior with beverage cans/bottles on shelves
+    d1.rectangle([4, 4, 27, 12], fill=(25, 120, 175, 255)) # upper shelf
+    # Colorful cans (green Monster, red Coca-Cola, blue Oshee)
+    cans1 = [(6, (30, 210, 50, 255)), (11, (220, 30, 30, 255)), (16, (30, 140, 240, 255)), (21, (240, 200, 30, 255))]
+    for cx, ccol in cans1:
+        d1.rectangle([cx, 5, cx + 3, 11], fill=ccol)
+    d1.line([(4, 13), (27, 13)], fill=(220, 240, 255, 255)) # shelf divider
+    # Lower shelf
+    d1.rectangle([4, 15, 27, 24], fill=(20, 95, 145, 255))
+    cans2 = [(6, (240, 180, 20, 255)), (12, (20, 210, 190, 255)), (18, (140, 40, 210, 255)), (23, (40, 180, 50, 255))]
+    for cx, ccol in cans2:
+        d1.rectangle([cx, 16, cx + 3, 23], fill=ccol)
+    # Glass reflection streak
+    d1.line([(6, 2), (22, 29)], fill=(255, 255, 255, 120), width=2)
+    tiles.append(t1)
+
+    # Tile 2: Wall snack shelves (chipsy, kabanosy, batony)
+    t2 = Image.new("RGBA", (32, 32), (52, 58, 68, 255))
+    d2 = ImageDraw.Draw(t2)
+    d2.rectangle([2, 0, 29, 31], fill=(70, 76, 88, 255), outline=(35, 40, 48, 255))
+    # Shelves
+    for sy in [6, 15, 24]:
+        d2.line([(3, sy), (28, sy)], fill=(180, 185, 195, 255), width=2)
+    # Chips packets (top shelf)
+    chips = [(5, (225, 45, 45, 255)), (11, (45, 120, 230, 255)), (17, (235, 200, 30, 255)), (23, (50, 190, 60, 255))]
+    for px, pcol in chips:
+        d2.rectangle([px, 1, px + 4, 5], fill=pcol)
+    # Kabanosy Tarczyński & snacks (mid shelf)
+    kabs = [(5, (160, 40, 30, 255)), (12, (180, 60, 20, 255)), (19, (150, 30, 25, 255))]
+    for kx, kcol in kabs:
+        d2.rectangle([kx, 8, kx + 5, 14], fill=kcol)
+    # Candy & energy bars (lower shelf)
+    for bx in range(5, 27, 4):
+        d2.rectangle([bx, 17, bx + 2, 23], fill=(220, 140, 50, 255))
+    tiles.append(t2)
+
+    # Tile 3: Cash register counter with Kasjer w zielonym fartuchu / POS
+    t3 = t0.copy()
+    d3 = ImageDraw.Draw(t3)
+    # Wooden counter with green Żabka accent panel
+    d3.rectangle([2, 12, 30, 30], fill=(225, 228, 232, 255), outline=(30, 35, 42, 255))
+    d3.rectangle([4, 18, 28, 28], fill=(16, 138, 48, 255), outline=(10, 90, 30, 255)) # green front
+    # Cash register & touch monitor
+    d3.rectangle([6, 3, 17, 12], fill=(25, 28, 35, 255), outline=(10, 12, 16, 255))
+    d3.rectangle([8, 5, 15, 10], fill=(60, 190, 240, 255)) # glowing POS screen
+    # PIN terminal on counter
+    d3.rectangle([21, 6, 27, 12], fill=(45, 50, 60, 255))
+    d3.rectangle([23, 7, 26, 9], fill=(120, 255, 140, 255))
+    tiles.append(t3)
+
+    # Tile 4: Hot dog roller grill & coffee machine counter
+    t4 = t0.copy()
+    d4 = ImageDraw.Draw(t4)
+    # Counter base
+    d4.rectangle([2, 12, 30, 30], fill=(225, 228, 232, 255), outline=(30, 35, 42, 255))
+    # Hot dog roller grill (left side)
+    d4.rectangle([4, 5, 16, 12], fill=(160, 165, 175, 255), outline=(40, 45, 55, 255))
+    for ry in [7, 9, 11]:
+        d4.line([(5, ry), (15, ry)], fill=(190, 65, 35, 255), width=2) # steaming hot dogs!
+    # Coffee machine (right side)
+    d4.rectangle([18, 1, 29, 12], fill=(25, 28, 35, 255), outline=(10, 12, 16, 255))
+    d4.rectangle([20, 3, 27, 6], fill=(225, 75, 40, 255)) # display
+    d4.rectangle([21, 8, 26, 11], fill=(240, 240, 245, 255)) # coffee paper cup
+    tiles.append(t4)
+
+    # Tile 5: Entrance / Exit doormat with "ŻABKA - DO ZOBACZENIA"
+    t5 = t0.copy()
+    d5 = ImageDraw.Draw(t5)
+    d5.rounded_rectangle([3, 4, 29, 28], radius=3, fill=(16, 138, 48, 255), outline=(8, 70, 24, 255))
+    d5.line([(5, 6), (27, 6)], fill=(230, 255, 210, 255), width=2)
+    d5.arc([11, 8, 21, 18], 0, 180, fill=(240, 255, 210, 255), width=2)
+    d5.text((7, 18), "EXIT", fill=(240, 255, 210, 255))
+    tiles.append(t5)
+
+    # Tile 6: Center grocery promo gondola (island stand)
+    t6 = t0.copy()
+    d6 = ImageDraw.Draw(t6)
+    d6.rectangle([3, 6, 29, 28], fill=(200, 205, 215, 255), outline=(40, 45, 55, 255))
+    d6.rectangle([5, 8, 27, 16], fill=(16, 138, 48, 255)) # Żabka promo green band
+    d6.text((7, 9), "HIT!", fill=(255, 240, 80, 255))
+    d6.rectangle([5, 18, 27, 26], fill=(160, 50, 40, 255))
+    tiles.append(t6)
+
+    # Tile 7: Green brand banner wall / interior posters
+    t7 = Image.new("RGBA", (32, 32), (18, 125, 46, 255))
+    d7 = ImageDraw.Draw(t7)
+    d7.rectangle([0, 0, 32, 6], fill=(12, 85, 30, 255))
+    d7.line([(0, 6), (32, 6)], fill=(180, 255, 160, 255))
+    # Promo poster: "KAWA"
+    d7.rectangle([4, 10, 14, 26], fill=(245, 245, 250, 255), outline=(10, 60, 22, 255))
+    d7.rectangle([6, 12, 12, 18], fill=(210, 80, 40, 255))
+    # Promo poster: "HOT DOG"
+    d7.rectangle([18, 10, 28, 26], fill=(245, 245, 250, 255), outline=(10, 60, 22, 255))
+    d7.rectangle([20, 12, 26, 18], fill=(240, 195, 30, 255))
+    tiles.append(t7)
+
+    save_tileset("zabka", tiles)
 
 # ============================================================================
 # 3. GARAGE TILESET
@@ -660,12 +810,13 @@ def build_forest():
 def build_all():
     build_apartment()
     build_city()
+    build_zabka()
     build_garage()
     build_pub()
     build_alley()
     build_marina()
     build_forest()
-    print("All 7 tilesets generated successfully!")
+    print("All 8 tilesets generated successfully!")
 
 if __name__ == "__main__":
     build_all()

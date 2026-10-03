@@ -43,4 +43,9 @@ export const ITEMS: Record<string, ItemDef> = {
     description: 'Usuwa wszystkie negatywne efekty.',
     cleanse: true,
   },
+  hotDog: {
+    id: 'hotDog', name: 'Hot Dog Maxxx', icon: 'item_hotdog', target: 'ally',
+    description: 'Klasyk z Żabki z sosem czosnkowym. +60 HP i +15 MP.',
+    heal: 60, mp: 15,
+  },
 };

@@ -61,6 +61,7 @@ export class BootScene extends Phaser.Scene {
     // Tilesets
     this.load.image('tiles_apartment', 'assets/tiles/apartment.png');
     this.load.image('tiles_city', 'assets/tiles/city.png');
+    this.load.image('tiles_zabka', 'assets/tiles/zabka.png');
     this.load.image('tiles_forest', 'assets/tiles/forest.png');
     this.load.image('tiles_garage', 'assets/tiles/garage.png');
     this.load.image('tiles_pub', 'assets/tiles/pub.png');

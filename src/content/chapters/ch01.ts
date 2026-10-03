@@ -43,41 +43,69 @@ export const CH01 = {
   ] as DialogueLine[],
 
   backPainAmbush: [
-    { speaker: 'SYSTEM', text: 'Próbujesz wstać z łóżka... Coś strzyka w krzyżu!' },
-    { speaker: 'Ból Kręgosłupa', text: 'Trzydzieści sześć lat, kolego. Myślałeś, że wstaniesz bez rozgrzewki?' },
+    { speaker: 'SYSTEM', text: 'Próbujesz wstać z łóżka... Coś potężnie strzyka w lędźwiach!' },
+    { speaker: 'Ból Kręgosłupa', text: 'Trzydzieści sześć lat, kolego. Myślałeś, że wstaniesz po melanżu bez rozgrzewki?' },
+  ] as DialogueLine[],
+
+  afterSpineFight: [
+    { speaker: 'player', text: 'Uff... rozruszałem stawy, ale krzyż wciąż pamięta wczorajszą noc.' },
+    { speaker: 'SYSTEM', text: 'Zbadaj mieszkanie! Służbowy laptop na biurku bezczelnie domaga się uwagi. Drzwi wyjściowe pozostają zablokowane.' },
   ] as DialogueLine[],
 
   laptop: [
     { speaker: 'SYSTEM', text: 'Laptop: 47 nieprzeczytanych wiadomości na Slacku. Temat: "PILNE – szybki call w sobotę?"' },
-    { speaker: 'player', text: 'W sobotę?! Nie dzisiaj, korpo. Zamykam to.' },
+    { speaker: 'player', text: 'W sobotę?! Nie ma mowy, dzisiaj jest dzień z ekipą. Zamykam ten cyrk!' },
   ] as DialogueLine[],
 
   slackFight: [
-    { speaker: 'Nieprzeczytane Slacki', text: '@here @here @here Czy ktoś może rzucić okiem? To tylko 5 minut!' },
+    { speaker: 'Nieprzeczytane Slacki', text: '@here @here @here Czy ktoś może rzucić okiem na produkcję? To tylko 5 minut!' },
+  ] as DialogueLine[],
+
+  afterSlackFight: [
+    { speaker: 'player', text: 'Slack wyciszony, powiadomienia zablokowane do poniedziałku. Cudowna, błoga cisza.' },
+    { speaker: 'SYSTEM', text: 'Drzwi wyjściowe zostały odblokowane! Skocz do Żabki po kawę i elektrolity, by zbić kaca.' },
   ] as DialogueLine[],
 
   examine: {
     fridge: [{ speaker: 'SYSTEM', text: 'Lodówka: musztarda, pół cytryny i jedno samotne piwo. Zostawiasz je na wieczór.' }],
-    coffeeMachine: [{ speaker: 'SYSTEM', text: 'Ekspres do kawy mruga na czerwono: "ODKAMIENIANIE". Trzeba kupić kawę w kiosku.' }],
+    coffeeMachine: [{ speaker: 'SYSTEM', text: 'Ekspres do kawy mruga na czerwono: "ODKAMIENIANIE". Trzeba skoczyć po kawę do Żabki.' }],
     window: [{ speaker: 'SYSTEM', text: 'Za oknem poranne blokowisko. Gołębie już dawno wstały.' }],
     poster: [{ speaker: 'SYSTEM', text: 'Plakat: "Paktofonika – Kinematografia". Trochę wyblakły. Jak wszyscy.' }],
     tv: [{ speaker: 'SYSTEM', text: 'Stary kineskop z podpiętym Pegasusem. Kiedyś grało się do czwartej rano.' }],
-    bed: [{ speaker: 'SYSTEM', text: 'Łóżko wciąż woła. Nie dziś.' }],
-    doorLocked: [{ speaker: 'player', text: 'Najpierw ogarnij laptopa. Inaczej ten Slack będzie dzwonił całą noc.' }],
+    bed: [{ speaker: 'SYSTEM', text: 'Łóżko wciąż kusi, ale chłopaki już piszą na grupie. Nie ma leżenia!' }],
+    desk: [{ speaker: 'SYSTEM', text: 'Biurko: Slack wyciszony do poniedziałku rano. Żadne korpo ci dzisiaj nie przeszkodzi.' }],
+    doorLocked: [{ speaker: 'player', text: 'Najpierw ogarnij laptopa na biurku. Inaczej ten Slack będzie dzwonił całą noc.' }],
+  } as Record<string, DialogueLine[]>,
+
+  zabka: {
+    cashierWelcome: [
+      { speaker: 'Kasjer z Żabki', text: 'Dzień dobry! Z czym ten hot dog? Parówka z szynki czy kabanos? Kawa mała czy duża?' },
+      { speaker: 'player', text: 'Duża czarna, elektrolity i kabanos... Ratuj pan, wczoraj był potężny melanż z ekipą.' },
+      { speaker: 'Kasjer z Żabki', text: 'Rozumiem bez słów, szefie. Wjeżdża zestaw ratunkowy na koszt firmy. Trzymaj się!' },
+      { speaker: 'SYSTEM', text: 'Otrzymujesz: KAWA ×2, HOT DOG MAXXX ×1, ELEKTROLITY ×1! Debuff KAC GIGANT zniknął! Zespół w pełni sił!' },
+      { speaker: 'player', text: 'O kurwa, wraca czucie w rękach i nogach. Pora ruszać do garażu Danny\'ego!' },
+    ],
+    cashierAgain: [
+      { speaker: 'Kasjer z Żabki', text: 'Trzymaj się, szefie! Droga na wschód do garaży stoi otworem!' },
+    ],
+    hotdogs: [
+      { speaker: 'SYSTEM', text: 'Roller grill: Parówki powoli obracają się na rolkach. Zapach sosu czosnkowego i prażonej cebulki jest hipnotyzujący.' },
+    ],
+    fridges: [
+      { speaker: 'SYSTEM', text: 'Chłodziarki z napojami: Zimne Monstry, Oshee, Tyskie i krafty czekają na wieczorne ognisko w lesie.' },
+    ],
+    shelves: [
+      { speaker: 'SYSTEM', text: 'Regał z przekąskami: Chipsy paprykowe, orzeszki i kabanosy. Podstawa każdej męskiej wyprawy.' },
+    ],
   } as Record<string, DialogueLine[]>,
 
   city: {
-    enter: [{ speaker: 'SYSTEM', text: 'Poranne Miasto. Cel: kup kawę w kiosku i ruszaj na wschód do garażu Danny\'ego.' }],
-    kioskBuy: [
-      { speaker: 'Pani z Kiosku', text: 'Co tak blado, panie? Kawa z automatu, mocna. Na koszt firmy, bo widzę, że ciężka noc była.' },
-      { speaker: 'SYSTEM', text: 'Otrzymujesz: KAWA ×1. Debuff KAC GIGANT zniknął!' },
-      { speaker: 'player', text: 'O kurwa, wraca czucie w nogach. Dobra, teraz na serio.' },
-    ],
-    kioskAgain: [{ speaker: 'Pani z Kiosku', text: 'Leć, leć, kolega na pewno czeka.' }],
-    oldLady: [{ speaker: 'Sąsiadka z Ławki', text: 'Znowu się zbieracie? Pamiętam was jeszcze, jak żeście pod tym blokiem na rowerach jeździli...' }],
+    enter: [{ speaker: 'SYSTEM', text: 'Poranne Miasto. Cel: wejdź do Żabki po kawę i ruszaj na wschód do garażu Danny\'ego.' }],
+    oldLady: [{ speaker: 'Sąsiadka z Ławki', text: 'Znowu się zbieracie? Pamiętam was jeszcze, jak żeście pod tym blokiem na składakach jeździli...' }],
     pigeon: [{ speaker: 'Gołąb', text: 'Gru. Gru gru.' }, { speaker: 'player', text: 'Ty też masz ciężki poranek, co?' }],
     jogger: [{ speaker: 'Biegacz w Lycrze', text: 'Dziesięć kilometrów przed śniadaniem! Spróbuj kiedyś!' }, { speaker: 'player', text: 'Spróbuję. Kiedyś. Po czterdziestce.' }],
-    blocked: [{ speaker: 'player', text: 'Bez kawy nie dojdę nawet do przystanku. Najpierw kiosk.' }],
+    lamp: [{ speaker: 'SYSTEM', text: 'Zabytkowa latarnia uliczna. Wciąż delikatnie żarzy w porannym słońcu.' }],
+    blocked: [{ speaker: 'player', text: 'Bez kawy i elektrolitów z Żabki nie dojdę nawet do garażu. Najpierw Żabka!' }],
     garage: [
       { speaker: 'SYSTEM', text: 'Z podziemnego garażu dudni bas i krzyki: "DAWAJ, DAWAJ!"' },
       { speaker: 'player', text: 'To na pewno oni. Czas zebrać ekipę.' },

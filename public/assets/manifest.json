@@ -19,6 +19,7 @@
     "analyzer_bg": "assets/bg/analyzer_bg.png",
     "tiles_apartment": "assets/tiles/apartment.png",
     "tiles_city": "assets/tiles/city.png",
+    "tiles_zabka": "assets/tiles/zabka.png",
     "tiles_garage": "assets/tiles/garage.png",
     "tiles_pub": "assets/tiles/pub.png",
     "tiles_alley": "assets/tiles/alley.png",

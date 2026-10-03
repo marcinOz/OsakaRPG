@@ -4,14 +4,19 @@ export type Btn = 'up' | 'down' | 'left' | 'right' | 'ok' | 'cancel' | 'menu' | 
 
 /**
  * Unified input: arrows/WASD move, Z/Enter/Space confirm, X/Esc/Backspace cancel, M/Tab menu, 1-3 quick choices.
- * Pointer taps emit 'ok'. Provides edge-triggered `pressed()` and level `held()`.
+ * Pointer taps emit 'ok'. Caches edge-triggered `pressed()` per frame to allow multiple systems to query without starvation.
  */
 export class Input {
   private keys: Record<Btn, Phaser.Input.Keyboard.Key[]>;
   private tapped = false;
   private tapPos: { x: number; y: number } | null = null;
+  private scene: Phaser.Scene;
+  private lastFrame = -1;
+  private cachedPressed: Partial<Record<Btn, boolean>> = {};
+  private cachedOkOrTap = false;
 
   constructor(scene: Phaser.Scene) {
+    this.scene = scene;
     const kb = scene.input.keyboard!;
     const K = Phaser.Input.Keyboard.KeyCodes;
     const add = (...codes: number[]) => codes.map((c) => kb.addKey(c, true, false));
@@ -33,12 +38,30 @@ export class Input {
     });
   }
 
+  private refreshFrame(): void {
+    const curFrame = this.scene.game?.loop?.frame ?? -1;
+    if (curFrame !== -1 && this.lastFrame === curFrame) {
+      return;
+    }
+    this.lastFrame = curFrame;
+
+    const btns: Btn[] = ['up', 'down', 'left', 'right', 'ok', 'cancel', 'menu', 'n1', 'n2', 'n3'];
+    for (const b of btns) {
+      this.cachedPressed[b] = this.keys[b]?.some((k) => Phaser.Input.Keyboard.JustDown(k)) ?? false;
+    }
+
+    const t = this.tapped;
+    this.tapped = false;
+    this.cachedOkOrTap = !!this.cachedPressed.ok || t;
+  }
+
   pressed(b: Btn): boolean {
-    return this.keys[b].some((k) => Phaser.Input.Keyboard.JustDown(k));
+    this.refreshFrame();
+    return !!this.cachedPressed[b];
   }
 
   held(b: Btn): boolean {
-    return this.keys[b].some((k) => k.isDown);
+    return this.keys[b]?.some((k) => k.isDown) ?? false;
   }
 
   /** consume a pointer tap (returns position) */
@@ -49,9 +72,8 @@ export class Input {
   }
 
   okOrTap(): boolean {
-    const k = this.pressed('ok');
-    const t = this.tap();
-    return k || !!t;
+    this.refreshFrame();
+    return this.cachedOkOrTap;
   }
 
   axis(): { x: number; y: number } {

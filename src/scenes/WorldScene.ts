@@ -16,6 +16,7 @@ import { applyCrtToCamera } from '@/fx/CrtPipeline';
 import { txt } from '@/ui/Text';
 import { drawPanel } from '@/ui/Panel';
 import { setTimeOfDay } from '@/fx/Palette';
+import { InteractPrompt } from '@/ui/InteractPrompt';
 
 interface TrailPoint {
   x: number;
@@ -33,6 +34,16 @@ interface MapExitDef {
   lockedReason: string;
 }
 
+export interface Interactable {
+  id: string;
+  x: number;
+  y: number;
+  label: string;
+  isAlert?: boolean;
+  action: () => void | Promise<void>;
+  isAvailable?: () => boolean;
+}
+
 const MAP_EXITS: Record<string, MapExitDef> = {
   apartment: {
     x: 10,
@@ -40,17 +51,26 @@ const MAP_EXITS: Record<string, MapExitDef> = {
     targetMap: 'city',
     targetX: 5,
     targetY: 4,
-    isUnlocked: (_state) => true,
-    lockedReason: '',
+    isUnlocked: (state) => hasFlag(state, 'ch1_fought_spine') && hasFlag(state, 'ch1_fought_slack'),
+    lockedReason: '[!] Najpierw muszę ogarnąć kręgosłup i wyciszyć Slacka na biurku!',
   },
   city: {
-    x: 16,
+    x: 17,
     y: 5,
     targetMap: 'garage',
     targetX: 2,
     targetY: 5,
     isUnlocked: (state) => hasFlag(state, 'bought_coffee'),
-    lockedReason: '[!] Najpierw muszę kupić kawę i elektrolity w Żabce!',
+    lockedReason: '[!] Najpierw muszę wejść do Żabki po kawę i elektrolity!',
+  },
+  zabka: {
+    x: 5,
+    y: 7,
+    targetMap: 'city',
+    targetX: 5,
+    targetY: 4,
+    isUnlocked: (_state) => true,
+    lockedReason: '',
   },
   garage: {
     x: 16,
@@ -103,6 +123,7 @@ export class WorldScene extends Phaser.Scene {
   private state!: GameData;
   private inputHandler!: Input;
   private dialogueBox!: DialogueBox;
+  private interactPrompt!: InteractPrompt;
   private playerSprite!: Phaser.GameObjects.Sprite;
   private followerSprites: Map<string, Phaser.GameObjects.Sprite> = new Map();
   private trail: TrailPoint[] = [];
@@ -134,9 +155,11 @@ export class WorldScene extends Phaser.Scene {
     super('World');
   }
 
-  init(data: { leader?: HeroId; loadSave?: GameData; returnFromBattle?: boolean; battleResult?: 'victory' | 'defeat' }): void {
+  init(data: { leader?: HeroId; loadSave?: GameData; returnFromBattle?: boolean; battleResult?: 'victory' | 'defeat'; state?: GameData }): void {
     if (data.loadSave) {
       this.state = data.loadSave;
+    } else if (data.state) {
+      this.state = data.state;
     } else if (data.leader) {
       this.state = newGame(data.leader);
     } else if (!this.state) {
@@ -146,7 +169,26 @@ export class WorldScene extends Phaser.Scene {
     if (data.returnFromBattle) {
       this.isBusy = false;
       // Handle post-battle storyline
-      if (this.currentMap === 'garage' && hasFlag(this.state, 'fought_sasiad') && !hasFlag(this.state, 'danny_alior_joined')) {
+      if (this.currentMap === 'apartment') {
+        if (hasFlag(this.state, 'ch1_fought_spine') && !hasFlag(this.state, 'ch1_spine_reported')) {
+          setFlag(this.state, 'ch1_spine_reported', true);
+          this.time.delayedCall(300, async () => {
+            this.isBusy = true;
+            const runner = new DialogueRunner(CH01.afterSpineFight, this.state.leader);
+            await this.dialogueBox.play(runner.allResolved());
+            this.isBusy = false;
+          });
+        } else if (hasFlag(this.state, 'ch1_fought_slack') && !hasFlag(this.state, 'ch1_slack_reported')) {
+          setFlag(this.state, 'ch1_slack_reported', true);
+          this.time.delayedCall(300, async () => {
+            this.isBusy = true;
+            const runner = new DialogueRunner(CH01.afterSlackFight, this.state.leader);
+            await this.dialogueBox.play(runner.allResolved());
+            this.updateExitBeacon();
+            this.isBusy = false;
+          });
+        }
+      } else if (this.currentMap === 'garage' && hasFlag(this.state, 'fought_sasiad') && !hasFlag(this.state, 'danny_alior_joined')) {
         this.time.delayedCall(300, () => this.afterSasiadBoss());
       } else if (this.currentMap === 'pub' && hasFlag(this.state, 'fought_hipsters') && !hasFlag(this.state, 'barti_joined')) {
         this.time.delayedCall(300, () => this.afterPubBattle());
@@ -195,6 +237,7 @@ export class WorldScene extends Phaser.Scene {
     this.hudContainer.add(legendImg);
 
     this.dialogueBox = new DialogueBox(this, 1000);
+    this.interactPrompt = new InteractPrompt(this);
     this.inputHandler = new Input(this);
 
     // Initial wake-up sequence
@@ -204,7 +247,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private updateAtmosphere(): void {
-    if (this.currentMap === 'apartment' || this.currentMap === 'city') {
+    if (this.currentMap === 'apartment' || this.currentMap === 'city' || this.currentMap === 'zabka') {
       setTimeOfDay(this, 'morning');
       Audio.playSong('ch01_explore', { fadeMs: 500 });
     } else if (this.currentMap === 'garage') {
@@ -230,6 +273,7 @@ export class WorldScene extends Phaser.Scene {
     const partyCount = this.state.party.length;
     let loc = 'MIESZKANIE';
     if (this.currentMap === 'city') loc = 'PORANNE MIASTO';
+    else if (this.currentMap === 'zabka') loc = 'ŻABKA (24/7)';
     else if (this.currentMap === 'garage') loc = 'GARAŻ (UFC HQ)';
     else if (this.currentMap === 'pub') loc = 'PUB CZARNY KRĄŻEK';
     else if (this.currentMap === 'alley') loc = 'ZAUŁKI STARÓWKI';
@@ -310,6 +354,17 @@ export class WorldScene extends Phaser.Scene {
       this.exitBeaconSprite.destroy();
       this.exitBeaconSprite = null;
     }
+    this.interactPrompt?.hide();
+
+    if (mapName === 'zabka') {
+      this.mapW = 12;
+      this.mapH = 9;
+    } else {
+      this.mapW = 18;
+      this.mapH = 12;
+    }
+    this.cameras.main.setBounds(0, 0, this.mapW * TILE, this.mapH * TILE);
+
     this.solids = [];
     for (let y = 0; y < this.mapH; y++) {
       this.solids[y] = [];
@@ -322,6 +377,8 @@ export class WorldScene extends Phaser.Scene {
       this.buildApartmentMap();
     } else if (mapName === 'city') {
       this.buildCityMap();
+    } else if (mapName === 'zabka') {
+      this.buildZabkaMap();
     } else if (mapName === 'garage') {
       this.buildGarageMap();
     } else if (mapName === 'pub') {
@@ -346,12 +403,13 @@ export class WorldScene extends Phaser.Scene {
         if (y === 0) { tileIdx = 2; isSolid = true; }
         else if (y === 1) { tileIdx = 1; isSolid = true; }
         else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
-        if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; isProp = true; }
-        if (x === 3 && y === 3) { tileIdx = 4; isSolid = true; isProp = true; }
-        if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; }
-        if (x === 9 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; }
-        if (x === 6 && y === 5 || x === 7 && y === 5) { tileIdx = 5; }
-        if (x === 10 && y === this.mapH - 1) { tileIdx = 7; isSolid = false; }
+        if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; isProp = true; } // gaming desk with dual monitors
+        if (x === 3 && y === 3) { tileIdx = 4; isSolid = false; isProp = true; } // chair (walkable)
+        if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // monstera
+        if (x === 9 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // monstera
+        if (x === 13 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // kitchenette plant
+        if (x === 6 && y === 5 || x === 7 && y === 5) { tileIdx = 5; } // bed
+        if (x === 10 && y === this.mapH - 1) { tileIdx = 7; isSolid = false; } // exit door
 
         this.addTile(x, y, 'tiles_apartment', tileIdx, isSolid, isProp);
       }
@@ -361,16 +419,114 @@ export class WorldScene extends Phaser.Scene {
   private buildCityMap(): void {
     for (let y = 0; y < this.mapH; y++) {
       for (let x = 0; x < this.mapW; x++) {
-        let tileIdx = 1;
+        let tileIdx = 1; // sidewalk
         let isSolid = false;
         let isProp = false;
-        if (y < 3) { tileIdx = (x % 2 === 0) ? 2 : 3; isSolid = true; }
-        else if (y >= 8) { tileIdx = 0; }
-        if (x === 4 && y === 3) { tileIdx = 5; isSolid = true; isProp = true; }
-        if (x === 10 && y === 4) { tileIdx = 6; isSolid = true; isProp = true; }
-        if (x === 17 && y === 5) { tileIdx = 7; isSolid = false; }
+
+        if (y < 2) {
+          tileIdx = (x % 2 === 0) ? 2 : 3;
+          isSolid = true;
+        } else if (y === 2) {
+          // Row 2: Building facade with Żabka storefront at x=4..6
+          if (x === 4) {
+            tileIdx = 7; // left display window
+            isSolid = true;
+            isProp = true;
+          } else if (x === 5) {
+            tileIdx = 5; // Żabka neon awning
+            isSolid = true;
+            isProp = true;
+          } else if (x === 6) {
+            tileIdx = 7; // right display window
+            isSolid = true;
+            isProp = true;
+          } else {
+            tileIdx = (x % 2 === 0) ? 2 : 3;
+            isSolid = true;
+          }
+        } else if (y === 3) {
+          // Row 3: Sidewalk with Żabka automatic sliding doors at x=5
+          if (x === 5) {
+            tileIdx = 6; // Żabka entrance glass sliding doors!
+            isSolid = false;
+            isProp = false;
+          } else {
+            tileIdx = 1;
+            isSolid = false;
+          }
+        } else if (y === 6) {
+          tileIdx = 4; // Granite curb
+          isSolid = false;
+        } else if (y >= 7) {
+          tileIdx = 0; // Road asphalt
+          isSolid = false;
+        }
+
+        // Sidewalk props
+        if (x === 10 && y === 4) { tileIdx = 8; isSolid = true; isProp = true; } // Streetlamp
+        if (x === 17 && y === 5) { tileIdx = 9; isSolid = false; } // Exit archway to garage
 
         this.addTile(x, y, 'tiles_city', tileIdx, isSolid, isProp);
+      }
+    }
+  }
+
+  private buildZabkaMap(): void {
+    for (let y = 0; y < this.mapH; y++) {
+      for (let x = 0; x < this.mapW; x++) {
+        let tileIdx = 0; // Checkered linoleum floor
+        let isSolid = false;
+        let isProp = false;
+
+        // Perimeter walls
+        if (y === 0) {
+          if (x >= 1 && x <= 4) {
+            tileIdx = 2; // Snack shelves
+            isSolid = true;
+            isProp = true;
+          } else if (x >= 7 && x <= 10) {
+            tileIdx = 1; // Beverage refrigerators
+            isSolid = true;
+            isProp = true;
+          } else {
+            tileIdx = 7; // Green brand wall
+            isSolid = true;
+          }
+        } else if (x === 0 || x === this.mapW - 1) {
+          tileIdx = 7;
+          isSolid = true;
+        } else if (y === this.mapH - 1) {
+          tileIdx = 7;
+          isSolid = true;
+        }
+
+        // Counter row at y=2
+        if (y === 2) {
+          if (x === 4) {
+            tileIdx = 4; // Hot dog grill & coffee machine
+            isSolid = true;
+            isProp = true;
+          } else if (x === 5) {
+            tileIdx = 3; // POS cash register counter
+            isSolid = true;
+            isProp = true;
+          }
+        }
+
+        // Center promo island at y=4
+        if (y === 4 && (x === 4 || x === 7)) {
+          tileIdx = 6; // Promo gondola
+          isSolid = true;
+          isProp = true;
+        }
+
+        // Exit doormat at x=5, y=7
+        if (x === 5 && y === 7) {
+          tileIdx = 5;
+          isSolid = false;
+        }
+
+        this.addTile(x, y, 'tiles_zabka', tileIdx, isSolid, isProp);
       }
     }
   }
@@ -543,7 +699,10 @@ export class WorldScene extends Phaser.Scene {
 
     const hangRunner = new DialogueRunner(CH01.hangover, this.state.leader);
     await this.dialogueBox.play(hangRunner.allResolved());
-    this.isBusy = false;
+
+    // Immediate tutorial combat: Back Pain Ambush!
+    setFlag(this.state, 'ch1_fought_spine', true);
+    await this.startSpineEncounter();
   }
 
   private async showPhonePopup(): Promise<void> {
@@ -828,10 +987,12 @@ export class WorldScene extends Phaser.Scene {
     const exitCenterY = exitDef.y + 0.5;
 
     const dist = Phaser.Math.Distance.Between(px, py, exitCenterX, exitCenterY);
+    if (dist > 1.6) return;
+
     const actionPressed = this.inputHandler.okOrTap();
 
-    // Trigger condition: within 1.25 tiles, or within 1.6 tiles and action key pressed
-    if (dist <= 1.25 || (dist <= 1.6 && actionPressed)) {
+    // Trigger condition: within 1.25 tiles, or action key pressed near exit
+    if (dist <= 1.25 || actionPressed) {
       const unlocked = exitDef.isUnlocked(this.state);
       if (!unlocked) {
         this.showToast(exitDef.lockedReason, actionPressed);
@@ -855,10 +1016,14 @@ export class WorldScene extends Phaser.Scene {
 
     if (this.dialogueBox.active) {
       this.dialogueBox.update(this.inputHandler, delta);
+      this.interactPrompt?.hide();
       return;
     }
 
-    if (this.isBusy) return;
+    if (this.isBusy) {
+      this.interactPrompt?.hide();
+      return;
+    }
 
     // Check menu / phone shortcut (M / TAB)
     if (!this.isPhoneOpen && this.inputHandler.pressed('menu')) {
@@ -878,6 +1043,9 @@ export class WorldScene extends Phaser.Scene {
       const tileX = Math.floor(targetX / TILE);
       const tileY = Math.floor(targetY / TILE);
 
+      const dir = axis.x > 0 ? 'right' : axis.x < 0 ? 'left' : axis.y > 0 ? 'down' : 'up';
+      this.state.facing = dir;
+
       if (this.isWalkable(tileX, tileY)) {
         this.playerSprite.x = targetX;
         this.playerSprite.y = targetY;
@@ -886,7 +1054,6 @@ export class WorldScene extends Phaser.Scene {
         this.state.y = tileY;
 
         // Record breadcrumb trail for followers with distance threshold
-        const dir = axis.x > 0 ? 'right' : axis.x < 0 ? 'left' : axis.y > 0 ? 'down' : 'up';
         const lastPt = this.trail[this.trail.length - 1];
         if (!lastPt || Phaser.Math.Distance.Between(targetX, targetY, lastPt.x, lastPt.y) >= 4) {
           this.trail.push({ x: targetX, y: targetY, dir });
@@ -896,7 +1063,6 @@ export class WorldScene extends Phaser.Scene {
         this.updateFollowers();
       }
 
-      const dir = axis.x > 0 ? 'right' : axis.x < 0 ? 'left' : axis.y > 0 ? 'down' : 'up';
       this.playerSprite.play(`anim_${this.state.leader}_walk_${dir}`, true);
 
       this.checkTriggers(tileX, tileY);
@@ -908,6 +1074,423 @@ export class WorldScene extends Phaser.Scene {
         spr.setDepth(spr.y + 12);
       });
       this.checkExitTriggers();
+    }
+
+    // Contextual interaction prompt check (both during movement and when standing)
+    this.updateInteraction();
+  }
+
+  private getInteractablesForCurrentMap(): Interactable[] {
+    const map = this.currentMap;
+    const items: Interactable[] = [];
+
+    if (map === 'apartment') {
+      // Desk / Laptop (at desk tile 3,2 or chair tile 3,3)
+      if (!hasFlag(this.state, 'ch1_fought_slack')) {
+        items.push({
+          id: 'apt_desk',
+          x: 3,
+          y: 2,
+          label: 'SPRAWDŹ SLACKA',
+          isAlert: true,
+          action: () => this.startSlackEncounter(),
+        });
+        items.push({
+          id: 'apt_desk_chair',
+          x: 3,
+          y: 3,
+          label: 'SPRAWDŹ SLACKA',
+          isAlert: true,
+          action: () => this.startSlackEncounter(),
+        });
+      } else {
+        items.push({
+          id: 'apt_desk',
+          x: 3,
+          y: 2,
+          label: 'ZBADAJ BIURKO',
+          action: async () => {
+            this.isBusy = true;
+            const r = new DialogueRunner(CH01.examine.desk, this.state.leader);
+            await this.dialogueBox.play(r.allResolved());
+            this.isBusy = false;
+          },
+        });
+        items.push({
+          id: 'apt_desk_chair',
+          x: 3,
+          y: 3,
+          label: 'ZBADAJ BIURKO',
+          action: async () => {
+            this.isBusy = true;
+            const r = new DialogueRunner(CH01.examine.desk, this.state.leader);
+            await this.dialogueBox.play(r.allResolved());
+            this.isBusy = false;
+          },
+        });
+      }
+
+      // Bed
+      items.push({
+        id: 'apt_bed',
+        x: 6,
+        y: 5,
+        label: 'ZBADAJ ŁÓŻKO',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.examine.bed, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+
+      // Exit Door
+      const unlocked = hasFlag(this.state, 'ch1_fought_spine') && hasFlag(this.state, 'ch1_fought_slack');
+      items.push({
+        id: 'apt_door',
+        x: 10,
+        y: 11,
+        label: unlocked ? 'WYJDŹ NA MIASTO' : 'WYJŚCIE (ZABLOKOWANE)',
+        isAlert: !unlocked,
+        action: async () => {
+          if (!unlocked) {
+            this.isBusy = true;
+            const r = new DialogueRunner(CH01.examine.doorLocked, this.state.leader);
+            await this.dialogueBox.play(r.allResolved());
+            this.isBusy = false;
+          } else {
+            this.transitionToMap('city', 5, 4);
+          }
+        },
+      });
+    } else if (map === 'city') {
+      // Żabka Door
+      items.push({
+        id: 'city_zabka_door',
+        x: 5,
+        y: 3,
+        label: 'WEJDŹ DO ŻABKI',
+        action: () => this.transitionToMap('zabka', 5, 6),
+      });
+
+      // Sąsiadka
+      items.push({
+        id: 'city_old_lady',
+        x: 8,
+        y: 4,
+        label: 'SĄSIADKA',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.city.oldLady, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+
+      // Gołąb
+      items.push({
+        id: 'city_pigeon',
+        x: 12,
+        y: 5,
+        label: 'GOŁĄB',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.city.pigeon, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+
+      // Biegacz
+      items.push({
+        id: 'city_jogger',
+        x: 14,
+        y: 4,
+        label: 'BIEGACZ',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.city.jogger, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+
+      // Latarnia
+      items.push({
+        id: 'city_lamp',
+        x: 10,
+        y: 4,
+        label: 'LATARNIA',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.city.lamp, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+
+      // Garage exit
+      const hasCoffee = hasFlag(this.state, 'bought_coffee');
+      items.push({
+        id: 'city_garage_door',
+        x: 17,
+        y: 5,
+        label: hasCoffee ? 'WEJDŹ DO GARAŻU' : 'GARAŻ (ZABLOKOWANE)',
+        isAlert: !hasCoffee,
+        action: async () => {
+          if (!hasCoffee) {
+            this.isBusy = true;
+            const r = new DialogueRunner(CH01.city.blocked, this.state.leader);
+            await this.dialogueBox.play(r.allResolved());
+            this.isBusy = false;
+          } else {
+            this.transitionToMap('garage', 2, 5);
+          }
+        },
+      });
+    } else if (map === 'zabka') {
+      // Kasjer
+      const hasCoffee = hasFlag(this.state, 'bought_coffee');
+      items.push({
+        id: 'zabka_cashier',
+        x: 5,
+        y: 2,
+        label: hasCoffee ? 'KASJER' : 'KUP KAWĘ I HOT DOGA',
+        isAlert: !hasCoffee,
+        action: async () => {
+          if (!hasCoffee) {
+            await this.buyCoffee();
+          } else {
+            this.isBusy = true;
+            const r = new DialogueRunner(CH01.zabka.cashierAgain, this.state.leader);
+            await this.dialogueBox.play(r.allResolved());
+            this.isBusy = false;
+          }
+        },
+      });
+
+      // Hot dogs
+      items.push({
+        id: 'zabka_hotdogs',
+        x: 4,
+        y: 2,
+        label: 'ROLLER GRILL',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.zabka.hotdogs, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+
+      // Beverage fridges
+      items.push({
+        id: 'zabka_fridges',
+        x: 8,
+        y: 0,
+        label: 'CHŁODZIARKI',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.zabka.fridges, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+
+      // Snack shelves
+      items.push({
+        id: 'zabka_shelves',
+        x: 2,
+        y: 0,
+        label: 'PRZEKĄSKI',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.zabka.shelves, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+
+      // Exit doormat
+      items.push({
+        id: 'zabka_exit',
+        x: 5,
+        y: 7,
+        label: 'WYJDŹ NA ULICĘ',
+        action: () => this.transitionToMap('city', 5, 4),
+      });
+    } else if (map === 'garage') {
+      if (!this.state.party.includes('danny') || !this.state.party.includes('alior')) {
+        items.push({
+          id: 'garage_crew',
+          x: 5,
+          y: 4,
+          label: 'ROZMAWIAJ Z DANNYM',
+          action: () => this.triggerGarageEncounter(),
+        });
+      }
+      items.push({
+        id: 'garage_projector',
+        x: 8,
+        y: 2,
+        label: 'PROJEKTOR UFC',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Projektor rzuca na ścianę galę UFC 300. Holloway nokautuje Gaethje w ostatniej sekundzie!' }]);
+          this.isBusy = false;
+        },
+      });
+      items.push({
+        id: 'garage_beer',
+        x: 14,
+        y: 2,
+        label: 'LODÓWKA Z BROWARAMI',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Lodówka turystyczna Danny\'ego. Po brzegi zasypana lodem i zimnymi kraftami.' }]);
+          this.isBusy = false;
+        },
+      });
+    } else if (map === 'pub') {
+      if (!this.state.party.includes('barti')) {
+        items.push({
+          id: 'pub_barti',
+          x: 10,
+          y: 2,
+          label: 'ROZMAWIAJ Z BARTIM',
+          action: () => this.triggerPubEncounter(),
+        });
+      }
+      items.push({
+        id: 'pub_vinyls',
+        x: 14,
+        y: 2,
+        label: 'PŁYTY WINYLOWE',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Stojak z winylami: Kaliber 44, Paktofonika, O.S.T.R. Czysty analogowy sound.' }]);
+          this.isBusy = false;
+        },
+      });
+    } else if (map === 'alley') {
+      if (!this.state.party.includes('lisu')) {
+        items.push({
+          id: 'alley_lisu',
+          x: 10,
+          y: 3,
+          label: 'ROZMAWIAJ Z LISEM',
+          action: () => this.triggerAlleyEncounter(),
+        });
+      }
+      items.push({
+        id: 'alley_dumpster',
+        x: 10,
+        y: 4,
+        label: 'KONTENER',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Metalowy kontener na śmieci. Pachnie wczorajszą pizzą i tajemnicą.' }]);
+          this.isBusy = false;
+        },
+      });
+    } else if (map === 'marina') {
+      if (!this.state.party.includes('luki')) {
+        items.push({
+          id: 'marina_luki',
+          x: 10,
+          y: 4,
+          label: 'RATUJ ŁUKIEGO!',
+          isAlert: true,
+          action: () => this.triggerMarinaRescue(),
+        });
+      }
+      items.push({
+        id: 'marina_boat',
+        x: 15,
+        y: 5,
+        label: 'MOTORÓWKA',
+        action: () => this.checkExitTriggers(),
+      });
+    } else if (map === 'forest') {
+      if (!this.state.party.includes('oziem')) {
+        items.push({
+          id: 'forest_oziem',
+          x: 8,
+          y: 4,
+          label: 'ROZMAWIAJ Z OZIEMEM',
+          action: () => this.triggerForestCamp(),
+        });
+      }
+      items.push({
+        id: 'forest_fire',
+        x: 9,
+        y: 5,
+        label: 'OGNISKO',
+        action: () => this.triggerForestCamp(),
+      });
+    }
+
+    return items;
+  }
+
+  private getNearbyInteractable(): Interactable | null {
+    const list = this.getInteractablesForCurrentMap();
+    const px = this.state.x;
+    const py = this.state.y;
+    const facing = this.state.facing ?? 'down';
+
+    const frontX = px + (facing === 'left' ? -1 : facing === 'right' ? 1 : 0);
+    const frontY = py + (facing === 'up' ? -1 : facing === 'down' ? 1 : 0);
+
+    // 1. Direct tile in front
+    for (const item of list) {
+      if (item.isAvailable && !item.isAvailable()) continue;
+      if (item.x === frontX && item.y === frontY) {
+        return item;
+      }
+    }
+
+    // 2. Same tile (e.g. door mat)
+    for (const item of list) {
+      if (item.isAvailable && !item.isAvailable()) continue;
+      if (item.x === px && item.y === py) {
+        return item;
+      }
+    }
+
+    // 3. Proximity <= 1.4 tiles
+    let closest: Interactable | null = null;
+    let closestDist = 1.4;
+    for (const item of list) {
+      if (item.isAvailable && !item.isAvailable()) continue;
+      const dist = Phaser.Math.Distance.Between(px, py, item.x, item.y);
+      if (dist <= closestDist) {
+        closestDist = dist;
+        closest = item;
+      }
+    }
+
+    return closest;
+  }
+
+  private updateInteraction(): void {
+    if (this.isBusy || this.dialogueBox.active || this.isPhoneOpen || this.qteContainer) {
+      this.interactPrompt.hide();
+      return;
+    }
+
+    const item = this.getNearbyInteractable();
+    if (item) {
+      const wx = item.x * TILE + TILE / 2;
+      const wy = item.y * TILE + TILE / 2;
+      this.interactPrompt.show(item.id, wx, wy, item.label, item.isAlert);
+
+      if (this.inputHandler.okOrTap()) {
+        Audio.sfx('cursor');
+        item.action();
+      }
+    } else {
+      this.interactPrompt.hide();
     }
   }
 
@@ -933,20 +1516,14 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private checkTriggers(x: number, y: number): void {
-    if (this.currentMap === 'apartment') {
-      if (x === 4 && y === 4 && !hasFlag(this.state, 'ch1_fought_spine')) {
-        setFlag(this.state, 'ch1_fought_spine', true);
-        this.startSpineEncounter();
+    if (this.currentMap === 'city') {
+      if (x === 5 && y === 3) {
+        this.transitionToMap('zabka', 5, 6);
         return;
       }
-      if ((x === 8 || x === 9) && y === 3 && !hasFlag(this.state, 'ch1_fought_slack')) {
-        setFlag(this.state, 'ch1_fought_slack', true);
-        this.startSlackEncounter();
-        return;
-      }
-    } else if (this.currentMap === 'city') {
-      if (x === 4 && y === 4 && !hasFlag(this.state, 'bought_coffee')) {
-        this.buyCoffee();
+    } else if (this.currentMap === 'zabka') {
+      if (x === 5 && y === 7) {
+        this.transitionToMap('city', 5, 4);
         return;
       }
     } else if (this.currentMap === 'garage') {
@@ -1001,8 +1578,12 @@ export class WorldScene extends Phaser.Scene {
 
   private async startSlackEncounter(): Promise<void> {
     this.isBusy = true;
+    setFlag(this.state, 'ch1_fought_slack', true);
     const runner = new DialogueRunner(CH01.laptop, this.state.leader);
     await this.dialogueBox.play(runner.allResolved());
+
+    const sRunner = new DialogueRunner(CH01.slackFight, this.state.leader);
+    await this.dialogueBox.play(sRunner.allResolved());
 
     this.cameras.main.flash(300, 255, 255, 255);
     Audio.sfx('encounter');
@@ -1020,10 +1601,23 @@ export class WorldScene extends Phaser.Scene {
     this.isBusy = true;
     removeWorldStatus(this.state, 'kacGigant');
     setFlag(this.state, 'bought_coffee', true);
+
+    // Provisions from Żabka
+    this.state.inventory.kawa = (this.state.inventory.kawa ?? 0) + 2;
+    this.state.inventory.hotDog = (this.state.inventory.hotDog ?? 0) + 1;
+    this.state.inventory.elektrolity = (this.state.inventory.elektrolity ?? 0) + 1;
+
+    // Full restore
+    for (const member of Object.values(this.state.roster)) {
+      member.hp = 999;
+      member.mp = 999;
+    }
+
+    Audio.sfx('crit');
     this.updateHud();
     this.updateExitBeacon();
 
-    const runner = new DialogueRunner(CH01.city.kioskBuy, this.state.leader);
+    const runner = new DialogueRunner(CH01.zabka.cashierWelcome, this.state.leader);
     await this.dialogueBox.play(runner.allResolved());
     this.isBusy = false;
   }
