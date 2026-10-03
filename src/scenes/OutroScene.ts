@@ -44,10 +44,12 @@ export class OutroScene extends Phaser.Scene {
 
   private setupSeatedFriends(): void {
     const heroes = ['danny', 'alior', 'lisu', 'barti', 'oziem', 'luki'];
-    const startX = GAME_W / 2 - 200;
+    const startX = GAME_W / 2 - 250;
     heroes.forEach((hid, i) => {
-      const x = startX + i * 80;
-      const y = 485;
+      const x = startX + i * 100;
+      const y = 480;
+      // Ground shadow on pier
+      this.add.ellipse(x, y + 12, 28, 10, 0x000000, 0.45).setDepth(90);
       const spr = this.add.sprite(x, y, `${hid}_sit`, 0).setDepth(100);
       spr.play(`anim_${hid}_sit`);
     });
@@ -74,29 +76,68 @@ export class OutroScene extends Phaser.Scene {
     overlay.fillStyle(0x00030b, 0.88);
     overlay.fillRect(0, 0, GAME_W, GAME_H);
 
-    // Photo frame container
+    // Photo frame container (Polaroid style)
     const pg = this.add.graphics().setDepth(210);
-    drawPanel(pg, 80, 40, GAME_W - 160, GAME_H - 80, { fill: PAL.navy, border: PAL.yellow });
+    drawPanel(pg, 48, 28, GAME_W - 96, GAME_H - 56, { fill: PAL.navy, border: PAL.yellow, glow: true });
 
-    txt(this, GAME_W / 2, 60, '★ FRIEND PACK ANALYZER v1.0 ★', { color: PAL.yellow, big: true, origin: [0.5, 0.5] });
-    txt(this, GAME_W / 2, 85, 'KRONIKA PRZYJAŹNI – LEGENDA LEŚNEGO OGNISKA', { color: PAL.cyanHi, origin: [0.5, 0.5] });
+    txt(this, GAME_W / 2, 52, '★ FRIEND PACK ANALYZER v1.0 – PAMIĄTKOWE ZDJĘCIE ★', {
+      color: PAL.yellow,
+      origin: [0.5, 0.5],
+    });
+    txt(this, GAME_W / 2, 74, 'LEGENDA LEŚNEGO OGNISKA • 2026 REUNION • WILCZY LAS', {
+      color: PAL.cyanHi,
+      origin: [0.5, 0.5],
+    });
 
-    // 6 Hero Portraits row in the commemorative frame (using native uncompressed 96x96)
+    // 6 Hero Portraits in individual framed cards (using high-res 96x96 portraits)
+    const heroInfo: Record<string, { name: string; tag: string }> = {
+      danny: { name: 'DANNY', tag: 'SIŁACZ' },
+      alior: { name: 'ALIOR', tag: 'MAG TECH' },
+      lisu: { name: 'LISU', tag: 'SZPIEG' },
+      barti: { name: 'BARTI', tag: 'BARD' },
+      oziem: { name: 'OZIEM', tag: 'PALADYN' },
+      luki: { name: 'ŁUKI', tag: 'RATOWNIK' },
+    };
+
     const heroes = ['danny', 'alior', 'lisu', 'barti', 'oziem', 'luki'];
     const startPx = GAME_W / 2 - 350;
     heroes.forEach((hid, i) => {
       const px = startPx + i * 140;
-      const py = 190;
-      this.add.image(px, py, `portrait_${hid}_96`).setDisplaySize(88, 88).setDepth(220);
-      txt(this, px, py + 56, hid.toUpperCase(), { color: PAL.white, origin: [0.5, 0.5] });
+      const py = 180;
+
+      // Card frame
+      const frameG = this.add.graphics().setDepth(215);
+      frameG.fillStyle(PAL.panel, 1);
+      frameG.lineStyle(2, PAL.steel, 1);
+      frameG.fillRoundedRect(px - 52, py - 52, 104, 134, 4);
+      frameG.strokeRoundedRect(px - 52, py - 52, 104, 134, 4);
+
+      this.add.image(px, py, `portrait_${hid}_96`).setDisplaySize(92, 92).setDepth(220);
+      txt(this, px, py + 56, heroInfo[hid].name, { color: PAL.yellow, origin: [0.5, 0.5] });
+      txt(this, px, py + 70, heroInfo[hid].tag, { color: PAL.cyan, origin: [0.5, 0.5] });
     });
 
-    // Stats summary
-    txt(this, GAME_W / 2, 330, `LIDER: ${this.state.leader.toUpperCase()}    CZAS: 2026 REUNION    STATUS: WOLNA EKIPA`, { color: PAL.green, origin: [0.5, 0.5] });
-    txt(this, GAME_W / 2, 360, 'POKONANE WYZWANIA: BÓL PLECÓW, SLACKI, SĄSIAD, HIPSTERZY, KARK, PAN JANUSZ', { color: PAL.cyan, origin: [0.5, 0.5] });
-    txt(this, GAME_W / 2, 390, 'DOROSŁOŚĆ: POKONANA    KLIMAT: 100%    FPS: 60 (BEZ LAGÓW)', { color: PAL.yellow, origin: [0.5, 0.5] });
+    // Stats summary box
+    const sg = this.add.graphics().setDepth(215);
+    drawPanel(sg, 80, 320, GAME_W - 160, 110, { fill: PAL.panel, border: PAL.steel });
 
-    txt(this, GAME_W / 2, 450, '[ NACIŚNIJ SPACJA / Z ]', { color: PAL.fireHi, origin: [0.5, 0.5] });
+    txt(this, GAME_W / 2, 342, `LIDER: ${this.state.leader.toUpperCase()}   |   ROSTER: 6/6 ZWERBOWANYCH   |   KLIMAT: 100%   |   WSPOMNIENIA: ZAPISANE`, {
+      color: PAL.green,
+      origin: [0.5, 0.5],
+    });
+    txt(this, GAME_W / 2, 370, 'POKONANE WYZWANIA: BÓL KRĘGOSŁUPA, SLACKI, SĄSIAD SZKODNIK, HIPSTERZY, KARK, PAN JANUSZ', {
+      color: PAL.cyanHi,
+      origin: [0.5, 0.5],
+    });
+    txt(this, GAME_W / 2, 398, 'STATUS DOROSŁOŚCI: PRZEŁAMANA   |   PRZYJAŹŃ: LEGENDARNA   |   FPS: 60 (BEZ LAGÓW)', {
+      color: PAL.yellow,
+      origin: [0.5, 0.5],
+    });
+
+    txt(this, GAME_W / 2, 470, '[ NACIŚNIJ SPACJA / ENTER / Z – POWRÓT DO MENU GŁÓWNEGO ]', {
+      color: PAL.fireHi,
+      origin: [0.5, 0.5],
+    });
   }
 
   override update(_time: number, delta: number): void {

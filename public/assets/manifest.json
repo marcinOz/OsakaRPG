@@ -76,13 +76,13 @@
     },
     "enemy_autoTuneHipster": {
       "path": "assets/enemies/autoTuneHipster.png",
-      "frameWidth": 96,
-      "frameHeight": 96
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "enemy_drogiePiwo": {
       "path": "assets/enemies/drogiePiwo.png",
-      "frameWidth": 96,
-      "frameHeight": 96
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "enemy_kark": {
       "path": "assets/enemies/kark.png",
@@ -91,28 +91,28 @@
     },
     "enemy_straznik": {
       "path": "assets/enemies/straznik.png",
-      "frameWidth": 96,
-      "frameHeight": 96
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "enemy_panJanusz": {
       "path": "assets/enemies/panJanusz.png",
-      "frameWidth": 128,
-      "frameHeight": 128
+      "frameWidth": 144,
+      "frameHeight": 144
     },
     "enemy_kredyt": {
       "path": "assets/enemies/kredyt.png",
-      "frameWidth": 128,
-      "frameHeight": 128
+      "frameWidth": 144,
+      "frameHeight": 144
     },
     "enemy_audyt": {
       "path": "assets/enemies/audyt.png",
-      "frameWidth": 128,
-      "frameHeight": 128
+      "frameWidth": 144,
+      "frameHeight": 144
     },
     "enemy_rwaKulszowa": {
       "path": "assets/enemies/rwaKulszowa.png",
-      "frameWidth": 96,
-      "frameHeight": 96
+      "frameWidth": 128,
+      "frameHeight": 128
     },
     "danny_walk": {
       "path": "assets/sprites/danny_walk.png",

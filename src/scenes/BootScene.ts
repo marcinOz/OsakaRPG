@@ -55,13 +55,20 @@ export class BootScene extends Phaser.Scene {
 
     // Spritesheets
     this.load.spritesheet('fire', 'assets/bg/fire.png', { frameWidth: 64, frameHeight: 80 });
-    const bossEnemies = ['sasiadSzkodnik', 'kark', 'panJanusz', 'kredyt', 'audyt'];
-    const allEnemies = [
-      'bolKregoslupa', 'slacki', 'sasiadSzkodnik', 'autoTuneHipster', 'drogiePiwo',
-      'kark', 'straznik', 'panJanusz', 'kredyt', 'audyt', 'rwaKulszowa'
-    ];
-    for (const eid of allEnemies) {
-      const sz = bossEnemies.includes(eid) ? 128 : 96;
+    const enemySizes: Record<string, number> = {
+      bolKregoslupa: 96,
+      slacki: 96,
+      sasiadSzkodnik: 128,
+      autoTuneHipster: 128,
+      drogiePiwo: 128,
+      kark: 128,
+      straznik: 128,
+      rwaKulszowa: 128,
+      panJanusz: 144,
+      kredyt: 144,
+      audyt: 144,
+    };
+    for (const [eid, sz] of Object.entries(enemySizes)) {
       this.load.spritesheet(`enemy_${eid}`, `assets/enemies/${eid}.png`, { frameWidth: sz, frameHeight: sz });
     }
 
@@ -109,12 +116,21 @@ export class BootScene extends Phaser.Scene {
       });
     }
 
-    // Enemies
-    const allEnemies = [
-      'bolKregoslupa', 'slacki', 'sasiadSzkodnik', 'autoTuneHipster', 'drogiePiwo',
-      'kark', 'straznik', 'panJanusz', 'kredyt', 'audyt', 'rwaKulszowa'
-    ];
-    for (const eid of allEnemies) {
+    // Enemies (2 frames idle)
+    const enemySizes: Record<string, number> = {
+      bolKregoslupa: 96,
+      slacki: 96,
+      sasiadSzkodnik: 128,
+      autoTuneHipster: 128,
+      drogiePiwo: 128,
+      kark: 128,
+      straznik: 128,
+      rwaKulszowa: 128,
+      panJanusz: 144,
+      kredyt: 144,
+      audyt: 144,
+    };
+    for (const eid of Object.keys(enemySizes)) {
       if (!this.anims.exists(`anim_enemy_${eid}`)) {
         this.anims.create({
           key: `anim_enemy_${eid}`,
@@ -125,8 +141,9 @@ export class BootScene extends Phaser.Scene {
       }
     }
 
-    // Hero walk anims
+    // Hero anims (walk, sit, battle states)
     for (const hid of HERO_IDS) {
+      // Walk: down, left, right, up
       const dirs = ['down', 'left', 'right', 'up'];
       dirs.forEach((dir, r) => {
         const start = r * 4;
@@ -146,7 +163,7 @@ export class BootScene extends Phaser.Scene {
         }
       });
 
-      // Sitting anim
+      // Sitting anim (2 breathing frames)
       if (!this.anims.exists(`anim_${hid}_sit`)) {
         this.anims.create({
           key: `anim_${hid}_sit`,
@@ -154,6 +171,28 @@ export class BootScene extends Phaser.Scene {
           frameRate: 2,
           repeat: -1,
         });
+      }
+
+      // Battle states: idle, windup, attack, skill, hurt, ko, victory
+      const battleStates: Record<string, { frames: number[]; rate: number; repeat: number }> = {
+        idle: { frames: [0, 1], rate: 3, repeat: -1 },
+        windup: { frames: [2], rate: 4, repeat: 0 },
+        attack: { frames: [2, 3], rate: 6, repeat: 0 },
+        skill: { frames: [2, 4], rate: 6, repeat: 0 },
+        hurt: { frames: [5], rate: 4, repeat: 0 },
+        ko: { frames: [6], rate: 1, repeat: -1 },
+        victory: { frames: [7], rate: 3, repeat: -1 },
+      };
+      for (const [state, cfg] of Object.entries(battleStates)) {
+        const key = `anim_${hid}_battle_${state}`;
+        if (!this.anims.exists(key)) {
+          this.anims.create({
+            key,
+            frames: cfg.frames.map((f) => ({ key: `${hid}_battle`, frame: f })),
+            frameRate: cfg.rate,
+            repeat: cfg.repeat,
+          });
+        }
       }
     }
 

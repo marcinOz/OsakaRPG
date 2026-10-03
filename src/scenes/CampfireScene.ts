@@ -47,10 +47,11 @@ export class CampfireScene extends Phaser.Scene {
     this.add.image(GAME_W / 2, GAME_H / 2, 'campfire_bg').setDisplaySize(GAME_W, GAME_H);
 
     // Weather: floating rising embers from fire pit
+    // Weather: floating rising embers from fire pit
     this.weatherHandle = addWeather(this, 'embers', { x: GAME_W / 2, y: 440 });
 
-    // Animated central campfire
-    this.fireSprite = this.add.sprite(GAME_W / 2, 440, 'fire', 0).setDepth(200);
+    // Animated central campfire (64x80) placed at the stone fire pit
+    this.fireSprite = this.add.sprite(GAME_W / 2, 465, 'fire', 0).setOrigin(0.5, 0.92).setDepth(450);
     this.fireSprite.play('anim_fire');
 
     // 6 Seated Friends around the fire
@@ -71,53 +72,74 @@ export class CampfireScene extends Phaser.Scene {
 
   private createPartyStatsHud(): void {
     const hg = this.add.graphics().setDepth(500);
-    drawPanel(hg, 16, 12, GAME_W - 32, 52, { fill: PAL.navy, border: PAL.steel });
+    drawPanel(hg, 16, 12, GAME_W - 32, 64, { fill: PAL.navy, border: PAL.steel, glow: true });
 
-    txt(this, 30, 16, '[PARTY STATS - ROZDZIAŁ 7: OGNISKO]', { color: PAL.yellow });
+    txt(this, GAME_W / 2, 20, '★ PARTY STATS – ROZDZIAŁ 7: OGNISKO W WILCZYM LESIE ★', {
+      color: PAL.yellow,
+      origin: [0.5, 0.5],
+    });
 
-    // Row 1
-    txt(this, 30, 28, 'DANNY [HP: 100/100]  |  ALIOR [MP: 85/85]  |  LISU [SPD: MAX]', { color: PAL.cyan });
-    // Row 2
-    txt(this, 30, 42, 'BARTI [BUFF: BASS]   |  OZIEM [FIRE: ON]   |  ŁUKI [RESCUE: READY]', { color: PAL.cyanHi });
+    // 6 Heroes status summary row
+    const stats = [
+      'DANNY [HP: 100/100]',
+      'ALIOR [MP: 85/85]',
+      'LISU [SPD: MAX]',
+      'BARTI [BUFF: BASS]',
+      'OZIEM [FIRE: ON]',
+      'ŁUKI [RESCUE: OK]',
+    ];
+    const startX = 36;
+    const colW = (GAME_W - 72) / 6;
+    stats.forEach((s, idx) => {
+      const color = idx % 2 === 0 ? PAL.cyan : PAL.cyanHi;
+      txt(this, startX + idx * colW + colW / 2, 40, s, { color, origin: [0.5, 0.5] });
+    });
+
+    txt(this, GAME_W / 2, 58, 'EKIPA: KOMPLET (6/6)   |   OGIEŃ: PŁONIE   |   BUFF: KLIMAT LAT MŁODOŚCI', {
+      color: PAL.green,
+      origin: [0.5, 0.5],
+    });
   }
 
   private setupSeatedFriends(): void {
-    // Left side heroes (facing right toward fire)
-    const leftHeroes = ['danny', 'alior', 'lisu'];
-    const leftPositions = [
-      { x: GAME_W / 2 - 140, y: 440 },
-      { x: GAME_W / 2 - 90, y: 460 },
-      { x: GAME_W / 2 - 190, y: 430 },
+    // Left side heroes (Danny, Alior, Lisu - facing right toward fire)
+    const leftHeroes = [
+      { id: 'lisu', x: GAME_W / 2 - 165, y: 425 },
+      { id: 'danny', x: GAME_W / 2 - 115, y: 455 },
+      { id: 'alior', x: GAME_W / 2 - 65, y: 485 },
     ];
 
-    leftHeroes.forEach((hid, i) => {
-      const pos = leftPositions[i];
-      const spr = this.add.sprite(pos.x, pos.y, `${hid}_sit`, 0).setDepth(150);
-      spr.play(`anim_${hid}_sit`);
+    leftHeroes.forEach((h) => {
+      // Ground shadow
+      this.add.ellipse(h.x, h.y + 12, 28, 10, 0x000000, 0.45).setDepth(h.y - 1);
+      const spr = this.add.sprite(h.x, h.y, `${h.id}_sit`, 0).setDepth(h.y);
+      spr.play(`anim_${h.id}_sit`);
       spr.setFlipX(true); // Face fire
     });
 
-    // Right side heroes (facing left toward fire)
-    const rightHeroes = ['barti', 'oziem', 'luki'];
-    const rightPositions = [
-      { x: GAME_W / 2 + 90, y: 460 },
-      { x: GAME_W / 2 + 140, y: 440 },
-      { x: GAME_W / 2 + 190, y: 430 },
+    // Right side heroes (Barti, Oziem, Łuki - facing left toward fire)
+    const rightHeroes = [
+      { id: 'luki', x: GAME_W / 2 + 165, y: 425 },
+      { id: 'oziem', x: GAME_W / 2 + 115, y: 455 },
+      { id: 'barti', x: GAME_W / 2 + 65, y: 485 },
     ];
 
-    rightHeroes.forEach((hid, i) => {
-      const pos = rightPositions[i];
-      const spr = this.add.sprite(pos.x, pos.y, `${hid}_sit`, 0).setDepth(150);
-      spr.play(`anim_${hid}_sit`);
+    rightHeroes.forEach((h) => {
+      // Ground shadow
+      this.add.ellipse(h.x, h.y + 12, 28, 10, 0x000000, 0.45).setDepth(h.y - 1);
+      const spr = this.add.sprite(h.x, h.y, `${h.id}_sit`, 0).setDepth(h.y);
+      spr.play(`anim_${h.id}_sit`);
+      spr.setFlipX(false); // Face fire
     });
   }
 
   private createActionBar(): void {
     const bg = this.add.graphics().setDepth(400);
-    drawPanel(bg, 16, GAME_H - 42, GAME_W - 32, 32, { fill: PAL.panel, border: PAL.steel });
+    drawPanel(bg, 16, GAME_H - 46, GAME_W - 32, 38, { fill: PAL.panel, border: PAL.steel, glow: true });
 
-    txt(this, 36, GAME_H - 32, '[1] Dodaj drewna       [2] Puść O.S.T.R. z głośnika       [3] Wznieś toast', {
+    txt(this, GAME_W / 2, GAME_H - 28, '[ 1 ] Dorzuć drewna do ognia       [ 2 ] Puść O.S.T.R. z głośnika       [ 3 ] Wznieś toast za ekipę', {
       color: PAL.cyanHi,
+      origin: [0.5, 0.5],
     });
   }
 

@@ -32,7 +32,8 @@ export class WorldScene extends Phaser.Scene {
   private trail: TrailPoint[] = [];
 
   private mapContainer!: Phaser.GameObjects.Container;
-  private npcContainer!: Phaser.GameObjects.Container;
+  private npcSprites: Phaser.GameObjects.Sprite[] = [];
+  private propSprites: Phaser.GameObjects.Image[] = [];
   private hudContainer!: Phaser.GameObjects.Container;
   private hudText!: Phaser.GameObjects.BitmapText | Phaser.GameObjects.Text;
   private isBusy = false;
@@ -78,17 +79,18 @@ export class WorldScene extends Phaser.Scene {
     applyCrtToCamera(this);
     this.cameras.main.setBackgroundColor(PAL.void);
 
-    this.mapContainer = this.add.container(0, 0);
-    this.npcContainer = this.add.container(0, 0).setDepth(120);
+    this.mapContainer = this.add.container(0, 0).setDepth(10);
     this.hudContainer = this.add.container(0, 0).setDepth(900).setScrollFactor(0);
 
     this.buildMap(this.currentMap);
     this.updateAtmosphere();
 
-    // Player sprite
+    // Player sprite (32x48 frame, origin 0.5, 0.75 for 32px tile grid)
     const px = this.state.x * TILE + TILE / 2;
     const py = this.state.y * TILE + TILE / 2;
-    this.playerSprite = this.add.sprite(px, py, `${this.state.leader}_walk`, 0).setDepth(150);
+    this.playerSprite = this.add.sprite(px, py, `${this.state.leader}_walk`, 0);
+    this.playerSprite.setOrigin(0.5, 0.75);
+    this.playerSprite.setDepth(this.playerSprite.y + 12);
     this.playerSprite.play(`anim_${this.state.leader}_walk_down`);
     this.playerSprite.stop();
 
@@ -165,7 +167,9 @@ export class WorldScene extends Phaser.Scene {
 
     followers.forEach((hid) => {
       if (!this.followerSprites.has(hid)) {
-        const fspr = this.add.sprite(this.playerSprite.x, this.playerSprite.y, `${hid}_walk`, 0).setDepth(140);
+        const fspr = this.add.sprite(this.playerSprite.x, this.playerSprite.y, `${hid}_walk`, 0);
+        fspr.setOrigin(0.5, 0.75);
+        fspr.setDepth(fspr.y + 12);
         fspr.play(`anim_${hid}_walk_down`);
         fspr.stop();
         this.followerSprites.set(hid, fspr);
@@ -173,9 +177,50 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
+  private addTile(x: number, y: number, key: string, tileIdx: number, isSolid = false, isUprightProp = false): void {
+    this.solids[y][x] = isSolid;
+    const px = x * TILE + TILE / 2;
+    const py = y * TILE + TILE / 2;
+    if (isUprightProp) {
+      // Base floor tile in mapContainer
+      const baseSpr = this.add.image(px, py, key);
+      baseSpr.setCrop(0, 0, TILE, TILE);
+      this.mapContainer.add(baseSpr);
+
+      // Upright prop sprite depth-sorted at prop base
+      const propSpr = this.add.image(px, py, key).setDepth(y * TILE + 24);
+      propSpr.setCrop(tileIdx * TILE, 0, TILE, TILE);
+      this.propSprites.push(propSpr);
+    } else {
+      const spr = this.add.image(px, py, key);
+      spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
+      this.mapContainer.add(spr);
+    }
+  }
+
+  private addNpc(x: number, y: number, hid: string): void {
+    const npc = this.add.sprite(x * TILE + TILE / 2, y * TILE + TILE / 2, `${hid}_walk`, 0);
+    npc.setOrigin(0.5, 0.75);
+    npc.setDepth(y * TILE + TILE / 2 + 12);
+    this.npcSprites.push(npc);
+  }
+
+  private removeNpcSprite(hid: string): void {
+    this.npcSprites = this.npcSprites.filter((spr) => {
+      if (spr.texture.key.startsWith(hid)) {
+        spr.destroy();
+        return false;
+      }
+      return true;
+    });
+  }
+
   private buildMap(mapName: string): void {
     this.mapContainer.removeAll(true);
-    this.npcContainer.removeAll(true);
+    this.propSprites.forEach((p) => p.destroy());
+    this.propSprites = [];
+    this.npcSprites.forEach((n) => n.destroy());
+    this.npcSprites = [];
     this.solids = [];
     for (let y = 0; y < this.mapH; y++) {
       this.solids[y] = [];
@@ -206,20 +251,18 @@ export class WorldScene extends Phaser.Scene {
       for (let x = 0; x < this.mapW; x++) {
         let tileIdx = 0;
         let isSolid = false;
+        let isProp = false;
         if (y === 0) { tileIdx = 2; isSolid = true; }
         else if (y === 1) { tileIdx = 1; isSolid = true; }
         else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
-        if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; }
-        if (x === 3 && y === 3) { tileIdx = 4; isSolid = true; }
-        if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; }
-        if (x === 9 && y === 2) { tileIdx = 6; isSolid = true; }
+        if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; isProp = true; }
+        if (x === 3 && y === 3) { tileIdx = 4; isSolid = true; isProp = true; }
+        if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; }
+        if (x === 9 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; }
         if (x === 6 && y === 5 || x === 7 && y === 5) { tileIdx = 5; }
         if (x === 10 && y === this.mapH - 1) { tileIdx = 7; isSolid = false; }
 
-        this.solids[y][x] = isSolid;
-        const spr = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, 'tiles_apartment');
-        spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
-        this.mapContainer.add(spr);
+        this.addTile(x, y, 'tiles_apartment', tileIdx, isSolid, isProp);
       }
     }
   }
@@ -229,16 +272,14 @@ export class WorldScene extends Phaser.Scene {
       for (let x = 0; x < this.mapW; x++) {
         let tileIdx = 1;
         let isSolid = false;
+        let isProp = false;
         if (y < 3) { tileIdx = (x % 2 === 0) ? 2 : 3; isSolid = true; }
         else if (y >= 8) { tileIdx = 0; }
-        if (x === 4 && y === 3) { tileIdx = 5; isSolid = true; }
-        if (x === 10 && y === 4) { tileIdx = 6; isSolid = true; }
+        if (x === 4 && y === 3) { tileIdx = 5; isSolid = true; isProp = true; }
+        if (x === 10 && y === 4) { tileIdx = 6; isSolid = true; isProp = true; }
         if (x === 17 && y === 5) { tileIdx = 7; isSolid = false; }
 
-        this.solids[y][x] = isSolid;
-        const spr = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, 'tiles_city');
-        spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
-        this.mapContainer.add(spr);
+        this.addTile(x, y, 'tiles_city', tileIdx, isSolid, isProp);
       }
     }
   }
@@ -248,32 +289,28 @@ export class WorldScene extends Phaser.Scene {
       for (let x = 0; x < this.mapW; x++) {
         let tileIdx = 0; // concrete
         let isSolid = false;
+        let isProp = false;
         if (y === 0) { tileIdx = 2; isSolid = true; }
         else if (y === 1) { tileIdx = 1; isSolid = true; }
         else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
 
         // Props
-        if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; } // tires
-        if (x === 4 && y === 2) { tileIdx = 4; isSolid = true; } // weights
-        if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; } // projector UFC
-        if (x === 14 && y === 2) { tileIdx = 5; isSolid = true; } // beer fridge
+        if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; isProp = true; } // tires
+        if (x === 4 && y === 2) { tileIdx = 4; isSolid = true; isProp = true; } // weights
+        if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // projector UFC
+        if (x === 14 && y === 2) { tileIdx = 5; isSolid = true; isProp = true; } // beer fridge
         if (x === 17 && y === 6) { tileIdx = 7; isSolid = false; } // exit to pub!
 
-        this.solids[y][x] = isSolid;
-        const spr = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, 'tiles_garage');
-        spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
-        this.mapContainer.add(spr);
+        this.addTile(x, y, 'tiles_garage', tileIdx, isSolid, isProp);
       }
     }
 
     // Spawn Danny & Alior NPCs if they haven't joined yet
     if (!this.state.party.includes('danny')) {
-      const dNpc = this.add.sprite(5 * TILE + TILE / 2, 4 * TILE + TILE / 2, 'danny_walk', 0);
-      this.npcContainer.add(dNpc);
+      this.addNpc(5, 4, 'danny');
     }
     if (!this.state.party.includes('alior')) {
-      const aNpc = this.add.sprite(8 * TILE + TILE / 2, 4 * TILE + TILE / 2, 'alior_walk', 0);
-      this.npcContainer.add(aNpc);
+      this.addNpc(8, 4, 'alior');
     }
   }
 
@@ -282,6 +319,7 @@ export class WorldScene extends Phaser.Scene {
       for (let x = 0; x < this.mapW; x++) {
         let tileIdx = 0; // dark wood floor
         let isSolid = false;
+        let isProp = false;
         if (y === 0) { tileIdx = 2; isSolid = true; }
         else if (y === 1) { tileIdx = 1; isSolid = true; }
         else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
@@ -290,21 +328,18 @@ export class WorldScene extends Phaser.Scene {
         if (y === 3 && x >= 4 && x <= 12) {
           tileIdx = (x === 8) ? 4 : (x === 10 ? 6 : 3);
           isSolid = true;
+          isProp = true;
         }
-        if (x === 14 && y === 2) { tileIdx = 5; isSolid = true; } // vinyl rack
+        if (x === 14 && y === 2) { tileIdx = 5; isSolid = true; isProp = true; } // vinyl rack
         if (x === 17 && y === 6) { tileIdx = 7; isSolid = false; } // exit to alley
 
-        this.solids[y][x] = isSolid;
-        const spr = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, 'tiles_pub');
-        spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
-        this.mapContainer.add(spr);
+        this.addTile(x, y, 'tiles_pub', tileIdx, isSolid, isProp);
       }
     }
 
     // Spawn Barti NPC behind DJ decks if not joined yet
     if (!this.state.party.includes('barti')) {
-      const bNpc = this.add.sprite(10 * TILE + TILE / 2, 2 * TILE + TILE / 2, 'barti_walk', 0);
-      this.npcContainer.add(bNpc);
+      this.addNpc(10, 2, 'barti');
     }
   }
 
@@ -313,27 +348,23 @@ export class WorldScene extends Phaser.Scene {
       for (let x = 0; x < this.mapW; x++) {
         let tileIdx = 0; // cobblestone
         let isSolid = false;
+        let isProp = false;
         if (y === 0) { tileIdx = 2; isSolid = true; }
         else if (y === 1 || y === 2) { tileIdx = 1; isSolid = true; }
         else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
 
-        if (x === 10 && y === 4) { tileIdx = 3; isSolid = true; } // dumpster
-        if (x === 5 && y === 3 || x === 13 && y === 3) { tileIdx = 4; isSolid = true; } // streetlamps
-        if (x === 3 && y === 4) { tileIdx = 5; isSolid = true; } // wooden crates
-        if (x === 17 && y === 5) { tileIdx = 7; isSolid = false; } // exit arch to marina
-        if (x === 17 && y === 6) { tileIdx = 7; isSolid = false; }
+        if (x === 10 && y === 4) { tileIdx = 3; isSolid = true; isProp = true; } // dumpster
+        if (x === 5 && y === 3 || x === 13 && y === 3) { tileIdx = 4; isSolid = true; isProp = true; } // streetlamps
+        if (x === 3 && y === 4) { tileIdx = 5; isSolid = true; isProp = true; } // wooden crates
+        if (x === 17 && y === 5 || x === 17 && y === 6) { tileIdx = 7; isSolid = false; } // exit arch to marina
 
-        this.solids[y][x] = isSolid;
-        const spr = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, 'tiles_alley');
-        spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
-        this.mapContainer.add(spr);
+        this.addTile(x, y, 'tiles_alley', tileIdx, isSolid, isProp);
       }
     }
 
     // Spawn Lisu NPC near dumpster if not joined yet
     if (!this.state.party.includes('lisu')) {
-      const lNpc = this.add.sprite(10 * TILE + TILE / 2, 3 * TILE + TILE / 2, 'lisu_walk', 0);
-      this.npcContainer.add(lNpc);
+      this.addNpc(10, 3, 'lisu');
     }
   }
 
@@ -342,6 +373,7 @@ export class WorldScene extends Phaser.Scene {
       for (let x = 0; x < this.mapW; x++) {
         let tileIdx = 0; // pier plank
         let isSolid = false;
+        let isProp = false;
         // Water top and bottom
         if (y < 3 || y > 7) {
           tileIdx = 1; // water
@@ -349,6 +381,7 @@ export class WorldScene extends Phaser.Scene {
         } else if (y === 3) {
           tileIdx = 6; // pier rail
           isSolid = true;
+          isProp = true;
         } else if (y === 7) {
           tileIdx = 2; // pier edge
           isSolid = true;
@@ -357,21 +390,17 @@ export class WorldScene extends Phaser.Scene {
           isSolid = true;
         }
 
-        if (x === 6 && y === 3) { tileIdx = 4; isSolid = true; } // lifebuoy rack
-        if (x === 15 && (y === 4 || y === 5)) { tileIdx = 5; isSolid = false; } // rescue boat
-        if (x === 11 && y === 3) { tileIdx = 7; isSolid = true; } // pier lantern
+        if (x === 6 && y === 3) { tileIdx = 4; isSolid = true; isProp = true; } // lifebuoy rack
+        if (x === 15 && (y === 4 || y === 5)) { tileIdx = 5; isSolid = false; isProp = true; } // rescue boat
+        if (x === 11 && y === 3) { tileIdx = 7; isSolid = true; isProp = true; } // pier lantern
 
-        this.solids[y][x] = isSolid;
-        const spr = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, 'tiles_marina');
-        spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
-        this.mapContainer.add(spr);
+        this.addTile(x, y, 'tiles_marina', tileIdx, isSolid, isProp);
       }
     }
 
     // Spawn Łuki NPC at pier end if not joined yet
     if (!this.state.party.includes('luki')) {
-      const luNpc = this.add.sprite(10 * TILE + TILE / 2, 4 * TILE + TILE / 2, 'luki_walk', 0);
-      this.npcContainer.add(luNpc);
+      this.addNpc(10, 4, 'luki');
     }
   }
 
@@ -380,6 +409,7 @@ export class WorldScene extends Phaser.Scene {
       for (let x = 0; x < this.mapW; x++) {
         let tileIdx = 0; // grass
         let isSolid = false;
+        let isProp = false;
         if (y === 0 || y === 1 || y === this.mapH - 1 || x === 0 || x === this.mapW - 1) {
           tileIdx = 2; // dense trees
           isSolid = true;
@@ -392,24 +422,22 @@ export class WorldScene extends Phaser.Scene {
         if (x === 9 && y === 5) {
           tileIdx = 5;
           isSolid = true;
+          isProp = true;
         }
         // Hammocks
         if ((x === 5 && y === 3) || (x === 13 && y === 3)) {
           tileIdx = 6;
           isSolid = true;
+          isProp = true;
         }
 
-        this.solids[y][x] = isSolid;
-        const spr = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, 'tiles_forest');
-        spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
-        this.mapContainer.add(spr);
+        this.addTile(x, y, 'tiles_forest', tileIdx, isSolid, isProp);
       }
     }
 
     // Spawn Oziem NPC if not joined yet
     if (!this.state.party.includes('oziem')) {
-      const oNpc = this.add.sprite(8 * TILE + TILE / 2, 4 * TILE + TILE / 2, 'oziem_walk', 0);
-      this.npcContainer.add(oNpc);
+      this.addNpc(8, 4, 'oziem');
     }
   }
 
@@ -486,13 +514,17 @@ export class WorldScene extends Phaser.Scene {
       if (this.isWalkable(tileX, tileY)) {
         this.playerSprite.x = targetX;
         this.playerSprite.y = targetY;
+        this.playerSprite.setDepth(this.playerSprite.y + 12);
         this.state.x = tileX;
         this.state.y = tileY;
 
-        // Record breadcrumb trail for followers
+        // Record breadcrumb trail for followers with distance threshold
         const dir = axis.x > 0 ? 'right' : axis.x < 0 ? 'left' : axis.y > 0 ? 'down' : 'up';
-        this.trail.push({ x: targetX, y: targetY, dir });
-        if (this.trail.length > 80) this.trail.shift();
+        const lastPt = this.trail[this.trail.length - 1];
+        if (!lastPt || Phaser.Math.Distance.Between(targetX, targetY, lastPt.x, lastPt.y) >= 4) {
+          this.trail.push({ x: targetX, y: targetY, dir });
+          if (this.trail.length > 250) this.trail.shift();
+        }
 
         this.updateFollowers();
       }
@@ -503,19 +535,24 @@ export class WorldScene extends Phaser.Scene {
       this.checkTriggers(tileX, tileY);
     } else {
       this.playerSprite.stop();
-      this.followerSprites.forEach((spr) => spr.stop());
+      this.followerSprites.forEach((spr) => {
+        spr.stop();
+        spr.setDepth(spr.y + 12);
+      });
     }
   }
 
   private updateFollowers(): void {
     const followers = this.state.party.slice(1);
+    const stepSpacing = 7; // ~28px distance per follower for natural 32px trail
     followers.forEach((hid, idx) => {
       const spr = this.followerSprites.get(hid);
       if (!spr) return;
-      const historyIndex = Math.max(0, this.trail.length - 1 - (idx + 1) * 16);
-      const pt = this.trail[historyIndex];
-      if (pt) {
+      const targetIndex = this.trail.length - 1 - (idx + 1) * stepSpacing;
+      if (targetIndex >= 0) {
+        const pt = this.trail[targetIndex];
         spr.setPosition(pt.x, pt.y);
+        spr.setDepth(spr.y + 12);
         spr.play(`anim_${hid}_walk_${pt.dir}`, true);
       }
     });
@@ -672,19 +709,23 @@ export class WorldScene extends Phaser.Scene {
   private startQte(title: string, onComplete: (success: boolean) => void): void {
     this.qteContainer = this.add.container(GAME_W / 2, GAME_H / 2).setDepth(850).setScrollFactor(0);
     const qg = this.add.graphics();
-    drawPanel(qg, -130, -32, 260, 64, { fill: PAL.panel, border: PAL.cyanHi });
-    // Bar frame
+    drawPanel(qg, -240, -60, 480, 120, { fill: PAL.navy, border: PAL.steel, glow: true });
+    // Bar frame track
     qg.fillStyle(PAL.ink, 1);
-    qg.fillRect(-90, -6, 180, 16);
-    // Green sweet spot (-20..20)
+    qg.fillRect(-180, 6, 360, 24);
+    // Green sweet spot (-36..36)
     qg.fillStyle(PAL.green, 1);
-    qg.fillRect(-20, -6, 40, 16);
+    qg.fillRect(-36, 6, 72, 24);
+    // Center bullseye (-14..14)
+    qg.fillStyle(PAL.fireHi, 1);
+    qg.fillRect(-14, 6, 28, 24);
 
     this.qteContainer.add(qg);
-    this.qteContainer.add(txt(this, 0, -20, title, { color: PAL.yellow, origin: [0.5, 0.5] }));
+    this.qteContainer.add(txt(this, 0, -36, title, { color: PAL.yellow, origin: [0.5, 0.5] }));
+    this.qteContainer.add(txt(this, 0, -18, '[ WYCZUJ MOMENT I WCIŚNIJ SPACJĘ / ENTER / Z ]', { color: PAL.cyan, origin: [0.5, 0.5] }));
 
-    this.qteMarkerX = -85;
-    this.qteMarkerSpeed = 180;
+    this.qteMarkerX = -170;
+    this.qteMarkerSpeed = 260;
     this.qteCallback = onComplete;
   }
 
@@ -692,28 +733,31 @@ export class WorldScene extends Phaser.Scene {
     if (!this.qteContainer) return;
 
     this.qteMarkerX += this.qteMarkerSpeed * (delta / 1000);
-    if (this.qteMarkerX > 85) {
-      this.qteMarkerX = 85;
+    if (this.qteMarkerX > 170) {
+      this.qteMarkerX = 170;
       this.qteMarkerSpeed = -Math.abs(this.qteMarkerSpeed);
-    } else if (this.qteMarkerX < -85) {
-      this.qteMarkerX = -85;
+    } else if (this.qteMarkerX < -170) {
+      this.qteMarkerX = -170;
       this.qteMarkerSpeed = Math.abs(this.qteMarkerSpeed);
     }
 
     // Redraw marker
     const g = this.qteContainer.getAt(0) as Phaser.GameObjects.Graphics;
     g.clear();
-    drawPanel(g, -130, -32, 260, 64, { fill: PAL.panel, border: PAL.cyanHi });
+    drawPanel(g, -240, -60, 480, 120, { fill: PAL.navy, border: PAL.steel, glow: true });
     g.fillStyle(PAL.ink, 1);
-    g.fillRect(-90, -6, 180, 16);
+    g.fillRect(-180, 6, 360, 24);
     g.fillStyle(PAL.green, 1);
-    g.fillRect(-20, -6, 40, 16);
+    g.fillRect(-36, 6, 72, 24);
+    g.fillStyle(PAL.fireHi, 1);
+    g.fillRect(-14, 6, 28, 24);
+
     // Marker line
     g.fillStyle(PAL.white, 1);
-    g.fillRect(this.qteMarkerX - 2, -9, 4, 22);
+    g.fillRect(this.qteMarkerX - 3, 2, 6, 32);
 
     if (this.inputHandler.okOrTap()) {
-      const isSuccess = Math.abs(this.qteMarkerX) <= 22;
+      const isSuccess = Math.abs(this.qteMarkerX) <= 36;
       this.qteContainer.destroy();
       this.qteContainer = null;
 
@@ -755,6 +799,8 @@ export class WorldScene extends Phaser.Scene {
   private async afterSasiadBoss(): Promise<void> {
     this.isBusy = true;
     setFlag(this.state, 'danny_alior_joined', true);
+    this.removeNpcSprite('danny');
+    this.removeNpcSprite('alior');
     addToParty(this.state, 'danny');
     addToParty(this.state, 'alior');
     this.syncFollowerSprites();
@@ -795,6 +841,7 @@ export class WorldScene extends Phaser.Scene {
   private async afterPubBattle(): Promise<void> {
     this.isBusy = true;
     setFlag(this.state, 'barti_joined', true);
+    this.removeNpcSprite('barti');
     addToParty(this.state, 'barti');
     this.syncFollowerSprites();
     this.updateHud();
@@ -837,6 +884,7 @@ export class WorldScene extends Phaser.Scene {
   private async afterKarkBattle(): Promise<void> {
     this.isBusy = true;
     setFlag(this.state, 'lisu_joined', true);
+    this.removeNpcSprite('lisu');
     addToParty(this.state, 'lisu');
     this.syncFollowerSprites();
     this.updateHud();
@@ -862,6 +910,7 @@ export class WorldScene extends Phaser.Scene {
     // Launch rescue QTE
     this.startQte('RZUĆ KOŁO ŁUKIEMU! [Z / ENTER]', async (_success) => {
       setFlag(this.state, 'luki_joined', true);
+      this.removeNpcSprite('luki');
       addToParty(this.state, 'luki');
       this.syncFollowerSprites();
       this.updateHud();
@@ -888,6 +937,7 @@ export class WorldScene extends Phaser.Scene {
     this.isBusy = true;
     this.state.chapter = 6;
     setFlag(this.state, 'oziem_joined', true);
+    this.removeNpcSprite('oziem');
     addToParty(this.state, 'oziem');
     this.syncFollowerSprites();
     this.updateHud();
@@ -910,10 +960,19 @@ export class WorldScene extends Phaser.Scene {
       this.buildMap(mapName);
       this.updateAtmosphere();
       this.playerSprite.setPosition(targetX * TILE + TILE / 2, targetY * TILE + TILE / 2);
+      this.playerSprite.setDepth(this.playerSprite.y + 12);
       this.state.x = targetX;
       this.state.y = targetY;
       this.trail = [];
+      for (let i = 0; i < 40; i++) {
+        this.trail.push({ x: this.playerSprite.x, y: this.playerSprite.y, dir: 'down' });
+      }
       this.syncFollowerSprites();
+      this.followerSprites.forEach((spr) => {
+        spr.setPosition(this.playerSprite.x, this.playerSprite.y);
+        spr.setDepth(spr.y + 12);
+        spr.stop();
+      });
       this.updateHud();
       this.cameras.main.fadeIn(250, 0, 3, 11);
       this.isBusy = false;
