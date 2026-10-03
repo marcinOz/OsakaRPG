@@ -8,17 +8,34 @@ import { Audio } from '@/audio/ChipAudio';
 import { addWeather, WeatherHandle } from '@/fx/Weather';
 import { applyCrtToCamera } from '@/fx/CrtPipeline';
 import { setTimeOfDay } from '@/fx/Palette';
+import { flash } from '@/fx/Juice';
+import { CH08 } from '@/content/chapters/ch08';
+import { CH09 } from '@/content/chapters/ch09';
+import { DialogueRunner } from '@/systems/Dialogue';
+import { GameData, newGame } from '@/systems/GameState';
+import type { HeroId } from '@/types';
 
 export class CampfireScene extends Phaser.Scene {
   private inputHandler!: Input;
   private dialogueBox!: DialogueBox;
   private weatherHandle!: WeatherHandle;
   private fireSprite!: Phaser.GameObjects.Sprite;
+  private state!: GameData;
   private woodAdded = 0;
   private isBusy = false;
 
   constructor() {
     super('Campfire');
+  }
+
+  init(data?: { state?: GameData }): void {
+    this.state = data?.state || newGame('oziem');
+    const allHeroes = ['danny', 'alior', 'lisu', 'barti', 'oziem', 'luki'] as HeroId[];
+    for (const h of allHeroes) {
+      if (!this.state.party.includes(h)) {
+        this.state.party.push(h);
+      }
+    }
   }
 
   create(): void {
@@ -189,22 +206,31 @@ export class CampfireScene extends Phaser.Scene {
       { name: 'SYSTEM', text: 'MORALE MAX!\nOtrzymano buff: KLIMAT LAT MŁODOŚCI (+50% wszystkie statystyki)!', color: PAL.yellow },
     ]);
 
-    // Blue fire plot twist! (Chapter 8 teaser)
+    // Blue fire plot twist! (Chapter 8)
     setTimeOfDay(this, 'blueFire');
     this.fireSprite.setTint(PAL.blueFire);
     Audio.sfx('frameTrap');
+    Audio.playSong('ch08_industrial', { fadeMs: 500 });
+    addWeather(this, 'fog');
 
-    await this.dialogueBox.play([
-      { name: 'SYSTEM', text: 'Nagle płomienie zaczynają migotać... na upiorny błękit!', color: PAL.blueFire },
-      { name: '???', text: 'Co tu się dzieje?! Nielegalne obozowisko! Hałas po 22:00!', color: PAL.red },
-      { name: 'OZIEM', text: 'Kurwa... tylko nie on.', portrait: 'portrait_oziem_64', color: PAL.teal },
-      { name: 'SYSTEM', text: 'CIĄG DALSZY NASTĄPI!\nRozdział 8: Strażnik Leśny i Klątwa Dorosłości\nRozdział 9: Ostateczna Batalia o Wolność', color: PAL.cyanHi },
-    ]);
+    const ch8Runner = new DialogueRunner(CH08.twist, this.state.leader, this.state.party);
+    await this.dialogueBox.play(ch8Runner.allResolved());
 
-    // Return to Title screen
-    this.cameras.main.fadeOut(600, 0, 3, 11);
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start('Title');
+    // Chapter 9: Dimensional Rift Intro
+    const ch9Runner = new DialogueRunner(CH09.intro, this.state.leader, this.state.party);
+    await this.dialogueBox.play(ch9Runner.allResolved());
+
+    // Enter Final Boss Battle!
+    flash(this, 0xffffff, 400);
+    Audio.sfx('encounter');
+
+    this.time.delayedCall(400, () => {
+      this.scene.start('Battle', {
+        state: this.state,
+        enemies: ['panJanusz', 'kredyt', 'audyt', 'rwaKulszowa'],
+        bg: 'battle_rift_bg',
+        returnScene: 'Outro',
+      });
     });
   }
 }

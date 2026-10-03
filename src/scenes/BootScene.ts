@@ -32,6 +32,10 @@ export class BootScene extends Phaser.Scene {
     this.load.image('battle_forest_bg', 'assets/bg/battle_forest.png');
     this.load.image('battle_garage_bg', 'assets/bg/battle_garage.png');
     this.load.image('battle_pub_bg', 'assets/bg/battle_pub.png');
+    this.load.image('battle_alley_bg', 'assets/bg/battle_alley.png');
+    this.load.image('battle_marina_bg', 'assets/bg/battle_marina.png');
+    this.load.image('battle_rift_bg', 'assets/bg/battle_rift.png');
+    this.load.image('sunrise_bg', 'assets/bg/sunrise.png');
 
     // UI Thumbnails
     this.load.image('thumb_group', 'assets/ui/thumb_group.png');
@@ -45,6 +49,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image('tiles_forest', 'assets/tiles/forest.png');
     this.load.image('tiles_garage', 'assets/tiles/garage.png');
     this.load.image('tiles_pub', 'assets/tiles/pub.png');
+    this.load.image('tiles_alley', 'assets/tiles/alley.png');
+    this.load.image('tiles_marina', 'assets/tiles/marina.png');
 
     // Spritesheets
     this.load.spritesheet('fire', 'assets/bg/fire.png', { frameWidth: 32, frameHeight: 40 });
@@ -53,6 +59,12 @@ export class BootScene extends Phaser.Scene {
     this.load.spritesheet('enemy_sasiadSzkodnik', 'assets/enemies/sasiadSzkodnik.png', { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet('enemy_autoTuneHipster', 'assets/enemies/autoTuneHipster.png', { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet('enemy_drogiePiwo', 'assets/enemies/drogiePiwo.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_kark', 'assets/enemies/kark.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_straznik', 'assets/enemies/straznik.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_panJanusz', 'assets/enemies/panJanusz.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_kredyt', 'assets/enemies/kredyt.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_audyt', 'assets/enemies/audyt.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_rwaKulszowa', 'assets/enemies/rwaKulszowa.png', { frameWidth: 48, frameHeight: 48 });
 
     // Heroes
     for (const hid of HERO_IDS) {
@@ -97,7 +109,11 @@ export class BootScene extends Phaser.Scene {
     }
 
     // Enemies
-    for (const eid of ['bolKregoslupa', 'slacki', 'sasiadSzkodnik', 'autoTuneHipster', 'drogiePiwo']) {
+    const allEnemies = [
+      'bolKregoslupa', 'slacki', 'sasiadSzkodnik', 'autoTuneHipster', 'drogiePiwo',
+      'kark', 'straznik', 'panJanusz', 'kredyt', 'audyt', 'rwaKulszowa'
+    ];
+    for (const eid of allEnemies) {
       if (!this.anims.exists(`anim_enemy_${eid}`)) {
         this.anims.create({
           key: `anim_enemy_${eid}`,

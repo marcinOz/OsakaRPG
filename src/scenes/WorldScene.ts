@@ -5,6 +5,9 @@ import { GameData, newGame, walkSpeedMultiplier, hasFlag, setFlag, removeWorldSt
 import { CH01 } from '@/content/chapters/ch01';
 import { CH02 } from '@/content/chapters/ch02';
 import { CH03 } from '@/content/chapters/ch03';
+import { CH04 } from '@/content/chapters/ch04';
+import { CH05 } from '@/content/chapters/ch05';
+import { CH06 } from '@/content/chapters/ch06';
 import { DialogueBox } from '@/ui/DialogueBox';
 import { DialogueRunner } from '@/systems/Dialogue';
 import { Input } from '@/ui/Input';
@@ -43,6 +46,7 @@ export class WorldScene extends Phaser.Scene {
   private qteContainer: Phaser.GameObjects.Container | null = null;
   private qteMarkerX = 0;
   private qteMarkerSpeed = 160;
+  private qteCallback: ((success: boolean) => void) | null = null;
 
   constructor() {
     super('World');
@@ -64,6 +68,8 @@ export class WorldScene extends Phaser.Scene {
         this.time.delayedCall(300, () => this.afterSasiadBoss());
       } else if (this.currentMap === 'pub' && hasFlag(this.state, 'fought_hipsters') && !hasFlag(this.state, 'barti_joined')) {
         this.time.delayedCall(300, () => this.afterPubBattle());
+      } else if (this.currentMap === 'alley' && hasFlag(this.state, 'fought_kark') && !hasFlag(this.state, 'lisu_joined')) {
+        this.time.delayedCall(300, () => this.afterKarkBattle());
       }
     }
   }
@@ -120,6 +126,15 @@ export class WorldScene extends Phaser.Scene {
     } else if (this.currentMap === 'pub') {
       setTimeOfDay(this, 'dusk');
       Audio.playSong('ch03_pub', { fadeMs: 500 });
+    } else if (this.currentMap === 'alley') {
+      setTimeOfDay(this, 'night');
+      Audio.playSong('ch04_alley', { fadeMs: 500 });
+    } else if (this.currentMap === 'marina') {
+      setTimeOfDay(this, 'night');
+      Audio.playSong('ch05_marina', { fadeMs: 500 });
+    } else if (this.currentMap === 'forest') {
+      setTimeOfDay(this, 'night');
+      Audio.playSong('camp', { fadeMs: 500 });
     }
   }
 
@@ -130,6 +145,9 @@ export class WorldScene extends Phaser.Scene {
     if (this.currentMap === 'city') loc = 'PORANNE MIASTO';
     else if (this.currentMap === 'garage') loc = 'GARAŻ (UFC HQ)';
     else if (this.currentMap === 'pub') loc = 'PUB CZARNY KRĄŻEK';
+    else if (this.currentMap === 'alley') loc = 'ZAUŁKI STARÓWKI';
+    else if (this.currentMap === 'marina') loc = 'PRZYSTAŃ MARINA';
+    else if (this.currentMap === 'forest') loc = 'LEŚNE OBOZOWISKO';
 
     const hasHangover = this.state.worldStatuses.includes('kacGigant');
     const statusTag = hasHangover ? ' [DEBUFF: KAC GIGANT]' : ' [STATUS: OK]';
@@ -174,6 +192,12 @@ export class WorldScene extends Phaser.Scene {
       this.buildGarageMap();
     } else if (mapName === 'pub') {
       this.buildPubMap();
+    } else if (mapName === 'alley') {
+      this.buildAlleyMap();
+    } else if (mapName === 'marina') {
+      this.buildMarinaMap();
+    } else if (mapName === 'forest') {
+      this.buildForestMap();
     }
   }
 
@@ -268,7 +292,7 @@ export class WorldScene extends Phaser.Scene {
           isSolid = true;
         }
         if (x === 14 && y === 2) { tileIdx = 5; isSolid = true; } // vinyl rack
-        if (x === 17 && y === 6) { tileIdx = 7; isSolid = false; } // exit to campfire
+        if (x === 17 && y === 6) { tileIdx = 7; isSolid = false; } // exit to alley
 
         this.solids[y][x] = isSolid;
         const spr = this.add.image(x * TILE + 8, y * TILE + 8, 'tiles_pub');
@@ -281,6 +305,110 @@ export class WorldScene extends Phaser.Scene {
     if (!this.state.party.includes('barti')) {
       const bNpc = this.add.sprite(10 * TILE + 8, 2 * TILE + 8, 'barti_walk', 0);
       this.npcContainer.add(bNpc);
+    }
+  }
+
+  private buildAlleyMap(): void {
+    for (let y = 0; y < this.mapH; y++) {
+      for (let x = 0; x < this.mapW; x++) {
+        let tileIdx = 0; // cobblestone
+        let isSolid = false;
+        if (y === 0) { tileIdx = 2; isSolid = true; }
+        else if (y === 1 || y === 2) { tileIdx = 1; isSolid = true; }
+        else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
+
+        if (x === 10 && y === 4) { tileIdx = 3; isSolid = true; } // dumpster
+        if (x === 5 && y === 3 || x === 13 && y === 3) { tileIdx = 4; isSolid = true; } // streetlamps
+        if (x === 3 && y === 4) { tileIdx = 5; isSolid = true; } // wooden crates
+        if (x === 17 && y === 5) { tileIdx = 7; isSolid = false; } // exit arch to marina
+
+        this.solids[y][x] = isSolid;
+        const spr = this.add.image(x * TILE + 8, y * TILE + 8, 'tiles_alley');
+        spr.setCrop(tileIdx * 16, 0, 16, 16);
+        this.mapContainer.add(spr);
+      }
+    }
+
+    // Spawn Lisu NPC near dumpster if not joined yet
+    if (!this.state.party.includes('lisu')) {
+      const lNpc = this.add.sprite(10 * TILE + 8, 3 * TILE + 8, 'lisu_walk', 0);
+      this.npcContainer.add(lNpc);
+    }
+  }
+
+  private buildMarinaMap(): void {
+    for (let y = 0; y < this.mapH; y++) {
+      for (let x = 0; x < this.mapW; x++) {
+        let tileIdx = 0; // pier plank
+        let isSolid = false;
+        // Water top and bottom
+        if (y < 3 || y > 7) {
+          tileIdx = 1; // water
+          isSolid = true;
+        } else if (y === 3) {
+          tileIdx = 6; // pier rail
+          isSolid = true;
+        } else if (y === 7) {
+          tileIdx = 2; // pier edge
+          isSolid = true;
+        }
+        if (x === 0 || (x === this.mapW - 1 && y !== 4 && y !== 5)) {
+          isSolid = true;
+        }
+
+        if (x === 6 && y === 3) { tileIdx = 4; isSolid = true; } // lifebuoy rack
+        if (x === 15 && (y === 4 || y === 5)) { tileIdx = 5; isSolid = false; } // rescue boat
+        if (x === 11 && y === 3) { tileIdx = 7; isSolid = true; } // pier lantern
+
+        this.solids[y][x] = isSolid;
+        const spr = this.add.image(x * TILE + 8, y * TILE + 8, 'tiles_marina');
+        spr.setCrop(tileIdx * 16, 0, 16, 16);
+        this.mapContainer.add(spr);
+      }
+    }
+
+    // Spawn Łuki NPC at pier end if not joined yet
+    if (!this.state.party.includes('luki')) {
+      const luNpc = this.add.sprite(10 * TILE + 8, 4 * TILE + 8, 'luki_walk', 0);
+      this.npcContainer.add(luNpc);
+    }
+  }
+
+  private buildForestMap(): void {
+    for (let y = 0; y < this.mapH; y++) {
+      for (let x = 0; x < this.mapW; x++) {
+        let tileIdx = 0; // grass
+        let isSolid = false;
+        if (y === 0 || y === 1 || y === this.mapH - 1 || x === 0 || x === this.mapW - 1) {
+          tileIdx = 2; // dense trees
+          isSolid = true;
+        }
+        // Dirt path across clearing
+        if (y === 5 && x >= 2 && x <= 16) {
+          tileIdx = 1;
+        }
+        // Fire pit in clearing center
+        if (x === 9 && y === 5) {
+          tileIdx = 5;
+          isSolid = true;
+        }
+        // Hammocks
+        if ((x === 5 && y === 3) || (x === 13 && y === 3)) {
+          tileIdx = 6;
+          isSolid = true;
+        }
+
+        this.solids[y][x] = isSolid;
+        const spr = this.add.image(x * TILE + 8, y * TILE + 8, 'tiles_forest');
+        spr.setCrop(tileIdx * 16, 0, 16, 16);
+        this.mapContainer.add(spr);
+      }
+    }
+
+    // Spawn Oziem NPC if not joined yet
+    if (!this.state.party.includes('oziem')) {
+      const oNpc = this.add.sprite(8 * TILE + 8, 4 * TILE + 8, 'oziem_walk', 0);
+      this.npcContainer.add(oNpc);
     }
   }
 
@@ -441,12 +569,37 @@ export class WorldScene extends Phaser.Scene {
         this.triggerPubEncounter();
         return;
       }
-      // Exit pub to Campfire
+      // Exit pub to Alley
       if (x >= 16 && y === 6 && hasFlag(this.state, 'barti_joined')) {
-        this.cameras.main.fadeOut(500, 0, 3, 11);
-        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-          this.scene.start('Campfire');
-        });
+        this.transitionToMap('alley', 2, 5);
+        return;
+      }
+    } else if (this.currentMap === 'alley') {
+      // Approach Lisu near dumpster (x: 10, y: 4)
+      if ((x === 9 || x === 10) && (y === 4 || y === 5) && !hasFlag(this.state, 'lisu_found')) {
+        this.triggerAlleyEncounter();
+        return;
+      }
+      // Exit alley to Marina (Chapter 5)
+      if (x >= 16 && y === 5 && hasFlag(this.state, 'lisu_joined')) {
+        this.transitionToMap('marina', 2, 4);
+        return;
+      }
+    } else if (this.currentMap === 'marina') {
+      // Approach Łuki at pier edge (x: 10, y: 4)
+      if ((x === 9 || x === 10) && (y === 3 || y === 4 || y === 5) && !hasFlag(this.state, 'luki_rescued')) {
+        this.triggerMarinaRescue();
+        return;
+      }
+      // Board boat to forest (x: 14, y: 4)
+      if ((x === 14 || x === 15) && (y === 4 || y === 5) && hasFlag(this.state, 'luki_joined')) {
+        this.triggerBoatCrossing();
+        return;
+      }
+    } else if (this.currentMap === 'forest') {
+      // Approach Oziem at bivouac (x: 8, y: 4)
+      if ((x === 7 || x === 8) && (y === 4 || y === 5) && !hasFlag(this.state, 'oziem_joined')) {
+        this.triggerForestCamp();
         return;
       }
     }
@@ -509,13 +662,16 @@ export class WorldScene extends Phaser.Scene {
     await this.dialogueBox.play(wRunner.allResolved());
 
     // Launch Wrestling QTE Bar
-    this.startWrestlingQte();
+    this.startQte('POWAL DANNY\'EGO! [Z / ENTER]', (_isSuccess) => {
+      setFlag(this.state, 'garage_wrestled', true);
+      this.afterWrestling();
+    });
   }
 
-  private startWrestlingQte(): void {
+  private startQte(title: string, onComplete: (success: boolean) => void): void {
     this.qteContainer = this.add.container(GAME_W / 2, GAME_H / 2).setDepth(850).setScrollFactor(0);
     const qg = this.add.graphics();
-    drawPanel(qg, -80, -25, 160, 50, { fill: PAL.panel, border: PAL.cyanHi });
+    drawPanel(qg, -90, -25, 180, 50, { fill: PAL.panel, border: PAL.cyanHi });
     // Bar frame
     qg.fillStyle(PAL.ink, 1);
     qg.fillRect(-60, -5, 120, 12);
@@ -524,10 +680,11 @@ export class WorldScene extends Phaser.Scene {
     qg.fillRect(-15, -5, 30, 12);
 
     this.qteContainer.add(qg);
-    this.qteContainer.add(txt(this, 0, -18, 'POWAL DANNY\'EGO! [Z / ENTER]', { color: PAL.yellow, origin: [0.5, 0.5] }));
+    this.qteContainer.add(txt(this, 0, -18, title, { color: PAL.yellow, origin: [0.5, 0.5] }));
 
     this.qteMarkerX = -55;
     this.qteMarkerSpeed = 160;
+    this.qteCallback = onComplete;
   }
 
   private updateQte(delta: number): void {
@@ -545,7 +702,7 @@ export class WorldScene extends Phaser.Scene {
     // Redraw marker
     const g = this.qteContainer.getAt(0) as Phaser.GameObjects.Graphics;
     g.clear();
-    drawPanel(g, -80, -25, 160, 50, { fill: PAL.panel, border: PAL.cyanHi });
+    drawPanel(g, -90, -25, 180, 50, { fill: PAL.panel, border: PAL.cyanHi });
     g.fillStyle(PAL.ink, 1);
     g.fillRect(-60, -5, 120, 12);
     g.fillStyle(PAL.green, 1);
@@ -558,14 +715,15 @@ export class WorldScene extends Phaser.Scene {
       const isSuccess = Math.abs(this.qteMarkerX) <= 18;
       this.qteContainer.destroy();
       this.qteContainer = null;
-      setFlag(this.state, 'garage_wrestled', true);
 
       if (isSuccess) {
         Audio.sfx('crit');
       } else {
         Audio.sfx('hit');
       }
-      this.afterWrestling();
+      const cb = this.qteCallback;
+      this.qteCallback = null;
+      cb?.(isSuccess);
     }
   }
 
@@ -643,6 +801,104 @@ export class WorldScene extends Phaser.Scene {
     const runner = new DialogueRunner(CH03.afterFight, this.state.leader);
     await this.dialogueBox.play(runner.allResolved());
     this.isBusy = false;
+  }
+
+  // Chapter 4: Alley & Lisu
+  private async triggerAlleyEncounter(): Promise<void> {
+    this.isBusy = true;
+    this.state.chapter = 4;
+    setFlag(this.state, 'lisu_found', true);
+    this.updateHud();
+
+    const pEnter = new DialogueRunner(CH04.enter, this.state.leader, this.state.party);
+    await this.dialogueBox.play(pEnter.allResolved());
+
+    const pLisu = new DialogueRunner(CH04.findLisu, this.state.leader, this.state.party);
+    await this.dialogueBox.play(pLisu.allResolved());
+
+    const pKark = new DialogueRunner(CH04.karkAmbush, this.state.leader, this.state.party);
+    await this.dialogueBox.play(pKark.allResolved());
+
+    // Boss battle against Szef Ochrony "Kark" and Strażnik Miejski!
+    setFlag(this.state, 'fought_kark', true);
+    this.cameras.main.flash(300, 255, 255, 255);
+    Audio.sfx('encounter');
+    this.time.delayedCall(400, () => {
+      this.scene.start('Battle', {
+        state: this.state,
+        enemies: ['kark', 'straznik'],
+        bg: 'battle_alley_bg',
+        returnScene: 'World',
+      });
+    });
+  }
+
+  private async afterKarkBattle(): Promise<void> {
+    this.isBusy = true;
+    setFlag(this.state, 'lisu_joined', true);
+    addToParty(this.state, 'lisu');
+    this.syncFollowerSprites();
+    this.updateHud();
+
+    const runner = new DialogueRunner(CH04.afterKark, this.state.leader, this.state.party);
+    await this.dialogueBox.play(runner.allResolved());
+    this.isBusy = false;
+  }
+
+  // Chapter 5: Marina & Water Rescue
+  private async triggerMarinaRescue(): Promise<void> {
+    this.isBusy = true;
+    this.state.chapter = 5;
+    setFlag(this.state, 'luki_rescued', true);
+    this.updateHud();
+
+    const mEnter = new DialogueRunner(CH05.enter, this.state.leader, this.state.party);
+    await this.dialogueBox.play(mEnter.allResolved());
+
+    const mPrompt = new DialogueRunner(CH05.rescuePrompt, this.state.leader, this.state.party);
+    await this.dialogueBox.play(mPrompt.allResolved());
+
+    // Launch rescue QTE
+    this.startQte('RZUĆ KOŁO ŁUKIEMU! [Z / ENTER]', async (_success) => {
+      setFlag(this.state, 'luki_joined', true);
+      addToParty(this.state, 'luki');
+      this.syncFollowerSprites();
+      this.updateHud();
+
+      const mSuccess = new DialogueRunner(CH05.rescueSuccess, this.state.leader, this.state.party);
+      await this.dialogueBox.play(mSuccess.allResolved());
+      this.isBusy = false;
+    });
+  }
+
+  private async triggerBoatCrossing(): Promise<void> {
+    this.isBusy = true;
+    Audio.sfx('confirm');
+    await this.dialogueBox.play([
+      { name: 'ŁUKI', text: 'Wszyscy na pokład! Odpalam silnik!', portrait: 'portrait_luki_64', color: PAL.cyan },
+      { name: 'SYSTEM', text: 'Motorówka płynie przez ciemne, ciche wody jeziora ku leśnej przystani...', color: PAL.cyanHi },
+    ]);
+
+    this.transitionToMap('forest', 3, 5);
+  }
+
+  // Chapter 6: Deep Wildwood Forest Camp
+  private async triggerForestCamp(): Promise<void> {
+    this.isBusy = true;
+    this.state.chapter = 6;
+    setFlag(this.state, 'oziem_joined', true);
+    addToParty(this.state, 'oziem');
+    this.syncFollowerSprites();
+    this.updateHud();
+
+    const fEnter = new DialogueRunner(CH06.enter, this.state.leader, this.state.party);
+    await this.dialogueBox.play(fEnter.allResolved());
+
+    // All 6 heroes assembled! Transition smoothly into Campfire scene (Chapter 7)!
+    this.cameras.main.fadeOut(800, 0, 3, 11);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('Campfire', { state: this.state });
+    });
   }
 
   private transitionToMap(mapName: string, targetX: number, targetY: number): void {

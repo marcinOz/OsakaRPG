@@ -51,6 +51,15 @@ export const ENEMIES: Record<string, EnemyDef> = {
     sprite: 'enemy_drogiePiwo',
     xp: 80,
   },
+  straznik: {
+    id: 'straznik',
+    name: 'Strażnik Miejski',
+    level: 6,
+    stats: { hp: 120, mp: 20, atk: 20, def: 18, mag: 10, spd: 11, lck: 8 },
+    skills: ['attack', 'stressDebuff'],
+    sprite: 'enemy_straznik',
+    xp: 95,
+  },
   kark: {
     id: 'kark',
     name: 'Szef Ochrony "Kark"',

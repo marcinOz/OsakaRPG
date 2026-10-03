@@ -6,6 +6,7 @@ import { AnalyzerScene } from '@/scenes/AnalyzerScene';
 import { WorldScene } from '@/scenes/WorldScene';
 import { BattleScene } from '@/scenes/BattleScene';
 import { CampfireScene } from '@/scenes/CampfireScene';
+import { OutroScene } from '@/scenes/OutroScene';
 import { CrtPipeline } from '@/fx/CrtPipeline';
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -30,6 +31,7 @@ const config: Phaser.Types.Core.GameConfig = {
     WorldScene,
     BattleScene,
     CampfireScene,
+    OutroScene,
   ],
 };
 
