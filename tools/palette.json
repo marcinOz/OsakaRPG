@@ -1,0 +1,13 @@
+{
+  "name": "the-pack-master",
+  "comment": "48-colour master palette. First 24 sampled from the Friend Pack Analyzer reference; rest = skin/clothing/fire/nature ramps.",
+  "colors": [
+    "#00030b", "#061220", "#0a182b", "#0c2134", "#102d3b", "#203d54", "#1e2844", "#2e3b4d",
+    "#406a6a", "#5e6f7a", "#81797a", "#97a0a6", "#9ecbd4", "#c8eef4", "#d8dada", "#f4f4ec",
+    "#4f4141", "#1b1319", "#e8d84a", "#5fc85a", "#e0742c", "#f6c04a", "#c0392b", "#3f6b8f",
+    "#2a1a14", "#4a2e22", "#6e4430", "#a86b4c", "#d9a066", "#f0c8a0",
+    "#3a2a1e", "#5c4630", "#7a6248", "#2f3a24", "#4b5a30", "#6f7f3e", "#1f2a1c", "#2e4a2a",
+    "#8a2020", "#e05050", "#7a5a9a", "#2a2a2a", "#4a4a4a", "#7a3a14", "#b05a20", "#4fa8ff",
+    "#1a3a6a", "#ffffff"
+  ]
+}

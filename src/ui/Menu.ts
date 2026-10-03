@@ -1,0 +1,81 @@
+import Phaser from 'phaser';
+import { PAL } from '@/config';
+import { drawPanel } from './Panel';
+import { txt, TextObj } from './Text';
+import type { Input } from './Input';
+import { Audio } from '@/audio/ChipAudio';
+
+export interface MenuItem {
+  label: string;
+  disabled?: boolean;
+  hint?: string;
+}
+
+/** Vertical cursor menu in a panel. `update()` returns selected index, -2 on cancel, -1 otherwise. */
+export class Menu {
+  readonly root: Phaser.GameObjects.Container;
+  private g: Phaser.GameObjects.Graphics;
+  private texts: TextObj[] = [];
+  private cursor: Phaser.GameObjects.Triangle;
+  idx = 0;
+  rowH = 11;
+
+  constructor(private scene: Phaser.Scene, public x: number, public y: number, public w: number, private items: MenuItem[], depth = 900) {
+    this.root = scene.add.container(0, 0).setDepth(depth).setScrollFactor(0);
+    this.g = scene.add.graphics();
+    this.cursor = scene.add.triangle(0, 0, 0, 0, 4, 3, 0, 6, PAL.yellow).setOrigin(0, 0);
+    this.root.add([this.g, this.cursor]);
+    this.setItems(items);
+    scene.tweens.add({ targets: this.cursor, x: '+=2', yoyo: true, repeat: -1, duration: 250 });
+  }
+
+  get h(): number {
+    return this.items.length * this.rowH + 8;
+  }
+
+  setItems(items: MenuItem[]): void {
+    this.items = items;
+    this.texts.forEach((t) => t.destroy());
+    this.g.clear();
+    drawPanel(this.g, this.x, this.y, this.w, this.h);
+    this.texts = items.map((it, i) => {
+      const t = txt(this.scene, this.x + 12, this.y + 5 + i * this.rowH, it.label, { color: it.disabled ? PAL.grey : PAL.white });
+      this.root.add(t);
+      return t;
+    });
+    this.idx = Math.min(this.idx, items.length - 1);
+    this.place();
+  }
+
+  setVisible(v: boolean): this {
+    this.root.setVisible(v);
+    return this;
+  }
+
+  destroy(): void {
+    this.root.destroy();
+  }
+
+  update(input: Input): number {
+    if (!this.root.visible || !this.items.length) return -1;
+    if (input.pressed('up')) { this.idx = (this.idx + this.items.length - 1) % this.items.length; Audio.sfx('cursor'); this.place(); }
+    if (input.pressed('down')) { this.idx = (this.idx + 1) % this.items.length; Audio.sfx('cursor'); this.place(); }
+    if (input.pressed('cancel')) { Audio.sfx('cancel'); return -2; }
+    if (input.pressed('ok')) {
+      if (this.items[this.idx].disabled) { Audio.sfx('miss'); return -1; }
+      Audio.sfx('confirm');
+      return this.idx;
+    }
+    return -1;
+  }
+
+  private place(): void {
+    this.cursor.setPosition(this.x + 4, this.y + 6 + this.idx * this.rowH);
+    this.texts.forEach((t, i) => {
+      const it = this.items[i];
+      const c = it.disabled ? PAL.grey : i === this.idx ? PAL.yellow : PAL.white;
+      if (t instanceof Phaser.GameObjects.BitmapText) t.setTint(c);
+      else t.setColor('#' + c.toString(16).padStart(6, '0'));
+    });
+  }
+}
