@@ -30,6 +30,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image('battle_apartment_bg', 'assets/bg/battle_apartment.png');
     this.load.image('battle_city_bg', 'assets/bg/battle_city.png');
     this.load.image('battle_forest_bg', 'assets/bg/battle_forest.png');
+    this.load.image('battle_garage_bg', 'assets/bg/battle_garage.png');
+    this.load.image('battle_pub_bg', 'assets/bg/battle_pub.png');
 
     // UI Thumbnails
     this.load.image('thumb_group', 'assets/ui/thumb_group.png');
@@ -41,11 +43,16 @@ export class BootScene extends Phaser.Scene {
     this.load.image('tiles_apartment', 'assets/tiles/apartment.png');
     this.load.image('tiles_city', 'assets/tiles/city.png');
     this.load.image('tiles_forest', 'assets/tiles/forest.png');
+    this.load.image('tiles_garage', 'assets/tiles/garage.png');
+    this.load.image('tiles_pub', 'assets/tiles/pub.png');
 
     // Spritesheets
     this.load.spritesheet('fire', 'assets/bg/fire.png', { frameWidth: 32, frameHeight: 40 });
     this.load.spritesheet('enemy_bolKregoslupa', 'assets/enemies/bolKregoslupa.png', { frameWidth: 48, frameHeight: 48 });
     this.load.spritesheet('enemy_slacki', 'assets/enemies/slacki.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_sasiadSzkodnik', 'assets/enemies/sasiadSzkodnik.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_autoTuneHipster', 'assets/enemies/autoTuneHipster.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('enemy_drogiePiwo', 'assets/enemies/drogiePiwo.png', { frameWidth: 48, frameHeight: 48 });
 
     // Heroes
     for (const hid of HERO_IDS) {
@@ -90,7 +97,7 @@ export class BootScene extends Phaser.Scene {
     }
 
     // Enemies
-    for (const eid of ['bolKregoslupa', 'slacki']) {
+    for (const eid of ['bolKregoslupa', 'slacki', 'sasiadSzkodnik', 'autoTuneHipster', 'drogiePiwo']) {
       if (!this.anims.exists(`anim_enemy_${eid}`)) {
         this.anims.create({
           key: `anim_enemy_${eid}`,

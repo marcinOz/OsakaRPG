@@ -289,11 +289,121 @@ export const VICTORY_SONG: ChipSong = {
   ],
 };
 
+export const CH02_GARAGE_SONG: ChipSong = {
+  id: 'ch02_garage',
+  label: 'UFC Garaż (inspirowane Paktofonika – Jestem Bogiem)',
+  bpm: 90,
+  steps: 16,
+  swing: 0.12,
+  tracks: [
+    {
+      inst: 'triangle',
+      vol: 0.8,
+      patterns: [
+        seq('E2 . . E2 . . G2 . A2 . . A2 . . B2 .'),
+        seq('C2 . . C2 . . D2 . E2 . . E2 . . G2 .'),
+      ],
+      order: [0, 1],
+    },
+    {
+      inst: 'pulse',
+      vol: 0.45,
+      duty: 0.25,
+      patterns: [
+        seq('E4:2 . G4:2 . B4:4 A4:2 . G4:2 . E4:4'),
+        seq('D4:2 . F4:2 . A4:4 G4:2 . F4:2 . D4:4'),
+      ],
+      order: [0, 1],
+    },
+    {
+      inst: 'kick',
+      vol: 0.7,
+      patterns: [
+        drum('x...x.....x...x.'),
+      ],
+      order: [0],
+    },
+    {
+      inst: 'snare',
+      vol: 0.5,
+      patterns: [
+        drum('....x.......x...'),
+      ],
+      order: [0],
+    },
+    {
+      inst: 'hat',
+      vol: 0.2,
+      patterns: [
+        drum('x.x.x.x.x.x.x.x.'),
+      ],
+      order: [0],
+    },
+  ],
+};
+
+export const CH03_PUB_SONG: ChipSong = {
+  id: 'ch03_pub',
+  label: 'Czarny Krążek (inspirowane Kaliber 44 – Film)',
+  bpm: 86,
+  steps: 16,
+  crackle: 0.2,
+  swing: 0.18,
+  tracks: [
+    {
+      inst: 'triangle',
+      vol: 0.85,
+      patterns: [
+        seq('C2 . . . . . G1 . Ab1 . . . . . D2 .'),
+        seq('F1 . . . . . C2 . G1 . . . . . B1 .'),
+      ],
+      order: [0, 1],
+    },
+    {
+      inst: 'pad',
+      vol: 0.35,
+      patterns: [
+        seq('C3+Eb3+G3:16'),
+        seq('Ab2+C3+Eb3:16'),
+        seq('F2+Ab2+C3:16'),
+        seq('G2+B2+D3:16'),
+      ],
+      order: [0, 1, 2, 3],
+    },
+    {
+      inst: 'saw',
+      vol: 0.3,
+      patterns: [
+        seq('. . G4 . . Bb4 . C5:4 . . Bb4:2 . G4:2 .'),
+      ],
+      order: [0],
+    },
+    {
+      inst: 'kick',
+      vol: 0.65,
+      patterns: [
+        drum('x.....x...x.....'),
+      ],
+      order: [0],
+    },
+    {
+      inst: 'snare',
+      vol: 0.5,
+      patterns: [
+        drum('....x.......x...'),
+      ],
+      order: [0],
+    },
+  ],
+};
+
 export const ALL_SONGS: Record<string, ChipSong> = {
   title: TITLE_SONG,
   analyzer: ANALYZER_SONG,
   ch01_explore: CH01_EXPLORE_SONG,
   ch01_battle: CH01_BATTLE_SONG,
+  ch02_garage: CH02_GARAGE_SONG,
+  ch03_pub: CH03_PUB_SONG,
   camp: CAMP_SONG,
   victory: VICTORY_SONG,
 };

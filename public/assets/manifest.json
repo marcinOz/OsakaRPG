@@ -11,7 +11,11 @@
     "thumb_moments": "assets/ui/thumb_moments.png",
     "tiles_apartment": "assets/tiles/apartment.png",
     "tiles_city": "assets/tiles/city.png",
-    "tiles_forest": "assets/tiles/forest.png"
+    "tiles_forest": "assets/tiles/forest.png",
+    "battle_garage_bg": "assets/bg/battle_garage.png",
+    "battle_pub_bg": "assets/bg/battle_pub.png",
+    "tiles_garage": "assets/tiles/garage.png",
+    "tiles_pub": "assets/tiles/pub.png"
   },
   "portraits": {
     "portrait_danny_96": "assets/portraits/danny_96.png",
@@ -187,6 +191,21 @@
       "path": "assets/fx/hit.png",
       "frameWidth": 32,
       "frameHeight": 32
+    },
+    "enemy_sasiadSzkodnik": {
+      "path": "assets/enemies/sasiadSzkodnik.png",
+      "frameWidth": 48,
+      "frameHeight": 48
+    },
+    "enemy_autoTuneHipster": {
+      "path": "assets/enemies/autoTuneHipster.png",
+      "frameWidth": 48,
+      "frameHeight": 48
+    },
+    "enemy_drogiePiwo": {
+      "path": "assets/enemies/drogiePiwo.png",
+      "frameWidth": 48,
+      "frameHeight": 48
     }
   },
   "fonts": {
