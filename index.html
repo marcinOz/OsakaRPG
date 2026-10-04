@@ -5,11 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>THE PACK – Legend of the Forest Fireplace</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14'>⚔️</text></svg>">
+
+    <!-- OpenGraph & Social Preview Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="THE PACK – Legend of the Forest Fireplace" />
+    <meta property="og:description" content="Retro RPG w stylu 16-bit • Ekipa 36+ • Kronika Przyjaźni i Ognia" />
+    <meta property="og:image" content="assets/bg/title.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="THE PACK – Legend of the Forest Fireplace" />
+    <meta name="twitter:description" content="Retro RPG w stylu 16-bit • Ekipa 36+ • Kronika Przyjaźni i Ognia" />
+    <meta name="twitter:image" content="assets/bg/title.png" />
+
     <style>
-      html, body { margin: 0; height: 100%; background: #00030b; overflow: hidden; }
-      #game { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
-      canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: #00030b;
+        overflow: hidden;
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      #game {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: none;
+      }
+      canvas {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        touch-action: none;
+      }
     </style>
+    <script>
+      window.addEventListener('keydown', e => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+          e.preventDefault();
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="game"></div>

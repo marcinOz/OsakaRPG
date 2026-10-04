@@ -21,6 +21,63 @@ export class MemoryStorage implements StorageAdapter {
   }
 }
 
+export class SafeLocalStorage implements StorageAdapter {
+  private mem = new MemoryStorage();
+  private useMemory = false;
+
+  constructor() {
+    try {
+      if (typeof window === 'undefined' || !('localStorage' in window) || !window.localStorage) {
+        this.useMemory = true;
+      } else {
+        const test = '__ls_test__';
+        window.localStorage.setItem(test, '1');
+        window.localStorage.removeItem(test);
+      }
+    } catch {
+      this.useMemory = true;
+    }
+  }
+
+  getItem(key: string): string | null {
+    if (this.useMemory) {
+      return this.mem.getItem(key);
+    }
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      this.useMemory = true;
+      return this.mem.getItem(key);
+    }
+  }
+
+  setItem(key: string, value: string): void {
+    if (this.useMemory) {
+      this.mem.setItem(key, value);
+      return;
+    }
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      this.useMemory = true;
+      this.mem.setItem(key, value);
+    }
+  }
+
+  removeItem(key: string): void {
+    if (this.useMemory) {
+      this.mem.removeItem(key);
+      return;
+    }
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      this.useMemory = true;
+      this.mem.removeItem(key);
+    }
+  }
+}
+
 export interface SaveSlotSummary {
   slot: number;
   exists: boolean;
@@ -31,7 +88,7 @@ export interface SaveSlotSummary {
 }
 
 export class SaveSystem {
-  constructor(private storage: StorageAdapter = typeof localStorage !== 'undefined' ? localStorage : new MemoryStorage()) {}
+  constructor(private storage: StorageAdapter = new SafeLocalStorage()) {}
 
   private key(slot: number): string {
     return `${SAVE_KEY}.slot_${slot}`;
@@ -58,7 +115,11 @@ export class SaveSystem {
   }
 
   delete(slot: number): void {
-    this.storage.removeItem(this.key(slot));
+    try {
+      this.storage.removeItem(this.key(slot));
+    } catch {
+      // Safe fallback
+    }
   }
 
   list(): SaveSlotSummary[] {

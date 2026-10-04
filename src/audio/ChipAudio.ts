@@ -62,6 +62,30 @@ class ChipAudioEngine {
     return this.ctx;
   }
 
+  private autoUnlockAttached = false;
+
+  constructor() {
+    this.attachAutoUnlock();
+  }
+
+  isUnlocked(): boolean {
+    return this.ctx !== null && this.ctx.state === 'running';
+  }
+
+  attachAutoUnlock(): void {
+    if (typeof window === 'undefined' || this.autoUnlockAttached) return;
+    this.autoUnlockAttached = true;
+    const unlockHandler = () => {
+      if (!this.ctx) {
+        this.initCtx();
+      } else if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    };
+    window.addEventListener('pointerdown', unlockHandler, { passive: true });
+    window.addEventListener('keydown', unlockHandler, { passive: true });
+  }
+
   unlock(): void {
     this.initCtx();
   }

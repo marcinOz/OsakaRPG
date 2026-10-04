@@ -1,10 +1,19 @@
 import Phaser from 'phaser';
+import { VirtualPad } from './VirtualPad';
 
 export type Btn = 'up' | 'down' | 'left' | 'right' | 'ok' | 'cancel' | 'menu' | 'n1' | 'n2' | 'n3';
+
+const ALL_BTNS: readonly Btn[] = ['up', 'down', 'left', 'right', 'ok', 'cancel', 'menu', 'n1', 'n2', 'n3'];
+
+export interface InputOptions {
+  virtualPad?: VirtualPad;
+  autoVirtualPad?: boolean;
+}
 
 /**
  * Unified input: arrows/WASD move, Z/Enter/Space confirm, X/Esc/Backspace cancel, M/Tab menu, 1-3 quick choices.
  * Pointer taps emit 'ok'. Caches edge-triggered `pressed()` per frame to allow multiple systems to query without starvation.
+ * Seamlessly integrates with VirtualPad on-screen touch controls.
  */
 export class Input {
   private keys: Record<Btn, Phaser.Input.Keyboard.Key[]>;
@@ -14,12 +23,13 @@ export class Input {
   private lastFrame = -1;
   private cachedPressed: Partial<Record<Btn, boolean>> = {};
   private cachedOkOrTap = false;
+  private virtualPad?: VirtualPad;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, padOrOpts?: VirtualPad | InputOptions) {
     this.scene = scene;
-    const kb = scene.input.keyboard!;
+    const kb = scene.input?.keyboard;
     const K = Phaser.Input.Keyboard.KeyCodes;
-    const add = (...codes: number[]) => codes.map((c) => kb.addKey(c, true, false));
+    const add = (...codes: number[]) => (kb ? codes.map((c) => kb.addKey(c, true, false)) : []);
     this.keys = {
       up: add(K.UP, K.W),
       down: add(K.DOWN, K.S),
@@ -32,10 +42,49 @@ export class Input {
       n2: add(K.TWO),
       n3: add(K.THREE),
     };
-    scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      this.tapped = true;
-      this.tapPos = { x: p.x, y: p.y };
-    });
+
+    if (scene.input?.on) {
+      scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+        // If a VirtualPad is visible and the tap occurred on its controls, do not treat as a world tap
+        if (this.virtualPad && this.virtualPad.visible && this.virtualPad.containsPoint(p.x, p.y)) {
+          return;
+        }
+        this.tapped = true;
+        this.tapPos = { x: p.x, y: p.y };
+      });
+    }
+
+    if (padOrOpts instanceof VirtualPad) {
+      this.registerVirtualPad(padOrOpts);
+    } else if (padOrOpts && typeof padOrOpts === 'object') {
+      if (padOrOpts.virtualPad) {
+        this.registerVirtualPad(padOrOpts.virtualPad);
+      } else if (padOrOpts.autoVirtualPad !== false && Boolean(scene.add)) {
+        this.createVirtualPad();
+      }
+    } else if (padOrOpts === undefined && Boolean(scene.add)) {
+      this.createVirtualPad();
+    }
+  }
+
+  /**
+   * Registers a VirtualPad instance to supply directional and action button states.
+   */
+  registerVirtualPad(pad: VirtualPad): void {
+    this.virtualPad = pad;
+  }
+
+  getVirtualPad(): VirtualPad | undefined {
+    return this.virtualPad;
+  }
+
+  /**
+   * Creates a new VirtualPad on the scene and registers it with this Input handler.
+   */
+  createVirtualPad(depth = 990): VirtualPad {
+    const pad = new VirtualPad(this.scene, depth);
+    this.registerVirtualPad(pad);
+    return pad;
   }
 
   private refreshFrame(): void {
@@ -45,9 +94,11 @@ export class Input {
     }
     this.lastFrame = curFrame;
 
-    const btns: Btn[] = ['up', 'down', 'left', 'right', 'ok', 'cancel', 'menu', 'n1', 'n2', 'n3'];
-    for (const b of btns) {
-      this.cachedPressed[b] = this.keys[b]?.some((k) => Phaser.Input.Keyboard.JustDown(k)) ?? false;
+    for (let i = 0; i < ALL_BTNS.length; i++) {
+      const b = ALL_BTNS[i];
+      const kbJust = this.keys[b]?.some((k) => Phaser.Input.Keyboard.JustDown(k)) ?? false;
+      const vJust = this.virtualPad?.consumeBtnJustPressed(b) ?? false;
+      this.cachedPressed[b] = kbJust || vJust;
     }
 
     const t = this.tapped;
@@ -61,7 +112,9 @@ export class Input {
   }
 
   held(b: Btn): boolean {
-    return this.keys[b]?.some((k) => k.isDown) ?? false;
+    const kbDown = this.keys[b]?.some((k) => k.isDown) ?? false;
+    const vDown = this.virtualPad?.isBtnDown(b) ?? false;
+    return kbDown || vDown;
   }
 
   /** consume a pointer tap (returns position) */

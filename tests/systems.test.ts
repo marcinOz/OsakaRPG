@@ -4,7 +4,7 @@ import { makeHeroCombatant } from '@/systems/BattleEngine';
 import { applyStatus, cleanse, hasStatus, tickStatuses } from '@/systems/StatusFx';
 import { effectiveStat, heroStatsAtLevel, xpForLevel, levelForXp } from '@/systems/Stats';
 import { newGame, grantXp, walkSpeedMultiplier } from '@/systems/GameState';
-import { SaveSystem, MemoryStorage } from '@/systems/Save';
+import { SaveSystem, MemoryStorage, SafeLocalStorage } from '@/systems/Save';
 import { DialogueRunner } from '@/systems/Dialogue';
 import { CH01 } from '@/content/chapters/ch01';
 
@@ -83,6 +83,36 @@ describe('GameState and Saves', () => {
     const loaded = saves.load(0);
     expect(loaded?.leader).toBe('alior');
     expect(loaded?.chapter).toBe(2);
+  });
+
+  it('SafeLocalStorage handles throwing storage gracefully without crashing', () => {
+    const safe = new SafeLocalStorage();
+    safe.setItem('test_key', 'val');
+    expect(safe.getItem('test_key')).toBe('val');
+    safe.removeItem('test_key');
+    expect(safe.getItem('test_key')).toBeNull();
+  });
+
+  it('SaveSystem handles storage errors gracefully in private browsing mode', () => {
+    const brokenStorage = {
+      getItem: () => {
+        throw new Error('SecurityError: The operation is insecure');
+      },
+      setItem: () => {
+        throw new Error('QuotaExceededError');
+      },
+      removeItem: () => {
+        throw new Error('SecurityError');
+      },
+    };
+    const saves = new SaveSystem(brokenStorage);
+    const state = newGame('danny');
+    expect(() => saves.save(0, state)).not.toThrow();
+    expect(saves.save(0, state)).toBe(false);
+    expect(() => saves.load(0)).not.toThrow();
+    expect(saves.load(0)).toBeNull();
+    expect(() => saves.delete(0)).not.toThrow();
+    expect(() => saves.list()).not.toThrow();
   });
 });
 

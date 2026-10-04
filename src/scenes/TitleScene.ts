@@ -21,6 +21,14 @@ export class TitleScene extends Phaser.Scene {
   private inputHandler!: Input;
   private menu!: Menu;
 
+  // Audio Splash Gate
+  private isAudioGateActive = false;
+  private audioSplashPrompt: TextObj | null = null;
+  private audioSplashTween: Phaser.Tweens.Tween | null = null;
+  private splashUnlockHandler: (() => void) | null = null;
+  private gateDismissedFrame = -1;
+  private devPanelToggledFrame = -1;
+
   // Dev Panel State & Objects
   private isDevPanelOpen = false;
   private activeDevTab: 'chapters' | 'villains' = 'chapters';
@@ -55,8 +63,10 @@ export class TitleScene extends Phaser.Scene {
 
   create(): void {
     applyCrtToCamera(this);
-    Audio.unlock();
-    Audio.playSong('title', { fadeMs: 600 });
+    const audioUnlocked = Audio.isUnlocked();
+    if (audioUnlocked) {
+      Audio.playSong('title', { fadeMs: 600 });
+    }
 
     // Background
     this.add.image(GAME_W / 2, GAME_H / 2, 'title_bg').setDisplaySize(GAME_W, GAME_H);
@@ -70,12 +80,44 @@ export class TitleScene extends Phaser.Scene {
     bar.fillRect(0, 0, GAME_W, 20);
     bar.fillStyle(PAL.steel, 1);
     bar.fillRect(0, 19, GAME_W, 1);
-    txt(this, 12, 4, 'THE PACK: RETRO ENGINE v2.0 [HD PIXEL-PERFECT EDITION]', {
+    bar.setDepth(1050);
+
+    const topBarTitle = txt(this, 12, 4, 'THE PACK: RETRO ENGINE v2.0 [HD PIXEL-PERFECT EDITION]', {
       color: PAL.cyan,
       big: false,
     });
+    topBarTitle.setDepth(1051);
+
     // Window control buttons ▢ ▢ ✕
-    txt(this, GAME_W - 48, 4, '― ▢ ✕', { color: PAL.silver });
+    const winBtns = txt(this, GAME_W - 48, 4, '― ▢ ✕', { color: PAL.silver });
+    winBtns.setDepth(1051);
+
+    // Secret shortcut: Clicking retro top bar title toggles Dev Panel
+    const topBarZone = this.add
+      .zone(0, 0, 480, 20)
+      .setOrigin(0, 0)
+      .setDepth(1052)
+      .setInteractive({ useHandCursor: true });
+    topBarZone.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      pointer.event.stopPropagation();
+      if (this.isTransitioning) return;
+      if (this.isAudioGateActive) {
+        this.dismissAudioSplashGate();
+      }
+      this.toggleDevPanel();
+    });
+
+    // Secret shortcut: pressing 'D' or '~' / '`' toggles Dev Panel
+    this.input.keyboard?.on('keydown', (e: KeyboardEvent) => {
+      if (this.isTransitioning) return;
+      const key = e.key.toLowerCase();
+      if (key === 'd' || key === '~' || key === '`' || e.code === 'Backquote') {
+        if (this.isAudioGateActive) {
+          this.dismissAudioSplashGate();
+        }
+        this.toggleDevPanel();
+      }
+    });
 
     // Main Logo
     txt(this, GAME_W / 2, 120, 'THE PACK', {
@@ -106,7 +148,6 @@ export class TitleScene extends Phaser.Scene {
     const crtState = isCrtEnabled();
     const menuItems = [
       { label: 'NOWA GRA' },
-      { label: 'PANEL DEWELOPERSKI (DEV)' },
       { label: hasSave ? `KONTYNUUJ (${saveList[0].leader})` : 'KONTYNUUJ', disabled: !hasSave },
       { label: `FILTR CRT: ${crtState ? 'WŁĄCZONY' : 'WYŁĄCZONY'}` },
     ];
@@ -127,6 +168,93 @@ export class TitleScene extends Phaser.Scene {
 
     // Create Dev Panel Modal Container
     this.createDevPanel();
+
+    // Audio Splash Gate: If not unlocked, display retro pulsing prompt and await user gesture
+    if (!audioUnlocked) {
+      this.showAudioSplashGate();
+    }
+  }
+
+  private showAudioSplashGate(): void {
+    this.isAudioGateActive = true;
+    this.menu.setVisible(false);
+    this.menu.root.setAlpha(0);
+
+    // Retro pulsing prompt in the center
+    this.audioSplashPrompt = txt(
+      this,
+      GAME_W / 2,
+      290,
+      '► NACIŚNIJ DOWOLNY KLAWISZ LUB KLIKNIJ ◄',
+      {
+        color: PAL.yellow,
+        big: true,
+        align: 'center',
+        origin: [0.5, 0.5],
+      }
+    );
+    this.audioSplashPrompt.setDepth(950);
+
+    this.audioSplashTween = this.tweens.add({
+      targets: this.audioSplashPrompt,
+      alpha: { from: 1, to: 0.2 },
+      duration: 650,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.splashUnlockHandler = () => {
+      this.dismissAudioSplashGate();
+    };
+
+    this.input.keyboard?.once('keydown', this.splashUnlockHandler);
+    this.input.once('pointerdown', this.splashUnlockHandler);
+  }
+
+  private dismissAudioSplashGate(): void {
+    if (!this.isAudioGateActive) return;
+    this.isAudioGateActive = false;
+    this.gateDismissedFrame = this.game?.loop?.frame ?? -1;
+
+    if (this.splashUnlockHandler) {
+      this.input.keyboard?.off('keydown', this.splashUnlockHandler);
+      this.input.off('pointerdown', this.splashUnlockHandler);
+      this.splashUnlockHandler = null;
+    }
+
+    // Unlock Audio and start title music
+    Audio.unlock();
+    Audio.playSong('title', { fadeMs: 600 });
+    Audio.sfx('confirm');
+
+    // Fade out splash prompt
+    if (this.audioSplashTween) {
+      this.audioSplashTween.stop();
+      this.audioSplashTween = null;
+    }
+    if (this.audioSplashPrompt) {
+      const promptToFade = this.audioSplashPrompt;
+      this.audioSplashPrompt = null;
+      this.tweens.add({
+        targets: promptToFade,
+        alpha: 0,
+        duration: 200,
+        onComplete: () => {
+          promptToFade.destroy();
+        },
+      });
+    }
+
+    // Smoothly fade in main menu
+    this.menu.setVisible(true);
+    this.menu.root.setAlpha(0);
+    this.tweens.add({
+      targets: this.menu.root,
+      alpha: 1,
+      duration: 400,
+      ease: 'Sine.easeOut',
+    });
   }
 
   private createDevPanel(): void {
@@ -481,9 +609,18 @@ export class TitleScene extends Phaser.Scene {
     this.updateDevPanelVisuals();
   }
 
+  private toggleDevPanel(): void {
+    if (this.isDevPanelOpen) {
+      this.closeDevPanel();
+    } else {
+      this.openDevPanel();
+    }
+  }
+
   private openDevPanel(): void {
     this.isDevPanelOpen = true;
     this.isTransitioning = false;
+    this.devPanelToggledFrame = this.game?.loop?.frame ?? -1;
     this.devPanelContainer.setVisible(true);
     this.updateDevPanelVisuals();
     Audio.sfx('confirm');
@@ -704,9 +841,14 @@ export class TitleScene extends Phaser.Scene {
   }
 
   update(): void {
+    // If audio splash gate is active, don't process main menu
+    if (this.isAudioGateActive) return;
+    if (this.game?.loop?.frame === this.gateDismissedFrame) return;
+
     // If Dev Panel is active, handle Dev Panel navigation
     if (this.isDevPanelOpen) {
       if (this.isTransitioning) return;
+      if (this.game?.loop?.frame === this.devPanelToggledFrame) return;
 
       if (this.inputHandler.pressed('cancel')) {
         this.closeDevPanel();
@@ -788,10 +930,7 @@ export class TitleScene extends Phaser.Scene {
         this.scene.start('Analyzer');
       });
     } else if (pick === 1) {
-      // Open Dev Panel modal!
-      this.openDevPanel();
-    } else if (pick === 2) {
-      // Load slot 0
+      // KONTYNUUJ (Load slot 0)
       const save = Saves.load(0);
       if (save) {
         this.cameras.main.fadeOut(300, 0, 3, 11);
@@ -799,16 +938,17 @@ export class TitleScene extends Phaser.Scene {
           this.scene.start('World', { loadSave: save });
         });
       }
-    } else if (pick === 3) {
+    } else if (pick === 2) {
       // Toggle CRT
       const newState = !isCrtEnabled();
       setCrtEnabled(this, newState);
+      const curSaveList = Saves.list();
+      const curHasSave = curSaveList[0].exists;
       this.menu.setItems([
         { label: 'NOWA GRA' },
-        { label: 'PANEL DEWELOPERSKI (DEV)' },
         {
-          label: Saves.list()[0].exists ? `KONTYNUUJ` : 'KONTYNUUJ',
-          disabled: !Saves.list()[0].exists,
+          label: curHasSave ? `KONTYNUUJ (${curSaveList[0].leader})` : 'KONTYNUUJ',
+          disabled: !curHasSave,
         },
         { label: `FILTR CRT: ${newState ? 'WŁĄCZONY' : 'WYŁĄCZONY'}` },
       ]);
