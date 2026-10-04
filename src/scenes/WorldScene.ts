@@ -56,13 +56,22 @@ const MAP_EXITS: Record<string, MapExitDef> = {
     lockedReason: '[!] Najpierw muszę ogarnąć kręgosłup i wyciszyć Slacka na biurku!',
   },
   city: {
-    x: 17,
+    x: 38,
     y: 5,
     targetMap: 'garage',
     targetX: 2,
     targetY: 5,
     isUnlocked: (state) => hasFlag(state, 'bought_coffee'),
     lockedReason: '[!] Najpierw muszę wejść do Żabki po kawę i elektrolity!',
+  },
+  zabka: {
+    x: 5,
+    y: 7,
+    targetMap: 'city',
+    targetX: 5,
+    targetY: 4,
+    isUnlocked: () => true,
+    lockedReason: '',
   },
   garage: {
     x: 16,
@@ -324,20 +333,24 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private addTile(x: number, y: number, key: string, tileIdx: number, isSolid = false, isUprightProp = false): void {
+    if (y < 0 || y >= this.mapH || x < 0 || x >= this.mapW) return;
     this.solids[y][x] = isSolid;
     const px = x * TILE + TILE / 2;
     const py = y * TILE + TILE / 2;
+    const hasHdBg = this.currentMap === 'apartment' || this.currentMap === 'city' || this.currentMap === 'zabka';
     if (isUprightProp) {
-      // Base floor tile in mapContainer
-      const baseSpr = this.add.image(px, py, key);
-      baseSpr.setCrop(0, 0, TILE, TILE);
-      this.mapContainer.add(baseSpr);
+      if (!hasHdBg) {
+        // Base floor tile in mapContainer for non-HD maps
+        const baseSpr = this.add.image(px, py, key);
+        baseSpr.setCrop(0, 0, TILE, TILE);
+        this.mapContainer.add(baseSpr);
+      }
 
       // Upright prop sprite depth-sorted at prop base
       const propSpr = this.add.image(px, py, key).setDepth(y * TILE + 24);
       propSpr.setCrop(tileIdx * TILE, 0, TILE, TILE);
       this.propSprites.push(propSpr);
-    } else {
+    } else if (!hasHdBg) {
       const spr = this.add.image(px, py, key);
       spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
       this.mapContainer.add(spr);
@@ -373,14 +386,26 @@ export class WorldScene extends Phaser.Scene {
     }
     this.interactPrompt?.hide();
 
-    if (mapName === 'zabka') {
-      this.mapW = 12;
-      this.mapH = 9;
+    if (mapName === 'apartment') {
+      this.mapW = 32;
+      this.mapH = 18;
+    } else if (mapName === 'city') {
+      this.mapW = 40;
+      this.mapH = 18;
+    } else if (mapName === 'zabka') {
+      this.mapW = 32;
+      this.mapH = 18;
     } else {
       this.mapW = 18;
       this.mapH = 12;
     }
     this.cameras.main.setBounds(0, 0, this.mapW * TILE, this.mapH * TILE);
+
+    // Render HD map background layer if available
+    if (mapName === 'apartment' || mapName === 'city' || mapName === 'zabka') {
+      const bg = this.add.image(0, 0, `map_${mapName}_bg`).setOrigin(0, 0);
+      this.mapContainer.add(bg);
+    }
 
     this.solids = [];
     for (let y = 0; y < this.mapH; y++) {
@@ -417,16 +442,48 @@ export class WorldScene extends Phaser.Scene {
         let tileIdx = 0;
         let isSolid = false;
         let isProp = false;
-        if (y === 0) { tileIdx = 2; isSolid = true; }
-        else if (y === 1) { tileIdx = 1; isSolid = true; }
-        else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
-        if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; isProp = true; } // gaming desk with dual monitors
-        if (x === 3 && y === 3) { tileIdx = 4; isSolid = false; isProp = true; } // chair (walkable)
-        if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // monstera
-        if (x === 9 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // monstera
-        if (x === 13 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // kitchenette plant
-        if (x === 6 && y === 5 || x === 7 && y === 5) { tileIdx = 5; } // bed
-        if (x === 10 && y === this.mapH - 1) { tileIdx = 7; isSolid = false; } // exit door
+
+        // Outer perimeter solid walls (left x=0, right x=31, top y=0,1, bottom y=17)
+        if (y === 0 || y === 1 || y === this.mapH - 1 || x === 0 || x === this.mapW - 1) {
+          tileIdx = 1;
+          isSolid = true;
+        }
+
+        // Architectural partition walls dividing bedroom from living room
+        if (x === 11 && (y <= 4 || (y >= 7 && y <= 10))) {
+          tileIdx = 1;
+          isSolid = true;
+        }
+        // Bedroom south wall (y = 11, x = 1..9)
+        if (y === 11 && x >= 1 && x <= 9) {
+          tileIdx = 1;
+          isSolid = true;
+        }
+        // Outer wall behind the entrance door (y = 12, x = 9..11)
+        if (y >= 12 && x >= 9 && x <= 11) {
+          tileIdx = 1;
+          isSolid = true;
+        }
+
+        // Furniture & Upright Props in bedroom
+        if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; isProp = true; } // battlestation desk
+        if (x === 3 && y === 3) { tileIdx = 4; isSolid = false; isProp = true; } // gaming chair (walkable)
+        if ((x === 6 || x === 7) && y === 5) { tileIdx = 5; isSolid = true; isProp = true; } // platform bed
+        if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // monstera plant
+        if (x === 1 && y === 7) { isSolid = true; } // gym weights
+
+        // Kitchenette & Lounge obstacles
+        if (x === 16 && y === 2) { isSolid = true; } // fridge
+        if (x >= 17 && x <= 24 && y === 2) { isSolid = true; } // kitchen counter
+        if (x >= 20 && x <= 24 && y === 8) { isSolid = true; } // sofa
+        if (x >= 27 && x <= 29 && y === 10) { isSolid = true; } // TV credenza / Pegasus
+
+        // Exit Door at (10, 11) - must be WALKABLE so player triggers exit check!
+        if (x === 10 && y === 11) {
+          tileIdx = 7;
+          isSolid = false;
+          isProp = false;
+        }
 
         this.addTile(x, y, 'tiles_apartment', tileIdx, isSolid, isProp);
       }
@@ -440,48 +497,38 @@ export class WorldScene extends Phaser.Scene {
         let isSolid = false;
         let isProp = false;
 
-        if (y < 2) {
+        // Rows 0, 1, 2: Historic tenement building facades
+        if (y <= 2) {
           tileIdx = (x % 2 === 0) ? 2 : 3;
           isSolid = true;
-        } else if (y === 2) {
-          // Row 2: Building facade with Żabka storefront at x=4..6
-          if (x === 4) {
-            tileIdx = 7; // left display window
-            isSolid = true;
-            isProp = true;
-          } else if (x === 5) {
-            tileIdx = 5; // Żabka neon awning
-            isSolid = true;
-            isProp = true;
-          } else if (x === 6) {
-            tileIdx = 7; // right display window
-            isSolid = true;
-            isProp = true;
-          } else {
-            tileIdx = (x % 2 === 0) ? 2 : 3;
-            isSolid = true;
-          }
-        } else if (y === 3) {
-          // Row 3: Sidewalk with Żabka automatic sliding doors at x=5
-          if (x === 5) {
-            tileIdx = 6; // Żabka entrance glass sliding doors!
-            isSolid = false;
-            isProp = false;
-          } else {
-            tileIdx = 1;
-            isSolid = false;
-          }
-        } else if (y === 6) {
-          tileIdx = 4; // Granite curb
-          isSolid = false;
-        } else if (y >= 7) {
-          tileIdx = 0; // Road asphalt
-          isSolid = false;
         }
 
-        // Sidewalk props
+        // Żabka entrance doors at (5, 3) (walkable trigger to enter Żabka)
+        if (x === 5 && y === 3) {
+          tileIdx = 6;
+          isSolid = false;
+          isProp = false;
+        }
+
+        // Outer borders: west column 0, south row 17, east column 39 (except garage ramp at y=5)
+        if (x === 0 || y === this.mapH - 1) {
+          isSolid = true;
+        }
+        if (x === this.mapW - 1 && y !== 5) {
+          isSolid = true;
+        }
+
+        // Sidewalk obstacles & props
+        if (x === 8 && y === 4) { isSolid = true; } // Sąsiadka on bench
         if (x === 10 && y === 4) { tileIdx = 8; isSolid = true; isProp = true; } // Streetlamp
-        if (x === 17 && y === 5) { tileIdx = 9; isSolid = false; } // Exit archway to garage
+        if ((x === 24 || x === 34) && y === 4) { tileIdx = 8; isSolid = true; isProp = true; } // Streetlamps
+
+        // Garage entrance shutter at (38, 5)
+        if (x === 38 && y === 5) {
+          tileIdx = 10;
+          isSolid = false;
+          isProp = false;
+        }
 
         this.addTile(x, y, 'tiles_city', tileIdx, isSolid, isProp);
       }
@@ -495,52 +542,57 @@ export class WorldScene extends Phaser.Scene {
         let isSolid = false;
         let isProp = false;
 
-        // Perimeter walls
-        if (y === 0) {
+        // Perimeter walls: top row 0, west column 0, east column 31, south row 17
+        if (y === 0 || x === 0 || x === this.mapW - 1 || y === this.mapH - 1) {
+          tileIdx = 7;
+          isSolid = true;
+        }
+
+        // Top wall shelves & coolers at row 1
+        if (y === 1) {
           if (x >= 1 && x <= 4) {
             tileIdx = 2; // Snack shelves
             isSolid = true;
             isProp = true;
-          } else if (x >= 7 && x <= 10) {
+          } else if (x >= 7 && x <= 24) {
             tileIdx = 1; // Beverage refrigerators
             isSolid = true;
             isProp = true;
-          } else {
-            tileIdx = 7; // Green brand wall
-            isSolid = true;
-          }
-        } else if (x === 0 || x === this.mapW - 1) {
-          tileIdx = 7;
-          isSolid = true;
-        } else if (y === this.mapH - 1) {
-          tileIdx = 7;
-          isSolid = true;
-        }
-
-        // Counter row at y=2
-        if (y === 2) {
-          if (x === 4) {
-            tileIdx = 4; // Hot dog grill & coffee machine
-            isSolid = true;
-            isProp = true;
-          } else if (x === 5) {
-            tileIdx = 3; // POS cash register counter
-            isSolid = true;
-            isProp = true;
+          } else if (x >= 25 && x <= 30) {
+            isSolid = true; // Bakery display
           }
         }
 
-        // Center promo island at y=4
-        if (y === 4 && (x === 4 || x === 7)) {
-          tileIdx = 6; // Promo gondola
+        // Checkout Counter row at y=2
+        if (y === 2 && x >= 3 && x <= 6) {
           isSolid = true;
           isProp = true;
+          if (x === 4) {
+            tileIdx = 4; // Hot dog grill & coffee machine
+          } else if (x === 5) {
+            tileIdx = 3; // POS cash register counter
+          }
         }
 
-        // Exit doormat at x=5, y=7
-        if (x === 5 && y === 7) {
+        // Center gondolas at rows 4..5 and 8..9
+        if ((y === 4 || y === 5 || y === 8 || y === 9)) {
+          if ((x >= 8 && x <= 14) || (x >= 18 && x <= 24)) {
+            tileIdx = 6; // Promo gondola
+            isSolid = true;
+            isProp = true;
+          }
+        }
+
+        // Ice cream freezer at x = 27..30, y = 6..8
+        if (x >= 27 && x <= 30 && y >= 6 && y <= 8) {
+          isSolid = true;
+        }
+
+        // Exit doormats at (5, 7) and (5, 16) / (5, 17)
+        if (x === 5 && (y === 7 || y === 16 || y === 17)) {
           tileIdx = 5;
           isSolid = false;
+          isProp = false;
         }
 
         this.addTile(x, y, 'tiles_zabka', tileIdx, isSolid, isProp);
@@ -1003,7 +1055,13 @@ export class WorldScene extends Phaser.Scene {
     const exitCenterX = exitDef.x + 0.5;
     const exitCenterY = exitDef.y + 0.5;
 
-    const dist = Phaser.Math.Distance.Between(px, py, exitCenterX, exitCenterY);
+    let dist = Phaser.Math.Distance.Between(px, py, exitCenterX, exitCenterY);
+    if (this.currentMap === 'city') {
+      const dist17 = Phaser.Math.Distance.Between(px, py, 17.5, 5.5);
+      if (dist17 < dist) {
+        dist = dist17;
+      }
+    }
     if (dist > 1.6) return;
 
     const actionPressed = this.inputHandler.okOrTap();
@@ -1184,6 +1242,44 @@ export class WorldScene extends Phaser.Scene {
           }
         },
       });
+
+      // Kitchenette fridge & coffee machine, and Pegasus CRT TV
+      items.push({
+        id: 'apt_fridge',
+        x: 16,
+        y: 2,
+        label: 'ZBADAJ LODÓWKĘ',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.examine.fridge, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+      items.push({
+        id: 'apt_coffee',
+        x: 22,
+        y: 2,
+        label: 'EKSPRES DO KAWY',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.examine.coffeeMachine, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
+      items.push({
+        id: 'apt_tv',
+        x: 27,
+        y: 10,
+        label: 'PEGASUS / TV',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.examine.tv, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
     } else if (map === 'city') {
       // Żabka Door
       items.push({
@@ -1250,10 +1346,27 @@ export class WorldScene extends Phaser.Scene {
         },
       });
 
-      // Garage exit
+      // Garage exit (at 38, 5 and fallback at 17, 5)
       const hasCoffee = hasFlag(this.state, 'bought_coffee');
       items.push({
         id: 'city_garage_door',
+        x: 38,
+        y: 5,
+        label: hasCoffee ? 'WEJDŹ DO GARAŻU' : 'GARAŻ (ZABLOKOWANE)',
+        isAlert: !hasCoffee,
+        action: async () => {
+          if (!hasCoffee) {
+            this.isBusy = true;
+            const r = new DialogueRunner(CH01.city.blocked, this.state.leader);
+            await this.dialogueBox.play(r.allResolved());
+            this.isBusy = false;
+          } else {
+            this.transitionToMap('garage', 2, 5);
+          }
+        },
+      });
+      items.push({
+        id: 'city_garage_door_17',
         x: 17,
         y: 5,
         label: hasCoffee ? 'WEJDŹ DO GARAŻU' : 'GARAŻ (ZABLOKOWANE)',
@@ -1317,6 +1430,18 @@ export class WorldScene extends Phaser.Scene {
           this.isBusy = false;
         },
       });
+      items.push({
+        id: 'zabka_fridges_1',
+        x: 8,
+        y: 1,
+        label: 'CHŁODZIARKI',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.zabka.fridges, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
 
       // Snack shelves
       items.push({
@@ -1331,12 +1456,31 @@ export class WorldScene extends Phaser.Scene {
           this.isBusy = false;
         },
       });
+      items.push({
+        id: 'zabka_shelves_1',
+        x: 2,
+        y: 1,
+        label: 'PRZEKĄSKI',
+        action: async () => {
+          this.isBusy = true;
+          const r = new DialogueRunner(CH01.zabka.shelves, this.state.leader);
+          await this.dialogueBox.play(r.allResolved());
+          this.isBusy = false;
+        },
+      });
 
-      // Exit doormat
+      // Exit doormat (5, 7) and (5, 16)
       items.push({
         id: 'zabka_exit',
         x: 5,
         y: 7,
+        label: 'WYJDŹ NA ULICĘ',
+        action: () => this.transitionToMap('city', 5, 4, 'down'),
+      });
+      items.push({
+        id: 'zabka_exit_16',
+        x: 5,
+        y: 16,
         label: 'WYJDŹ NA ULICĘ',
         action: () => this.transitionToMap('city', 5, 4, 'down'),
       });
@@ -1543,7 +1687,7 @@ export class WorldScene extends Phaser.Scene {
         return;
       }
     } else if (this.currentMap === 'zabka') {
-      if (x === 5 && y === 7) {
+      if (x === 5 && (y === 7 || y === 16 || y === 17)) {
         this.transitionToMap('city', 5, 4, 'down');
         return;
       }

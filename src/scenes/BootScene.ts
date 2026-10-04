@@ -37,6 +37,9 @@ export class BootScene extends Phaser.Scene {
     this.load.image('battle_rift_bg', 'assets/bg/battle_rift.png');
     this.load.image('sunrise_bg', 'assets/bg/sunrise.png');
     this.load.image('analyzer_bg', 'assets/bg/analyzer_bg.png');
+    this.load.image('map_apartment_bg', 'assets/maps/apartment_bg.png');
+    this.load.image('map_city_bg', 'assets/maps/city_bg.png');
+    this.load.image('map_zabka_bg', 'assets/maps/zabka_bg.png');
 
     // UI Thumbnails & Phone Modal
     this.load.image('thumb_group', 'assets/ui/thumb_group.png');
