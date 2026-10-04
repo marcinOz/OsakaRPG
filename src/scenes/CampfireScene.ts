@@ -24,13 +24,15 @@ export class CampfireScene extends Phaser.Scene {
   private state!: GameData;
   private woodAdded = 0;
   private isBusy = false;
+  private startAtJanusz = false;
 
   constructor() {
     super('Campfire');
   }
 
-  init(data?: { state?: GameData }): void {
+  init(data?: { state?: GameData; startAtJanusz?: boolean }): void {
     this.state = data?.state || newGame('oziem');
+    this.startAtJanusz = Boolean(data?.startAtJanusz);
     const allHeroes = ['danny', 'alior', 'lisu', 'barti', 'oziem', 'luki'] as HeroId[];
     for (const h of allHeroes) {
       if (!this.state.party.includes(h)) {
@@ -67,8 +69,12 @@ export class CampfireScene extends Phaser.Scene {
     this.dialogueBox = new DialogueBox(this, 1000);
     this.inputHandler = new Input(this);
 
-    // Play intro campfire dialogue
-    this.time.delayedCall(500, () => this.playCampfireIntro());
+    // Play intro campfire dialogue or jump to Janusz if started from Chapter 8 Dev Warp
+    if (this.startAtJanusz) {
+      this.time.delayedCall(500, () => this.triggerJanuszSequence());
+    } else {
+      this.time.delayedCall(500, () => this.playCampfireIntro());
+    }
   }
 
   private createPartyStatsHud(): void {
@@ -226,6 +232,11 @@ export class CampfireScene extends Phaser.Scene {
       { name: 'SYSTEM', text: 'MORALE MAX!\nOtrzymano buff: KLIMAT LAT MŁODOŚCI (+50% wszystkie statystyki)!', color: PAL.yellow },
     ]);
 
+    await this.triggerJanuszSequence();
+  }
+
+  private async triggerJanuszSequence(): Promise<void> {
+    this.isBusy = true;
     // Blue fire plot twist! (Chapter 8)
     setTimeOfDay(this, 'blueFire');
     this.fireSprite.setTint(PAL.blueFire);

@@ -337,23 +337,11 @@ export class WorldScene extends Phaser.Scene {
     this.solids[y][x] = isSolid;
     const px = x * TILE + TILE / 2;
     const py = y * TILE + TILE / 2;
-    const hasHdBg = this.currentMap === 'apartment' || this.currentMap === 'city' || this.currentMap === 'zabka';
     if (isUprightProp) {
-      if (!hasHdBg) {
-        // Base floor tile in mapContainer for non-HD maps
-        const baseSpr = this.add.image(px, py, key);
-        baseSpr.setCrop(0, 0, TILE, TILE);
-        this.mapContainer.add(baseSpr);
-      }
-
       // Upright prop sprite depth-sorted at prop base
       const propSpr = this.add.image(px, py, key).setDepth(y * TILE + 24);
       propSpr.setCrop(tileIdx * TILE, 0, TILE, TILE);
       this.propSprites.push(propSpr);
-    } else if (!hasHdBg) {
-      const spr = this.add.image(px, py, key);
-      spr.setCrop(tileIdx * TILE, 0, TILE, TILE);
-      this.mapContainer.add(spr);
     }
   }
 
@@ -386,26 +374,18 @@ export class WorldScene extends Phaser.Scene {
     }
     this.interactPrompt?.hide();
 
-    if (mapName === 'apartment') {
+    if (mapName === 'apartment' || mapName === 'zabka' || mapName === 'garage' || mapName === 'pub') {
       this.mapW = 32;
       this.mapH = 18;
-    } else if (mapName === 'city') {
+    } else if (mapName === 'city' || mapName === 'alley' || mapName === 'marina' || mapName === 'forest') {
       this.mapW = 40;
       this.mapH = 18;
-    } else if (mapName === 'zabka') {
-      this.mapW = 32;
-      this.mapH = 18;
-    } else {
-      this.mapW = 18;
-      this.mapH = 12;
     }
     this.cameras.main.setBounds(0, 0, this.mapW * TILE, this.mapH * TILE);
 
-    // Render HD map background layer if available
-    if (mapName === 'apartment' || mapName === 'city' || mapName === 'zabka') {
-      const bg = this.add.image(0, 0, `map_${mapName}_bg`).setOrigin(0, 0);
-      this.mapContainer.add(bg);
-    }
+    // Render HD map background layer for all maps
+    const bg = this.add.image(0, 0, `map_${mapName}_bg`).setOrigin(0, 0);
+    this.mapContainer.add(bg);
 
     this.solids = [];
     for (let y = 0; y < this.mapH; y++) {
@@ -606,16 +586,34 @@ export class WorldScene extends Phaser.Scene {
         let tileIdx = 0; // concrete
         let isSolid = false;
         let isProp = false;
-        if (y === 0) { tileIdx = 2; isSolid = true; }
-        else if (y === 1) { tileIdx = 1; isSolid = true; }
-        else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
 
-        // Props
+        // Perimeter walls: rows 0, 1 solid; bottom row 17 solid; west col 0 solid; east col 31 solid
+        if (y === 0) {
+          tileIdx = 2;
+          isSolid = true;
+        } else if (y === 1) {
+          tileIdx = 1;
+          isSolid = true;
+        } else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) {
+          tileIdx = 1;
+          isSolid = true;
+        }
+
+        // Props & Obstacles
         if (x === 3 && y === 2) { tileIdx = 3; isSolid = true; isProp = true; } // tires
-        if (x === 4 && y === 2) { tileIdx = 4; isSolid = true; isProp = true; } // weights
+        if (x === 4 && y === 2) { tileIdx = 4; isSolid = true; isProp = true; } // weights / tool chest
+        if (x === 6 && y === 2) { isSolid = true; } // punching bag
         if (x === 8 && y === 2) { tileIdx = 6; isSolid = true; isProp = true; } // projector UFC
         if (x === 14 && y === 2) { tileIdx = 5; isSolid = true; isProp = true; } // beer fridge
-        if (x === 17 && y === 6) { tileIdx = 7; isSolid = false; } // exit to pub!
+        if (x === 7 && y === 4) { isSolid = true; } // barbell on floor
+        if (x >= 20 && x <= 23 && y === 6) { isSolid = true; } // leather sofa
+
+        // Exit to Pub at (16, 6) / (17, 6) - WALKABLE!
+        if ((x === 16 || x === 17) && y === 6) {
+          tileIdx = 7;
+          isSolid = false;
+          isProp = false;
+        }
 
         this.addTile(x, y, 'tiles_garage', tileIdx, isSolid, isProp);
       }
@@ -636,9 +634,18 @@ export class WorldScene extends Phaser.Scene {
         let tileIdx = 0; // dark wood floor
         let isSolid = false;
         let isProp = false;
-        if (y === 0) { tileIdx = 2; isSolid = true; }
-        else if (y === 1) { tileIdx = 1; isSolid = true; }
-        else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
+
+        // Perimeter walls: rows 0, 1 solid; bottom row 17 solid; west col 0 solid; east col 31 solid
+        if (y === 0) {
+          tileIdx = 2;
+          isSolid = true;
+        } else if (y === 1) {
+          tileIdx = 1;
+          isSolid = true;
+        } else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) {
+          tileIdx = 1;
+          isSolid = true;
+        }
 
         // Bar counter & DJ setup
         if (y === 3 && x >= 4 && x <= 12) {
@@ -646,8 +653,23 @@ export class WorldScene extends Phaser.Scene {
           isSolid = true;
           isProp = true;
         }
+        // Back shelves behind bar (except Barti position at x=10, y=2)
+        if (y === 2 && x >= 4 && x <= 12 && x !== 10) {
+          isSolid = true;
+        }
         if (x === 14 && y === 2) { tileIdx = 5; isSolid = true; isProp = true; } // vinyl rack
-        if (x === 17 && y === 6) { tileIdx = 7; isSolid = false; } // exit to alley
+
+        // Lounge tables
+        if ((x === 22 && y === 9) || (x === 26 && y === 12)) {
+          isSolid = true;
+        }
+
+        // Exit to Alley at (16, 6) / (17, 6) - WALKABLE!
+        if ((x === 16 || x === 17) && y === 6) {
+          tileIdx = 7;
+          isSolid = false;
+          isProp = false;
+        }
 
         this.addTile(x, y, 'tiles_pub', tileIdx, isSolid, isProp);
       }
@@ -665,14 +687,40 @@ export class WorldScene extends Phaser.Scene {
         let tileIdx = 0; // cobblestone
         let isSolid = false;
         let isProp = false;
-        if (y === 0) { tileIdx = 2; isSolid = true; }
-        else if (y === 1 || y === 2) { tileIdx = 1; isSolid = true; }
-        else if (y === this.mapH - 1 || x === 0 || x === this.mapW - 1) { tileIdx = 1; isSolid = true; }
 
+        // Rows 0, 1, 2: Tenement building facades
+        if (y === 0) {
+          tileIdx = 2;
+          isSolid = true;
+        } else if (y === 1 || y === 2) {
+          tileIdx = 1;
+          isSolid = true;
+        }
+
+        // Outer borders: west col 0 solid, south row 17 solid, east col 39 solid (except archway exit at y=5,6)
+        if (x === 0 || y === this.mapH - 1) {
+          isSolid = true;
+        }
+        if (x === this.mapW - 1 && y !== 5 && y !== 6) {
+          isSolid = true;
+        }
+
+        // Props & Obstacles
         if (x === 10 && y === 4) { tileIdx = 3; isSolid = true; isProp = true; } // dumpster
-        if (x === 5 && y === 3 || x === 13 && y === 3) { tileIdx = 4; isSolid = true; isProp = true; } // streetlamps
-        if (x === 3 && y === 4) { tileIdx = 5; isSolid = true; isProp = true; } // wooden crates
-        if (x === 17 && y === 5 || x === 17 && y === 6) { tileIdx = 7; isSolid = false; } // exit arch to marina
+        if ((x === 5 || x === 13 || x === 24 || x === 35) && y === 3) { tileIdx = 4; isSolid = true; isProp = true; } // streetlamps
+        if ((x === 3 || x === 20) && y === 4) { tileIdx = 5; isSolid = true; isProp = true; } // wooden crates
+
+        // Exit archway to Marina: both (16..17, 5..6) and far right (38..39, 5..6) are WALKABLE exits!
+        if ((x === 16 || x === 17) && (y === 5 || y === 6)) {
+          tileIdx = 7;
+          isSolid = false;
+          isProp = false;
+        }
+        if ((x === 38 || x === 39) && (y === 5 || y === 6)) {
+          tileIdx = 7;
+          isSolid = false;
+          isProp = false;
+        }
 
         this.addTile(x, y, 'tiles_alley', tileIdx, isSolid, isProp);
       }
@@ -690,31 +738,36 @@ export class WorldScene extends Phaser.Scene {
         let tileIdx = 0; // pier plank
         let isSolid = false;
         let isProp = false;
-        // Water top and bottom
+
+        // Lake water top (y < 3) and bottom (y > 7)
         if (y < 3 || y > 7) {
           tileIdx = 1; // water
           isSolid = true;
         } else if (y === 3) {
-          tileIdx = 6; // pier rail
+          tileIdx = 6; // pier railing
           isSolid = true;
           isProp = true;
         } else if (y === 7) {
           tileIdx = 2; // pier edge
           isSolid = true;
         }
-        if (x === 0 || (x === this.mapW - 1 && y !== 4 && y !== 5)) {
+
+        // West border & East border
+        if (x === 0 || x === this.mapW - 1) {
           isSolid = true;
         }
 
+        // Props & Equipment
         if (x === 6 && y === 3) { tileIdx = 4; isSolid = true; isProp = true; } // lifebuoy rack
-        if (x === 15 && (y === 4 || y === 5)) { tileIdx = 5; isSolid = false; isProp = true; } // rescue boat
-        if (x === 11 && y === 3) { tileIdx = 7; isSolid = true; isProp = true; } // pier lantern
+        if ((x === 11 || x === 25) && y === 3) { tileIdx = 7; isSolid = true; isProp = true; } // pier lanterns
+        if ((x === 4 || x === 12 || x === 22 || x === 32) && y === 7) { tileIdx = 3; isSolid = true; isProp = true; } // mooring bollards
+        if (x === 15 && (y === 4 || y === 5)) { tileIdx = 5; isSolid = false; isProp = true; } // rescue motorboat (walkable / boardable)
 
         this.addTile(x, y, 'tiles_marina', tileIdx, isSolid, isProp);
       }
     }
 
-    // Spawn Łuki NPC at pier end if not joined yet
+    // Spawn Łuki NPC at pier edge if not joined yet
     if (!this.state.party.includes('luki')) {
       this.addNpc(10, 4, 'luki');
     }
@@ -723,35 +776,46 @@ export class WorldScene extends Phaser.Scene {
   private buildForestMap(): void {
     for (let y = 0; y < this.mapH; y++) {
       for (let x = 0; x < this.mapW; x++) {
-        let tileIdx = 0; // grass
+        let tileIdx = 0; // pine needle floor
         let isSolid = false;
         let isProp = false;
-        if (y === 0 || y === 1 || y === this.mapH - 1 || x === 0 || x === this.mapW - 1) {
-          tileIdx = 2; // dense trees
+
+        // Dense impassable pine tree wall enclosing clearing on all sides
+        if (y <= 2 || y >= this.mapH - 2 || x <= 1 || x >= this.mapW - 2) {
+          tileIdx = 2; // dense ancient pine trunks
           isSolid = true;
         }
+
         // Dirt path across clearing
-        if (y === 5 && x >= 2 && x <= 16) {
+        if (y === 5 && x >= 2 && x <= this.mapW - 3) {
           tileIdx = 1;
         }
-        // Fire pit in clearing center
+
+        // Props
         if (x === 9 && y === 5) {
           tileIdx = 5;
           isSolid = true;
           isProp = true;
-        }
-        // Hammocks
+        } // stone campfire ring
         if ((x === 5 && y === 3) || (x === 13 && y === 3)) {
           tileIdx = 6;
           isSolid = true;
           isProp = true;
+        } // ripstop camping hammocks
+        if ((x === 7 && y === 5) || (x === 11 && y === 5)) {
+          isSolid = true; // split log benches
         }
+        if ((x === 4 && y === 10) || (x === 16 && y === 12) || (x === 28 && y === 8)) {
+          tileIdx = 4;
+          isSolid = true;
+          isProp = true;
+        } // mossy granite boulders
 
         this.addTile(x, y, 'tiles_forest', tileIdx, isSolid, isProp);
       }
     }
 
-    // Spawn Oziem NPC if not joined yet
+    // Spawn Oziem NPC near campfire if not joined yet
     if (!this.state.party.includes('oziem')) {
       this.addNpc(8, 4, 'oziem');
     }
@@ -1058,9 +1122,26 @@ export class WorldScene extends Phaser.Scene {
     let dist = Phaser.Math.Distance.Between(px, py, exitCenterX, exitCenterY);
     if (this.currentMap === 'city') {
       const dist17 = Phaser.Math.Distance.Between(px, py, 17.5, 5.5);
-      if (dist17 < dist) {
-        dist = dist17;
-      }
+      if (dist17 < dist) dist = dist17;
+    } else if (this.currentMap === 'garage') {
+      const dist17 = Phaser.Math.Distance.Between(px, py, 17.5, 6.5);
+      if (dist17 < dist) dist = dist17;
+    } else if (this.currentMap === 'pub') {
+      const dist17 = Phaser.Math.Distance.Between(px, py, 17.5, 6.5);
+      if (dist17 < dist) dist = dist17;
+    } else if (this.currentMap === 'alley') {
+      const dist16 = Phaser.Math.Distance.Between(px, py, 16.5, 5.5);
+      const dist17 = Phaser.Math.Distance.Between(px, py, 17.5, 5.5);
+      const dist176 = Phaser.Math.Distance.Between(px, py, 17.5, 6.5);
+      const dist38 = Phaser.Math.Distance.Between(px, py, 38.5, 5.5);
+      dist = Math.min(dist, dist16, dist17, dist176, dist38);
+    } else if (this.currentMap === 'marina') {
+      const distBoat = Phaser.Math.Distance.Between(px, py, 15.5, 5.0);
+      const distBoat4 = Phaser.Math.Distance.Between(px, py, 14.5, 4.5);
+      dist = Math.min(dist, distBoat, distBoat4);
+    } else if (this.currentMap === 'forest') {
+      const distFire = Phaser.Math.Distance.Between(px, py, 9.5, 5.5);
+      dist = Math.min(dist, distFire);
     }
     if (dist > 1.6) return;
 
@@ -1558,6 +1639,39 @@ export class WorldScene extends Phaser.Scene {
           this.isBusy = false;
         },
       });
+      items.push({
+        id: 'alley_lamp_5',
+        x: 5,
+        y: 3,
+        label: 'LATARNIA',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Zabytkowa latarnia z żeliwną podstawą. Rzuca ciepłe, sodowe światło na mokry bruk.' }]);
+          this.isBusy = false;
+        },
+      });
+      items.push({
+        id: 'alley_lamp_13',
+        x: 13,
+        y: 3,
+        label: 'LATARNIA',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Zabytkowa latarnia z żeliwną podstawą. Rzuca ciepłe, sodowe światło na mokry bruk.' }]);
+          this.isBusy = false;
+        },
+      });
+      items.push({
+        id: 'alley_crates',
+        x: 3,
+        y: 4,
+        label: 'SKRZYNIE',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Drewniane skrzynie transportowe i palety Euro. Pachną żywicą i wilgocią.' }]);
+          this.isBusy = false;
+        },
+      });
     } else if (map === 'marina') {
       if (!this.state.party.includes('luki')) {
         items.push({
@@ -1576,6 +1690,28 @@ export class WorldScene extends Phaser.Scene {
         label: 'MOTORÓWKA',
         action: () => this.checkExitTriggers(),
       });
+      items.push({
+        id: 'marina_lifebuoy',
+        x: 6,
+        y: 3,
+        label: 'KOŁO RATUNKOWE',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Czerwono-białe koło ratunkowe z liną asekuracyjną. W razie wpadnięcia do wody – bezcenne.' }]);
+          this.isBusy = false;
+        },
+      });
+      items.push({
+        id: 'marina_lantern',
+        x: 11,
+        y: 3,
+        label: 'LATARNIA SZTORMOWA',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Mosiężna latarnia sztormowa. Jej ciepłe światło odbija się w tafli jeziora.' }]);
+          this.isBusy = false;
+        },
+      });
     } else if (map === 'forest') {
       if (!this.state.party.includes('oziem')) {
         items.push({
@@ -1592,6 +1728,28 @@ export class WorldScene extends Phaser.Scene {
         y: 5,
         label: 'OGNISKO',
         action: () => this.triggerForestCamp(),
+      });
+      items.push({
+        id: 'forest_hammock_5',
+        x: 5,
+        y: 3,
+        label: 'HAMAK',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Wyprawowy hamak z pomarańczowego ripstop nylonu. Idealny na leśny biwak.' }]);
+          this.isBusy = false;
+        },
+      });
+      items.push({
+        id: 'forest_hammock_13',
+        x: 13,
+        y: 3,
+        label: 'HAMAK',
+        action: async () => {
+          this.isBusy = true;
+          await this.dialogueBox.play([{ name: 'SYSTEM', text: 'Wyprawowy hamak z zielonego ripstop nylonu, rozwieszony między drzewami.' }]);
+          this.isBusy = false;
+        },
       });
     }
 

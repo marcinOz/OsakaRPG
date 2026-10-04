@@ -40,6 +40,11 @@ export class BootScene extends Phaser.Scene {
     this.load.image('map_apartment_bg', 'assets/maps/apartment_bg.png');
     this.load.image('map_city_bg', 'assets/maps/city_bg.png');
     this.load.image('map_zabka_bg', 'assets/maps/zabka_bg.png');
+    this.load.image('map_garage_bg', 'assets/maps/garage_bg.png');
+    this.load.image('map_pub_bg', 'assets/maps/pub_bg.png');
+    this.load.image('map_alley_bg', 'assets/maps/alley_bg.png');
+    this.load.image('map_marina_bg', 'assets/maps/marina_bg.png');
+    this.load.image('map_forest_bg', 'assets/maps/forest_bg.png');
 
     // UI Thumbnails & Phone Modal
     this.load.image('thumb_group', 'assets/ui/thumb_group.png');
