@@ -15,6 +15,8 @@ import { damageNumber, screenShake } from '@/fx/Juice';
 import { applyCrtToCamera } from '@/fx/CrtPipeline';
 import { applyStatus } from '@/systems/StatusFx';
 import { Combatant } from '@/systems/Combatant';
+import { heroStatsAtLevel } from '@/systems/Stats';
+import { HEROES } from '@/content/heroes';
 import { resolveBattleConfig, ResolvedBattleConfig, getEnemySpriteSize } from '@/systems/EncounterFactory';
 
 export class BattleScene extends Phaser.Scene {
@@ -43,12 +45,14 @@ export class BattleScene extends Phaser.Scene {
   private actionBannerContainer!: Phaser.GameObjects.Container;
   private actionBannerBg!: Phaser.GameObjects.Graphics;
   private actionBannerText!: Phaser.GameObjects.BitmapText | Phaser.GameObjects.Text;
+  private rawParams!: BattleParams;
 
   constructor() {
     super('Battle');
   }
 
   init(data: BattleParams): void {
+    this.rawParams = data;
     this.isResolving = false;
     this.isActionPlaying = false;
     this.actionTimerMs = 0;
@@ -796,6 +800,40 @@ export class BattleScene extends Phaser.Scene {
   private handleDefeat(): void {
     this.isResolving = true;
     Audio.sfx('ko');
+
+    if (this.config.retryOnDefeat) {
+      // Instant Retry Safety Net: "Druga Runda"
+      // Fully restore all party members
+      for (const hid of this.state.party) {
+        const def = HEROES[hid];
+        const member = this.state.roster[hid];
+        if (member && def) {
+          const stats = heroStatsAtLevel(def, member.level);
+          member.hp = stats.hp;
+          member.mp = stats.mp;
+        }
+      }
+
+      (this.logText as any).setText('PORAŻKA... Ekipa bierze rewanż! DRUGA RUNDA (+20% ATK/DEF)!');
+
+      // Add "Druga Runda" morale buff (+20% ATK, +20% DEF) for the retry
+      const retryPartyEffects = [
+        ...(this.rawParams.partyEffects ?? []),
+        { id: 'drugaRunda_atk', name: 'Druga Runda', kind: 'statMod' as const, stat: 'atk' as const, value: 0.2, turns: -1 },
+        { id: 'drugaRunda_def', name: 'Druga Runda', kind: 'statMod' as const, stat: 'def' as const, value: 0.2, turns: -1 },
+      ];
+
+      this.time.delayedCall(2000, () => {
+        this.cameras.main.fadeOut(400, 0, 3, 11);
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+          this.scene.restart({
+            ...this.rawParams,
+            partyEffects: retryPartyEffects,
+          });
+        });
+      });
+      return;
+    }
 
     if (this.config.allowDefeat) {
       // Scripted defeat: restore heroes to at least 1 HP so caller scene can proceed

@@ -418,14 +418,18 @@ export class BattleEngine {
         return;
       }
 
-      // Check physical immunity
+      // Physical armor / resistance checks (e.g. Kark's bouncer build)
+      let armorMult = 1.0;
       if (skill.kind === 'physical' && target.immune?.physical) {
         const canBypass = target.immune.untilStatus?.some((st) => hasStatus(target, st));
         if (!canBypass) {
-          events.push({ type: 'immune', uid: target.uid, reason: 'Tarcza ochrony' });
-          events.push({ type: 'damage', uid: target.uid, amount: 0, crit: false, targetHp: target.hp });
-          events.push({ type: 'log', text: `IMMUNE! ${target.name} jest niewrażliwy na zwykłe ataki!` });
-          return;
+          // Soft resistance: 70% damage reduction when unstunned
+          armorMult = 0.3;
+          events.push({ type: 'log', text: `> Pancerz ${target.name} tłumi większość ciosu!` });
+        } else {
+          // Stunned / vulnerable: +25% bonus physical damage
+          armorMult = 1.25;
+          events.push({ type: 'log', text: `> Cios w odsłonięty punkt ${target.name}!` });
         }
       }
 
@@ -448,7 +452,7 @@ export class BattleEngine {
       // Defending halves damage
       const defMult = target.defending ? 0.5 : 1.0;
 
-      let finalDmg = Math.max(1, Math.round(baseDmg * variance * critMult * redMult * defMult));
+      let finalDmg = Math.max(1, Math.round(baseDmg * variance * critMult * redMult * defMult * armorMult));
 
       target.hp = Math.max(0, target.hp - finalDmg);
       events.push({

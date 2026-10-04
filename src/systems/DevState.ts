@@ -208,13 +208,22 @@ export function createDevChapterState(leader: HeroId, chapterId: number): DevWar
       ? { kawa: 1, piwo: 1 }
       : chapterId === 2
       ? { kawa: 2, piwo: 2, hotDog: 1, elektrolity: 1 }
-      : {
+      : chapterId <= 4
+      ? {
           kawa: 3,
-          piwo: 4,
+          piwo: 3,
           hotDog: 2,
-          kielbasa: 2,
-          apteczka: 2,
+          kebab: 2,
+          zimnyBrowar: 2,
           elektrolity: 2,
+        }
+      : {
+          kawa: 4,
+          piwo: 4,
+          hotDog: 3,
+          kebab: 4,
+          zimnyBrowar: 4,
+          elektrolity: 3,
         };
 
   // 5. Build State

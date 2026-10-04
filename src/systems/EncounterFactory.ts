@@ -28,6 +28,7 @@ export interface ResolvedBattleConfig {
   canFlee: boolean;
   fleeSuccessChance: number;
   allowDefeat: boolean;
+  retryOnDefeat: boolean;
   defeatScene: string;
   returnScene: string;
   returnSceneData: Record<string, any>;
@@ -265,6 +266,7 @@ export function resolveBattleConfig(params: BattleParams): ResolvedBattleConfig 
     canFlee: params.canFlee ?? false,
     fleeSuccessChance: params.fleeSuccessChance ?? 0.75,
     allowDefeat: params.allowDefeat ?? false,
+    retryOnDefeat: params.retryOnDefeat ?? false,
     defeatScene: params.defeatScene ?? 'Title',
     returnScene: params.returnScene ?? 'World',
     returnSceneData: params.returnSceneData ?? {},

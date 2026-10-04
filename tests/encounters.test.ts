@@ -185,11 +185,17 @@ describe('EncounterFactory & BattleParams', () => {
     expect(registryKeys).toContain('karkAmbush');
     expect(registryKeys).toContain('finalBossRift');
 
+    // Verify Chapter 4 Kark Ambush safety net and rewards
+    const kark = ENCOUNTERS.karkAmbush;
+    expect(kark.retryOnDefeat).toBe(true);
+    expect(kark.rewards?.bonusItems).toEqual(['zimnyBrowar', 'kebab', 'elektrolity']);
+
     // Verify Final Boss Rift has correct theme, background, and return scene
     const finalBoss = ENCOUNTERS.finalBossRift;
     expect(finalBoss.music).toBe('ch09_finalboss');
     expect(finalBoss.bg).toBe('battle_rift_bg');
     expect(finalBoss.returnScene).toBe('Outro');
+    expect(finalBoss.retryOnDefeat).toBe(true);
     expect(finalBoss.enemies).toEqual(['panJanusz', 'kredyt', 'audyt', 'rwaKulszowa']);
 
     // Ensure all registry entries can be normalized without errors

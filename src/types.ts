@@ -247,6 +247,9 @@ export interface BattleParams {
   /** Whether defeat continues story without Game Over */
   allowDefeat?: boolean;
 
+  /** Whether to instantly retry the battle with 'Druga Runda' morale buff instead of Game Over */
+  retryOnDefeat?: boolean;
+
   /** Destination scene on defeat if not Game Over (defaults to 'Title') */
   defeatScene?: string;
 

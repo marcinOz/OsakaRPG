@@ -103,23 +103,29 @@ describe('BattleEngine', () => {
     expect(hasStatus(luki, 'stress')).toBe(false);
   });
 
-  it('Kark physical immunity works until stunned', () => {
-    const danny = makeHeroCombatant(HEROES.danny, 1);
+  it('Kark physical resistance softens incoming damage and becomes vulnerable when stunned', () => {
+    const danny = makeHeroCombatant(HEROES.danny, 4); // L4 Danny
     const kark = makeEnemyCombatant(ENEMIES.kark, 0);
     const engine = new BattleEngine([danny], [kark], [ENEMIES.kark], { rng: () => 0.5 });
 
-    // Physical attack while Kark is not stunned -> 0 damage
+    // Physical attack while Kark is not stunned -> damage is reduced by 70% (armorMult = 0.3)
     const prevHp = kark.hp;
     const events = engine.act(danny.uid, 'attack', kark.uid);
-    expect(events.some((e) => e.type === 'immune')).toBe(true);
-    expect(kark.hp).toBe(prevHp);
+    const dmgEvent = events.find((e) => e.type === 'damage') as any;
+    expect(dmgEvent).toBeDefined();
+    expect(dmgEvent.amount).toBeGreaterThan(0); // Deal chipped damage, never hard 0
+    expect(events.some((e) => e.type === 'log' && e.text.includes('Pancerz'))).toBe(true);
+    const unstunnedDmg = prevHp - kark.hp;
 
-    // Apply stun to Kark
+    // Apply stun to Kark (e.g. from Alior's Frame Trap)
     kark.statuses.push({ id: 'stun', name: 'Ogłuszenie', kind: 'stun', value: 1, turns: 1, remaining: 1, debuff: true });
 
-    // Attack again -> immunity bypassed
-    engine.act(danny.uid, 'attack', kark.uid);
-    expect(kark.hp).toBeLessThan(prevHp);
+    // Attack again -> stun provides +25% damage bonus
+    const hpBeforeStunnedHit = kark.hp;
+    const stunnedEvents = engine.act(danny.uid, 'attack', kark.uid);
+    expect(stunnedEvents.some((e) => e.type === 'log' && e.text.includes('odsłonięty punkt'))).toBe(true);
+    const stunnedDmg = hpBeforeStunnedHit - kark.hp;
+    expect(stunnedDmg).toBeGreaterThan(unstunnedDmg * 3); // ~4x more damage when stunned vs shielded!
   });
 
   it('Pan Janusz triggers boss dialogue phases when HP falls below thresholds', () => {

@@ -52,6 +52,10 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
     enemies: ['kark', 'straznik'],
     battleTitle: 'BOSS: SZEF OCHRONY KARK',
     returnScene: 'World',
+    retryOnDefeat: true,
+    rewards: {
+      bonusItems: ['zimnyBrowar', 'kebab', 'elektrolity'],
+    },
   },
   finalBossRift: {
     id: 'finalBossRift',
@@ -61,6 +65,7 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
     enemies: ['panJanusz', 'kredyt', 'audyt', 'rwaKulszowa'],
     battleTitle: 'FINAŁ: KORPO-DEWORATOR',
     returnScene: 'Outro',
+    retryOnDefeat: true,
   },
 };
 
