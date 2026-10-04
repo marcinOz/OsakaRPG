@@ -8,6 +8,7 @@ import { addWeather } from '@/fx/Weather';
 import { isCrtEnabled, setCrtEnabled, applyCrtToCamera } from '@/fx/CrtPipeline';
 import { Saves } from '@/systems/Save';
 import { HEROES } from '@/content/heroes';
+import { ENEMIES } from '@/content/enemies';
 import { drawPanel } from '@/ui/Panel';
 import {
   ALL_HERO_IDS,
@@ -22,13 +23,30 @@ export class TitleScene extends Phaser.Scene {
 
   // Dev Panel State & Objects
   private isDevPanelOpen = false;
+  private activeDevTab: 'chapters' | 'villains' = 'chapters';
   private devPanelContainer!: Phaser.GameObjects.Container;
   private selectedHeroIdx = 0;
   private selectedChapterIdx = 0;
+  private selectedVillainIdx = 0;
+
+  // Tabs & Views
+  private tabChaptersBg!: Phaser.GameObjects.Graphics;
+  private tabVillainsBg!: Phaser.GameObjects.Graphics;
+  private tabChaptersText!: TextObj;
+  private tabVillainsText!: TextObj;
+
+  private chapterViewContainer!: Phaser.GameObjects.Container;
+  private villainsViewContainer!: Phaser.GameObjects.Container;
+
   private heroCardGraphics!: Phaser.GameObjects.Graphics;
   private chapterCardGraphics!: Phaser.GameObjects.Graphics;
   private leaderInfoText!: TextObj;
   private chapterTextRows: { title: TextObj; details: TextObj }[] = [];
+
+  private villainsCardGraphics!: Phaser.GameObjects.Graphics;
+  private villainsSubtitleText!: TextObj;
+  private villainCardsList: { id: string; x: number; y: number; w: number; h: number }[] = [];
+
   private isTransitioning = false;
 
   constructor() {
@@ -129,20 +147,47 @@ export class TitleScene extends Phaser.Scene {
     drawPanel(winGraphics, px, py, pw, ph);
     this.devPanelContainer.add(winGraphics);
 
-    // 3. Header Bar
-    const headerTitle = txt(
-      this,
-      GAME_W / 2,
-      py + 16,
-      '★ PANEL DEWELOPERSKI: WYBÓR ROZDZIAŁU & BOHATERA ★',
-      {
-        color: PAL.yellow,
-        big: true,
-        align: 'center',
-        origin: [0.5, 0.5],
-      }
-    );
-    this.devPanelContainer.add(headerTitle);
+    // 3. Tab Switcher Header (Chapters / Heroes VS Dev Villains)
+    this.tabChaptersBg = this.add.graphics();
+    this.tabVillainsBg = this.add.graphics();
+    this.devPanelContainer.add([this.tabChaptersBg, this.tabVillainsBg]);
+
+    const tab1W = 270;
+    const tab2W = 330;
+    const tabH = 26;
+    const tab1X = px + 24;
+    const tab2X = px + 304;
+    const tabY = py + 12;
+
+    this.tabChaptersText = txt(this, tab1X + 16, tabY + 5, '1. ROZDZIAŁY & BOHATEROWIE', {
+      color: PAL.yellow,
+      big: true,
+    });
+    this.tabVillainsText = txt(this, tab2X + 16, tabY + 5, '2. ⚡ DEV VILLAINS (11 WROGÓW)', {
+      color: PAL.silver,
+      big: true,
+    });
+    this.devPanelContainer.add([this.tabChaptersText, this.tabVillainsText]);
+
+    // Tab Click Zones
+    const tab1Zone = this.add
+      .zone(tab1X, tabY, tab1W, tabH)
+      .setOrigin(0, 0)
+      .setInteractive({ useHandCursor: true });
+    tab1Zone.on('pointerdown', () => {
+      if (this.isTransitioning) return;
+      this.switchDevTab('chapters');
+    });
+
+    const tab2Zone = this.add
+      .zone(tab2X, tabY, tab2W, tabH)
+      .setOrigin(0, 0)
+      .setInteractive({ useHandCursor: true });
+    tab2Zone.on('pointerdown', () => {
+      if (this.isTransitioning) return;
+      this.switchDevTab('villains');
+    });
+    this.devPanelContainer.add([tab1Zone, tab2Zone]);
 
     // Close Button in header
     const closeBtn = txt(this, px + pw - 120, py + 16, '[✕ POWRÓT]', {
@@ -159,21 +204,27 @@ export class TitleScene extends Phaser.Scene {
     closeZone.on('pointerdown', () => this.closeDevPanel());
     this.devPanelContainer.add(closeZone);
 
+    // =========================================================================
+    // SUB-VIEW A: CHAPTERS & HEROES
+    // =========================================================================
+    this.chapterViewContainer = this.add.container(0, 0);
+    this.devPanelContainer.add(this.chapterViewContainer);
+
     // 4. Hero Selector Strip at Top
-    const heroStripY = py + 38;
-    const heroLabel = txt(this, px + 24, heroStripY, '1. WYBIERZ BOHATERA (LIDERA DRUŻYNY):', {
+    const heroStripY = py + 42;
+    const heroLabel = txt(this, px + 24, heroStripY, 'WYBIERZ BOHATERA (LIDERA DRUŻYNY):', {
       color: PAL.silver,
       big: false,
     });
-    this.devPanelContainer.add(heroLabel);
+    this.chapterViewContainer.add(heroLabel);
 
     this.heroCardGraphics = this.add.graphics();
-    this.devPanelContainer.add(this.heroCardGraphics);
+    this.chapterViewContainer.add(this.heroCardGraphics);
 
     const heroCardW = 138;
     const heroCardH = 72;
     const heroStartX = px + 24;
-    const heroCardsY = heroStripY + 20;
+    const heroCardsY = heroStripY + 18;
 
     ALL_HERO_IDS.forEach((hid, idx) => {
       const cardX = heroStartX + idx * (heroCardW + 9);
@@ -184,7 +235,7 @@ export class TitleScene extends Phaser.Scene {
         .image(cardX + 38, heroCardsY + 36, `portrait_${hid}_64`)
         .setDisplaySize(56, 56)
         .setOrigin(0.5, 0.5);
-      this.devPanelContainer.add(portSpr);
+      this.chapterViewContainer.add(portSpr);
 
       // Hero name & class
       const nameTxt = txt(this, cardX + 72, heroCardsY + 18, def.name, {
@@ -195,7 +246,7 @@ export class TitleScene extends Phaser.Scene {
         color: PAL.silver,
         big: false,
       });
-      this.devPanelContainer.add([nameTxt, classTxt]);
+      this.chapterViewContainer.add([nameTxt, classTxt]);
 
       // Interactive Click Zone
       const heroZone = this.add
@@ -208,7 +259,7 @@ export class TitleScene extends Phaser.Scene {
         Audio.sfx('cursor');
         this.updateDevPanelVisuals();
       });
-      this.devPanelContainer.add(heroZone);
+      this.chapterViewContainer.add(heroZone);
     });
 
     // Leader info subtitle
@@ -216,7 +267,7 @@ export class TitleScene extends Phaser.Scene {
       color: PAL.cyan,
       big: false,
     });
-    this.devPanelContainer.add(this.leaderInfoText);
+    this.chapterViewContainer.add(this.leaderInfoText);
 
     // 5. Chapter Grid (2 Columns x 5 Rows)
     const chapterSectionY = heroCardsY + heroCardH + 34;
@@ -224,16 +275,16 @@ export class TitleScene extends Phaser.Scene {
       this,
       px + 24,
       chapterSectionY,
-      '2. WYBIERZ ROZDZIAŁ DO TESTOWANIA (WARP):',
+      'WYBIERZ ROZDZIAŁ DO TESTOWANIA (WARP):',
       {
         color: PAL.silver,
         big: false,
       }
     );
-    this.devPanelContainer.add(chapterLabel);
+    this.chapterViewContainer.add(chapterLabel);
 
     this.chapterCardGraphics = this.add.graphics();
-    this.devPanelContainer.add(this.chapterCardGraphics);
+    this.chapterViewContainer.add(this.chapterCardGraphics);
 
     const colW = 428;
     const rowH = 46;
@@ -255,7 +306,7 @@ export class TitleScene extends Phaser.Scene {
         color: PAL.silver,
         big: false,
       });
-      this.devPanelContainer.add([titleTxt, detailsTxt]);
+      this.chapterViewContainer.add([titleTxt, detailsTxt]);
       this.chapterTextRows.push({ title: titleTxt, details: detailsTxt });
 
       // Interactive Click Zone
@@ -276,22 +327,157 @@ export class TitleScene extends Phaser.Scene {
           this.updateDevPanelVisuals();
         }
       });
-      this.devPanelContainer.add(chZone);
+      this.chapterViewContainer.add(chZone);
     });
 
-    // 6. Bottom Navigation Controls Hint
     const bottomHint = txt(
       this,
       px + 24,
       py + ph - 22,
-      '[← / →]: ZMIEŃ BOHATERA   [↑ / ↓]: ZMIEŃ ROZDZIAŁ   [Z / ENTER / KLIK]: TESTUJ   [ESC / X]: POWRÓT',
+      '[TAB]: PRZEŁĄCZ ZAKŁADKĘ   [← / →]: BOHATER   [↑ / ↓]: ROZDZIAŁ   [Z / ENTER]: TESTUJ   [ESC]: POWRÓT',
       {
         color: PAL.grey,
         big: false,
       }
     );
-    this.devPanelContainer.add(bottomHint);
+    this.chapterViewContainer.add(bottomHint);
 
+    // =========================================================================
+    // SUB-VIEW B: DEV VILLAINS (11 ENEMIES & BOSSES SHOWCASE)
+    // =========================================================================
+    this.villainsViewContainer = this.add.container(0, 0).setVisible(false);
+    this.devPanelContainer.add(this.villainsViewContainer);
+
+    this.villainsSubtitleText = txt(this, px + 24, py + 42, '', {
+      color: PAL.yellow,
+      big: false,
+    });
+    this.villainsViewContainer.add(this.villainsSubtitleText);
+
+    this.villainsCardGraphics = this.add.graphics();
+    this.villainsViewContainer.add(this.villainsCardGraphics);
+
+    // 11 Enemies in 4 columns x 3 rows grid
+    const VILLAIN_KEYS = [
+      'bolKregoslupa', 'slacki', 'sasiadSzkodnik', 'autoTuneHipster',
+      'drogiePiwo', 'straznik', 'kark', 'rwaKulszowa',
+      'panJanusz', 'kredyt', 'audyt'
+    ];
+
+    const vCardW = 208;
+    const vCardH = 114;
+    const vGapX = 13;
+    const vGapY = 8;
+    const vGridStartY = py + 66;
+
+    VILLAIN_KEYS.forEach((eid, idx) => {
+      const col = idx % 4;
+      const row = Math.floor(idx / 4);
+      const cx = px + 24 + col * (vCardW + vGapX);
+      const cy = vGridStartY + row * (vCardH + vGapY);
+
+      this.villainCardsList.push({ id: eid, x: cx, y: cy, w: vCardW, h: vCardH });
+
+      const def = ENEMIES[eid];
+
+      // Animated Sprite
+      const spr = this.add.sprite(cx + 38, cy + 54, `enemy_${eid}`, 0);
+      spr.setDisplaySize(60, 60);
+      if (this.anims.exists(`anim_enemy_${eid}`)) {
+        spr.play(`anim_enemy_${eid}`);
+      }
+      this.villainsViewContainer.add(spr);
+
+      // Enemy Name
+      const nameTxt = txt(this, cx + 72, cy + 8, def?.name ?? eid, {
+        color: def?.boss ? PAL.yellow : PAL.white,
+        big: true,
+      });
+
+      // Type / Boss badge
+      const isBoss = !!def?.boss;
+      const tierTxt = txt(
+        this,
+        cx + 72,
+        cy + 28,
+        isBoss ? `★ BOSS Lv.${def.level}` : `WRÓG Lv.${def.level}`,
+        { color: isBoss ? PAL.red : PAL.silver, big: false }
+      );
+
+      // Stats line
+      const statsTxt = txt(
+        this,
+        cx + 72,
+        cy + 46,
+        `HP:${def.stats.hp} ATK:${def.stats.atk} DEF:${def.stats.def}`,
+        { color: PAL.cyan, big: false }
+      );
+
+      // Fight Button Graphic & Text
+      const btnBg = this.add.graphics();
+      btnBg.fillStyle(PAL.navy, 0.95);
+      btnBg.fillRoundedRect(cx + 72, cy + 68, 126, 32, 4);
+      btnBg.lineStyle(1, isBoss ? PAL.red : PAL.green, 0.9);
+      btnBg.strokeRoundedRect(cx + 72, cy + 68, 126, 32, 4);
+
+      const btnTxt = txt(this, cx + 80, cy + 76, isBoss ? '⚔ WALKAZ BOSSEM' : '⚔ TESTUJ WALKĘ', {
+        color: isBoss ? PAL.red : PAL.green,
+        big: false,
+      });
+
+      this.villainsViewContainer.add([nameTxt, tierTxt, statsTxt, btnBg, btnTxt]);
+
+      // Interactive Click Zone
+      const vZone = this.add
+        .zone(cx, cy, vCardW, vCardH)
+        .setOrigin(0, 0)
+        .setInteractive({ useHandCursor: true });
+
+      vZone.on('pointerdown', () => {
+        if (this.isTransitioning) return;
+        this.selectedVillainIdx = idx;
+        this.launchVillainBattle(eid);
+      });
+
+      vZone.on('pointerover', () => {
+        if (this.isTransitioning) return;
+        if (this.selectedVillainIdx !== idx) {
+          this.selectedVillainIdx = idx;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        }
+      });
+
+      this.villainsViewContainer.add(vZone);
+    });
+
+    const villainsHint = txt(
+      this,
+      px + 24,
+      py + ph - 22,
+      '[TAB]: PRZEŁĄCZ ZAKŁADKĘ   [STRZAŁKI]: WYBIERZ WROGA   [Z / ENTER / KLIK]: TESTUJ WALKĘ   [ESC]: POWRÓT',
+      {
+        color: PAL.grey,
+        big: false,
+      }
+    );
+    this.villainsViewContainer.add(villainsHint);
+
+    this.updateDevPanelVisuals();
+  }
+
+  private switchDevTab(tab: 'chapters' | 'villains'): void {
+    if (this.activeDevTab === tab) return;
+    this.activeDevTab = tab;
+    Audio.sfx('cursor');
+
+    if (tab === 'chapters') {
+      this.chapterViewContainer.setVisible(true);
+      this.villainsViewContainer.setVisible(false);
+    } else {
+      this.chapterViewContainer.setVisible(false);
+      this.villainsViewContainer.setVisible(true);
+    }
     this.updateDevPanelVisuals();
   }
 
@@ -314,84 +500,136 @@ export class TitleScene extends Phaser.Scene {
     const px = (GAME_W - pw) / 2;
     const py = 28;
 
-    // Redraw Hero Cards
-    this.heroCardGraphics.clear();
-    const heroCardW = 138;
-    const heroCardH = 72;
-    const heroStartX = px + 24;
-    const heroCardsY = py + 38 + 20;
+    // Update Tab Headers Styling
+    const tab1W = 270;
+    const tab2W = 330;
+    const tabH = 26;
+    const tab1X = px + 24;
+    const tab2X = px + 304;
+    const tabY = py + 12;
 
-    ALL_HERO_IDS.forEach((_hid, idx) => {
-      const cardX = heroStartX + idx * (heroCardW + 9);
-      const isSelected = idx === this.selectedHeroIdx;
+    this.tabChaptersBg.clear();
+    this.tabVillainsBg.clear();
 
-      this.heroCardGraphics.fillStyle(PAL.panel, 0.95);
-      this.heroCardGraphics.fillRect(cardX, heroCardsY, heroCardW, heroCardH);
+    const isChap = this.activeDevTab === 'chapters';
 
-      if (isSelected) {
-        this.heroCardGraphics.lineStyle(2, PAL.yellow, 1);
-        this.heroCardGraphics.strokeRect(cardX, heroCardsY, heroCardW, heroCardH);
+    // Tab 1 (Chapters)
+    this.tabChaptersBg.fillStyle(isChap ? PAL.steel : PAL.panel, 0.95);
+    this.tabChaptersBg.fillRoundedRect(tab1X, tabY, tab1W, tabH, 4);
+    this.tabChaptersBg.lineStyle(isChap ? 2 : 1, isChap ? PAL.yellow : PAL.steel, 0.9);
+    this.tabChaptersBg.strokeRoundedRect(tab1X, tabY, tab1W, tabH, 4);
+
+    // Tab 2 (Villains)
+    this.tabVillainsBg.fillStyle(!isChap ? PAL.steel : PAL.panel, 0.95);
+    this.tabVillainsBg.fillRoundedRect(tab2X, tabY, tab2W, tabH, 4);
+    this.tabVillainsBg.lineStyle(!isChap ? 2 : 1, !isChap ? PAL.yellow : PAL.steel, 0.9);
+    this.tabVillainsBg.strokeRoundedRect(tab2X, tabY, tab2W, tabH, 4);
+
+    const setTint = (txtObj: TextObj, col: number) => {
+      if (txtObj instanceof Phaser.GameObjects.BitmapText) {
+        txtObj.setTint(col);
       } else {
-        this.heroCardGraphics.lineStyle(1, PAL.steel, 0.6);
-        this.heroCardGraphics.strokeRect(cardX, heroCardsY, heroCardW, heroCardH);
+        (txtObj as any).setColor?.('#' + col.toString(16).padStart(6, '0'));
       }
-    });
+    };
 
-    // Update Leader Info text
+    setTint(this.tabChaptersText, isChap ? PAL.yellow : PAL.silver);
+    setTint(this.tabVillainsText, !isChap ? PAL.yellow : PAL.silver);
+
     const activeHero = HEROES[ALL_HERO_IDS[this.selectedHeroIdx]];
-    if (this.leaderInfoText) {
-      (this.leaderInfoText as any).setText(
-        `AKTYWNY LIDER: ${activeHero.fullName} (${activeHero.className}) • BONUS: ${activeHero.leaderBonus.label}`
-      );
-      if (this.leaderInfoText instanceof Phaser.GameObjects.BitmapText) {
-        this.leaderInfoText.setTint(activeHero.color);
-      } else {
-        this.leaderInfoText.setColor('#' + activeHero.color.toString(16).padStart(6, '0'));
-      }
-    }
 
-    // Redraw Chapter Cards
-    this.chapterCardGraphics.clear();
-    const colW = 428;
-    const rowH = 46;
-    const col1X = px + 24;
-    const col2X = px + pw - colW - 24;
-    const rowStartY = heroCardsY + heroCardH + 34 + 20;
+    if (isChap) {
+      // Redraw Hero Cards
+      this.heroCardGraphics.clear();
+      const heroCardW = 138;
+      const heroCardH = 72;
+      const heroStartX = px + 24;
+      const heroCardsY = py + 42 + 18;
 
-    CHAPTER_DEV_REGISTRY.forEach((chDef, idx) => {
-      const isCol2 = idx >= 5;
-      const rowIdx = idx % 5;
-      const cx = isCol2 ? col2X : col1X;
-      const cy = rowStartY + rowIdx * (rowH + 6);
-      const isSelected = idx === this.selectedChapterIdx;
+      ALL_HERO_IDS.forEach((_hid, idx) => {
+        const cardX = heroStartX + idx * (heroCardW + 9);
+        const isSelected = idx === this.selectedHeroIdx;
 
-      this.chapterCardGraphics.fillStyle(isSelected ? PAL.navy : PAL.panel, 0.95);
-      this.chapterCardGraphics.fillRect(cx, cy, colW, rowH);
+        this.heroCardGraphics.fillStyle(PAL.panel, 0.95);
+        this.heroCardGraphics.fillRect(cardX, heroCardsY, heroCardW, heroCardH);
 
-      if (isSelected) {
-        this.chapterCardGraphics.lineStyle(2, PAL.yellow, 1);
-        this.chapterCardGraphics.strokeRect(cx, cy, colW, rowH);
-      } else {
-        this.chapterCardGraphics.lineStyle(1, PAL.steel, 0.7);
-        this.chapterCardGraphics.strokeRect(cx, cy, colW, rowH);
-      }
-
-      const rowTexts = this.chapterTextRows[idx];
-      if (rowTexts) {
-        const prefix = isSelected ? '► ' : '  ';
-        (rowTexts.title as any).setText(`${prefix}${chDef.title}: ${chDef.subtitle}`);
-        (rowTexts.details as any).setText(
-          `   Lokacja: ${chDef.location}  •  Tryb: [${chDef.targetScene}]  •  Poziom: Lv.${chDef.recommendedLevel}`
-        );
-
-        const titleColor = isSelected ? PAL.yellow : PAL.white;
-        if (rowTexts.title instanceof Phaser.GameObjects.BitmapText) {
-          rowTexts.title.setTint(titleColor);
+        if (isSelected) {
+          this.heroCardGraphics.lineStyle(2, PAL.yellow, 1);
+          this.heroCardGraphics.strokeRect(cardX, heroCardsY, heroCardW, heroCardH);
         } else {
-          rowTexts.title.setColor('#' + titleColor.toString(16).padStart(6, '0'));
+          this.heroCardGraphics.lineStyle(1, PAL.steel, 0.6);
+          this.heroCardGraphics.strokeRect(cardX, heroCardsY, heroCardW, heroCardH);
         }
+      });
+
+      // Update Leader Info text
+      if (this.leaderInfoText) {
+        (this.leaderInfoText as any).setText(
+          `AKTYWNY LIDER: ${activeHero.fullName} (${activeHero.className}) • BONUS: ${activeHero.leaderBonus.label}`
+        );
+        setTint(this.leaderInfoText, activeHero.color);
       }
-    });
+
+      // Redraw Chapter Cards
+      this.chapterCardGraphics.clear();
+      const colW = 428;
+      const rowH = 46;
+      const col1X = px + 24;
+      const col2X = px + pw - colW - 24;
+      const chapterSectionY = heroCardsY + heroCardH + 34;
+      const rowStartY = chapterSectionY + 20;
+
+      CHAPTER_DEV_REGISTRY.forEach((chDef, idx) => {
+        const isCol2 = idx >= 5;
+        const rowIdx = idx % 5;
+        const cx = isCol2 ? col2X : col1X;
+        const cy = rowStartY + rowIdx * (rowH + 6);
+        const isSelected = idx === this.selectedChapterIdx;
+
+        this.chapterCardGraphics.fillStyle(PAL.panel, 0.95);
+        this.chapterCardGraphics.fillRect(cx, cy, colW, rowH);
+
+        if (isSelected) {
+          this.chapterCardGraphics.lineStyle(2, PAL.cyan, 1);
+          this.chapterCardGraphics.strokeRect(cx, cy, colW, rowH);
+        } else {
+          this.chapterCardGraphics.lineStyle(1, PAL.steel, 0.5);
+          this.chapterCardGraphics.strokeRect(cx, cy, colW, rowH);
+        }
+
+        const rowTexts = this.chapterTextRows[idx];
+        if (rowTexts) {
+          const prefix = isSelected ? '► ' : '  ';
+          (rowTexts.title as any).setText(`${prefix}${chDef.title}: ${chDef.subtitle}`);
+          (rowTexts.details as any).setText(
+            `   Lokacja: ${chDef.location}  •  Tryb: [${chDef.targetScene}]  •  Poziom: Lv.${chDef.recommendedLevel}`
+          );
+          setTint(rowTexts.title, isSelected ? PAL.yellow : PAL.white);
+        }
+      });
+    } else {
+      // Villains View Visuals
+      if (this.villainsSubtitleText) {
+        (this.villainsSubtitleText as any).setText(
+          `★ TESTUJ NOWY PIXEL ART WROGÓW W WALCE • AKTYWNY BOHATER DO TESTÓW: ${activeHero.fullName} (${activeHero.className})`
+        );
+      }
+
+      this.villainsCardGraphics.clear();
+      this.villainCardsList.forEach((c, idx) => {
+        const isSelected = idx === this.selectedVillainIdx;
+        this.villainsCardGraphics.fillStyle(PAL.panel, 0.95);
+        this.villainsCardGraphics.fillRoundedRect(c.x, c.y, c.w, c.h, 4);
+
+        if (isSelected) {
+          this.villainsCardGraphics.lineStyle(2, PAL.yellow, 1);
+          this.villainsCardGraphics.strokeRoundedRect(c.x, c.y, c.w, c.h, 4);
+        } else {
+          this.villainsCardGraphics.lineStyle(1, PAL.steel, 0.6);
+          this.villainsCardGraphics.strokeRoundedRect(c.x, c.y, c.w, c.h, 4);
+        }
+      });
+    }
   }
 
   private warpToSelectedChapter(): void {
@@ -420,6 +658,51 @@ export class TitleScene extends Phaser.Scene {
     });
   }
 
+  private launchVillainBattle(eid: string): void {
+    if (this.isTransitioning) return;
+    this.isTransitioning = true;
+    Audio.sfx('confirm');
+
+    const heroId = ALL_HERO_IDS[this.selectedHeroIdx] ?? 'danny';
+    const enemyDef = ENEMIES[eid];
+    const isBoss = !!enemyDef?.boss;
+
+    // Scale hero to enemy level for balanced test combat
+    const enemyLevel = enemyDef?.level ?? 1;
+    const scaledChapter = Math.min(10, Math.max(1, enemyLevel));
+    const { state } = createDevChapterState(heroId, scaledChapter);
+
+    const bgMap: Record<string, string> = {
+      bolKregoslupa: 'battle_apartment_bg',
+      slacki: 'battle_apartment_bg',
+      sasiadSzkodnik: 'battle_garage_bg',
+      autoTuneHipster: 'battle_pub_bg',
+      drogiePiwo: 'battle_pub_bg',
+      straznik: 'battle_alley_bg',
+      kark: 'battle_alley_bg',
+      panJanusz: 'battle_rift_bg',
+      kredyt: 'battle_rift_bg',
+      audyt: 'battle_rift_bg',
+      rwaKulszowa: 'battle_rift_bg',
+    };
+
+    const bg = bgMap[eid] ?? 'battle_apartment_bg';
+    const music = isBoss ? 'ch09_finalboss' : 'ch01_battle';
+
+    this.cameras.main.fadeOut(300, 0, 3, 11);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      startBattle(this, {
+        state,
+        heroes: [heroId],
+        enemies: [eid],
+        bg,
+        music,
+        battleTitle: `TEST DEV: ${enemyDef?.name ?? eid}`,
+        returnScene: 'Title',
+      });
+    });
+  }
+
   update(): void {
     // If Dev Panel is active, handle Dev Panel navigation
     if (this.isDevPanelOpen) {
@@ -430,31 +713,68 @@ export class TitleScene extends Phaser.Scene {
         return;
       }
 
-      if (this.inputHandler.pressed('left')) {
-        this.selectedHeroIdx =
-          (this.selectedHeroIdx + ALL_HERO_IDS.length - 1) % ALL_HERO_IDS.length;
-        Audio.sfx('cursor');
-        this.updateDevPanelVisuals();
-      } else if (this.inputHandler.pressed('right')) {
-        this.selectedHeroIdx = (this.selectedHeroIdx + 1) % ALL_HERO_IDS.length;
-        Audio.sfx('cursor');
-        this.updateDevPanelVisuals();
+      // TAB key toggles between tabs
+      if (this.inputHandler.pressed('menu')) {
+        this.switchDevTab(this.activeDevTab === 'chapters' ? 'villains' : 'chapters');
+        return;
       }
 
-      if (this.inputHandler.pressed('up')) {
-        this.selectedChapterIdx =
-          (this.selectedChapterIdx + CHAPTER_DEV_REGISTRY.length - 1) %
-          CHAPTER_DEV_REGISTRY.length;
-        Audio.sfx('cursor');
-        this.updateDevPanelVisuals();
-      } else if (this.inputHandler.pressed('down')) {
-        this.selectedChapterIdx = (this.selectedChapterIdx + 1) % CHAPTER_DEV_REGISTRY.length;
-        Audio.sfx('cursor');
-        this.updateDevPanelVisuals();
-      }
+      if (this.activeDevTab === 'chapters') {
+        if (this.inputHandler.pressed('left')) {
+          this.selectedHeroIdx =
+            (this.selectedHeroIdx + ALL_HERO_IDS.length - 1) % ALL_HERO_IDS.length;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        } else if (this.inputHandler.pressed('right')) {
+          this.selectedHeroIdx = (this.selectedHeroIdx + 1) % ALL_HERO_IDS.length;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        }
 
-      if (this.inputHandler.pressed('ok')) {
-        this.warpToSelectedChapter();
+        if (this.inputHandler.pressed('up')) {
+          this.selectedChapterIdx =
+            (this.selectedChapterIdx + CHAPTER_DEV_REGISTRY.length - 1) %
+            CHAPTER_DEV_REGISTRY.length;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        } else if (this.inputHandler.pressed('down')) {
+          this.selectedChapterIdx = (this.selectedChapterIdx + 1) % CHAPTER_DEV_REGISTRY.length;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        }
+
+        if (this.inputHandler.pressed('ok')) {
+          this.warpToSelectedChapter();
+        }
+      } else {
+        // Villains tab navigation
+        const totalVillains = this.villainCardsList.length;
+        if (this.inputHandler.pressed('left')) {
+          this.selectedVillainIdx = (this.selectedVillainIdx + totalVillains - 1) % totalVillains;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        } else if (this.inputHandler.pressed('right')) {
+          this.selectedVillainIdx = (this.selectedVillainIdx + 1) % totalVillains;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        }
+
+        if (this.inputHandler.pressed('up')) {
+          this.selectedVillainIdx = (this.selectedVillainIdx + totalVillains - 4) % totalVillains;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        } else if (this.inputHandler.pressed('down')) {
+          this.selectedVillainIdx = (this.selectedVillainIdx + 4) % totalVillains;
+          Audio.sfx('cursor');
+          this.updateDevPanelVisuals();
+        }
+
+        if (this.inputHandler.pressed('ok')) {
+          const card = this.villainCardsList[this.selectedVillainIdx];
+          if (card) {
+            this.launchVillainBattle(card.id);
+          }
+        }
       }
       return;
     }
