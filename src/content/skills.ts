@@ -1,7 +1,7 @@
 import type { SkillDef } from '@/types';
 
 export const SKILLS: Record<string, SkillDef> = {
-  attack: { id: 'attack', name: 'ATAK', description: 'Zwykły cios.', mpCost: 0, target: 'enemy', power: 1, kind: 'physical', log: '{user} atakuje {target}!' },
+  attack: { id: 'attack', name: 'ATAK', description: 'Zwykły cios.', mpCost: 0, target: 'enemy', power: 1, kind: 'physical', fx: 'hit', log: '{user} atakuje {target}!' },
 
   // --- Signatures ---
   steelWall: {
@@ -50,11 +50,12 @@ export const SKILLS: Record<string, SkillDef> = {
   lifebuoyThrow: { id: 'lifebuoyThrow', name: 'RZUT KOŁEM', description: 'Leczy jednego sojusznika.', mpCost: 6, target: 'ally', power: 1.4, kind: 'heal', fx: 'splash', log: '{user} rzuca koło do {target}!' },
 
   // --- Enemy skills ---
-  backPain: { id: 'backPain', name: 'Strzyknięcie', description: '', mpCost: 0, target: 'enemy', power: 1.2, kind: 'physical', log: '{user}: strzyka w krzyżu {target}!' },
-  slackPing: { id: 'slackPing', name: '@channel', description: '', mpCost: 0, target: 'allEnemies', power: 0.6, kind: 'magic', log: '{user} pinguje @channel!' },
+  backPain: { id: 'backPain', name: 'Strzyknięcie', description: '', mpCost: 0, target: 'enemy', power: 1.2, kind: 'physical', fx: 'hit', log: '{user}: strzyka w krzyżu {target}!' },
+  slackPing: { id: 'slackPing', name: '@channel', description: '', mpCost: 0, target: 'allEnemies', power: 0.6, kind: 'magic', fx: 'glitch', log: '{user} pinguje @channel!' },
   stressDebuff: {
     id: 'stressDebuff', name: 'Deadline', description: '', mpCost: 0, target: 'enemy', power: 0.4, kind: 'magic',
     effects: [{ id: 'stress', name: 'Stres', kind: 'statMod', stat: 'atk', value: -0.2, turns: 3, debuff: true }],
+    fx: 'glitch',
     log: '{user} wysyła deadline na piątek!',
   },
 };

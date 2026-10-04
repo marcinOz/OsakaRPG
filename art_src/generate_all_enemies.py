@@ -27,91 +27,54 @@ def save_enemy_sheet(name, frame0, frame1, sz):
 # ============================================================================
 def build_slacki():
     sz = 96
+    logo_path = "art_src/slack_logo.png"
+    if os.path.exists(logo_path):
+        logo_raw = Image.open(logo_path).convert("RGBA")
+    else:
+        # Fallback if logo not found
+        logo_raw = Image.new("RGBA", (128, 128), (58, 20, 68, 255))
+        
+    base_w, base_h = 64, 64
     frames = []
     for f in range(2):
         im = Image.new("RGBA", (sz, sz), (0, 0, 0, 0))
         d = ImageDraw.Draw(im)
         
-        # Bubbles data: (x, y, r, color_base, color_hi, is_main)
-        bubbles = [
-            (32, 54, 18, (58, 20, 68), (140, 50, 160), False),
-            (64, 52, 16, (18, 54, 66), (40, 130, 150), False),
-            (48, 42, 24, (78, 24, 82), (180, 60, 190), True),
-            (28, 30, 12, (20, 70, 60), (45, 160, 130), False),
-            (68, 32, 14, (70, 30, 20), (180, 80, 40), False),
-        ]
+        dy = -3 if f == 1 else 0
+        scale_factor = 1.02 if f == 1 else 1.0
+        w = int(base_w * scale_factor)
+        h = int(base_h * scale_factor)
         
-        # Oscillation for frame 1
-        dy_off = -2 if f == 1 else 0
+        cur_logo = logo_raw.resize((w, h), Image.Resampling.LANCZOS)
+        pos_x = (sz - w) // 2
+        pos_y = (sz - h) // 2 + 4 + dy
+        im.paste(cur_logo, (pos_x, pos_y), cur_logo)
         
-        # Draw background bubbles first, then main
-        for bx, by, br, c_base, c_hi, is_main in bubbles:
-            cy = by + dy_off if not is_main else by
-            # Spherical 3D shading
-            for r in range(br + 1, 0, -1):
-                t = r / float(br)
-                # Shaded layer
-                cr = int(c_base[0] * t + c_hi[0] * (1 - t * 0.7))
-                cg = int(c_base[1] * t + c_hi[1] * (1 - t * 0.7))
-                cb = int(c_base[2] * t + c_hi[2] * (1 - t * 0.7))
-                d.ellipse([bx - r, cy - r, bx + r, cy + r], fill=(cr, cg, cb, 255), outline=DARK_PLUM)
-            
-            # Specular glossy glint
-            glint_x, glint_y = bx - br // 2, cy - br // 2
-            d.ellipse([glint_x - 2, glint_y - 2, glint_x + 3, glint_y + 1], fill=(255, 255, 255, 220))
-            d.point((glint_x + 4, glint_y + 3), fill=(255, 255, 255, 180))
-
-        # Main central bubble face
-        cx, cy = 48, 42
-        # Evil glowing eyes
-        eye_y = cy - 2
-        eye_spacing = 8
-        if f == 0:
-            d.polygon([(cx - eye_spacing - 4, eye_y - 3), (cx - eye_spacing + 3, eye_y), (cx - eye_spacing - 2, eye_y + 2)], fill=(255, 230, 80, 255))
-            d.polygon([(cx + eye_spacing + 4, eye_y - 3), (cx + eye_spacing - 3, eye_y), (cx + eye_spacing + 2, eye_y + 2)], fill=(255, 230, 80, 255))
-            d.point((cx - eye_spacing, eye_y), fill=(255, 60, 20, 255))
-            d.point((cx + eye_spacing, eye_y), fill=(255, 60, 20, 255))
-        else:
-            # Squinting menacing eyes
-            d.line([(cx - eye_spacing - 4, eye_y - 1), (cx - eye_spacing + 4, eye_y + 1)], fill=(255, 240, 100, 255), width=2)
-            d.line([(cx + eye_spacing + 4, eye_y - 1), (cx + eye_spacing - 4, eye_y + 1)], fill=(255, 240, 100, 255), width=2)
-
-        # Sharp jagged grin
-        mouth_y = cy + 7
-        teeth = [(-10, 0), (-6, 3), (-2, 0), (2, 3), (6, 0), (10, 2), (8, -2), (0, -2), (-8, -2)]
-        d.polygon([(cx + px, mouth_y + py) for px, py in teeth], fill=(230, 235, 245, 255), outline=DARK_PLUM)
-
-        # Pulsating [99+] badge floating above
-        badge_y = 12 + (dy_off * 2)
-        badge_glow = (255, 40, 60, 255) if f == 1 else (220, 30, 50, 255)
-        d.rounded_rectangle([52, badge_y, 88, badge_y + 16], radius=8, fill=badge_glow, outline=(255, 210, 220, 255))
-        # Draw "[99+]"
+        # Pulsating [99+] notification badge floating top right
+        badge_y = 8 + dy
+        badge_x = 54
+        badge_color = (255, 45, 75, 255) if f == 1 else (235, 30, 60, 255)
+        border_color = (255, 220, 230, 255)
+        d.rounded_rectangle([badge_x, badge_y, badge_x + 36, badge_y + 16], radius=8, fill=badge_color, outline=border_color)
+        
+        # Draw [99+]
         # [
-        d.line([(58, badge_y + 4), (58, badge_y + 12)], fill=(255, 255, 255, 255))
-        d.point((59, badge_y + 4), fill=(255, 255, 255, 255))
-        d.point((59, badge_y + 12), fill=(255, 255, 255, 255))
+        d.line([(badge_x + 4, badge_y + 4), (badge_x + 4, badge_y + 12)], fill=(255, 255, 255, 255))
+        d.point((badge_x + 5, badge_y + 4), fill=(255, 255, 255, 255))
+        d.point((badge_x + 5, badge_y + 12), fill=(255, 255, 255, 255))
         # 9
-        d.rectangle([62, badge_y + 4, 66, badge_y + 8], outline=(255, 255, 255, 255))
-        d.line([(66, badge_y + 7), (66, badge_y + 12)], fill=(255, 255, 255, 255))
+        d.rectangle([badge_x + 8, badge_y + 4, badge_x + 12, badge_y + 8], outline=(255, 255, 255, 255))
+        d.line([(badge_x + 12, badge_y + 7), (badge_x + 12, badge_y + 12)], fill=(255, 255, 255, 255))
         # 9
-        d.rectangle([69, badge_y + 4, 73, badge_y + 8], outline=(255, 255, 255, 255))
-        d.line([(73, badge_y + 7), (73, badge_y + 12)], fill=(255, 255, 255, 255))
+        d.rectangle([badge_x + 15, badge_y + 4, badge_x + 19, badge_y + 8], outline=(255, 255, 255, 255))
+        d.line([(badge_x + 19, badge_y + 7), (badge_x + 19, badge_y + 12)], fill=(255, 255, 255, 255))
         # +
-        d.line([(77, badge_y + 7), (81, badge_y + 7)], fill=(255, 255, 255, 255))
-        d.line([(79, badge_y + 5), (79, badge_y + 9)], fill=(255, 255, 255, 255))
+        d.line([(badge_x + 23, badge_y + 7), (badge_x + 27, badge_y + 7)], fill=(255, 255, 255, 255))
+        d.line([(badge_x + 25, badge_y + 5), (badge_x + 25, badge_y + 9)], fill=(255, 255, 255, 255))
         # ]
-        d.line([(84, badge_y + 4), (84, badge_y + 12)], fill=(255, 255, 255, 255))
-        d.point((83, badge_y + 4), fill=(255, 255, 255, 255))
-        d.point((83, badge_y + 12), fill=(255, 255, 255, 255))
-
-        # Floating @channel tag on left
-        tag_y = 66 + dy_off
-        d.rounded_rectangle([4, tag_y, 42, tag_y + 14], radius=6, fill=(240, 160, 20, 240), outline=(255, 240, 180, 255))
-        # Draw "@all"
-        d.ellipse([8, tag_y + 3, 14, tag_y + 9], outline=(20, 20, 20, 255))
-        d.line([(18, tag_y + 4), (22, tag_y + 10)], fill=(20, 20, 20, 255))
-        d.line([(25, tag_y + 4), (25, tag_y + 10)], fill=(20, 20, 20, 255))
-        d.line([(29, tag_y + 4), (29, tag_y + 10)], fill=(20, 20, 20, 255))
+        d.line([(badge_x + 30, badge_y + 4), (badge_x + 30, badge_y + 12)], fill=(255, 255, 255, 255))
+        d.point((badge_x + 29, badge_y + 4), fill=(255, 255, 255, 255))
+        d.point((badge_x + 29, badge_y + 12), fill=(255, 255, 255, 255))
 
         frames.append(im)
     save_enemy_sheet("slacki", frames[0], frames[1], sz)

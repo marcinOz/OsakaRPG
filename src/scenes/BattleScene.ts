@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_W, GAME_H, PAL } from '@/config';
-import { GameData, grantXp, applyBattleResult, partyEffects } from '@/systems/GameState';
-import { HEROES } from '@/content/heroes';
-import { BattleEngine, makeEnemyCombatant, makeHeroCombatant, BattleEvent } from '@/systems/BattleEngine';
+import type { BattleParams, HeroId } from '@/types';
+import { GameData, grantXp, applyBattleResult } from '@/systems/GameState';
+import { BattleEngine, BattleEvent } from '@/systems/BattleEngine';
 import { ENEMIES } from '@/content/enemies';
 import { SKILLS } from '@/content/skills';
 import { ITEMS } from '@/content/items';
@@ -13,8 +13,12 @@ import { Input } from '@/ui/Input';
 import { Audio } from '@/audio/ChipAudio';
 import { damageNumber, screenShake } from '@/fx/Juice';
 import { applyCrtToCamera } from '@/fx/CrtPipeline';
+import { applyStatus } from '@/systems/StatusFx';
+import { Combatant } from '@/systems/Combatant';
+import { resolveBattleConfig, ResolvedBattleConfig, getEnemySpriteSize } from '@/systems/EncounterFactory';
 
 export class BattleScene extends Phaser.Scene {
+  private config!: ResolvedBattleConfig;
   private state!: GameData;
   private engine!: BattleEngine;
   private inputHandler!: Input;
@@ -31,44 +35,63 @@ export class BattleScene extends Phaser.Scene {
   private returnScene = 'World';
   private bgKey = 'battle_apartment_bg';
   private isResolving = false;
+  private isActionPlaying = false;
+  private actionTimerMs = 0;
   private gaugesGraphics!: Phaser.GameObjects.Graphics;
-  private enemyIds: string[] = ['bolKregoslupa'];
   private statusText!: Phaser.GameObjects.BitmapText | Phaser.GameObjects.Text;
+
+  private actionBannerContainer!: Phaser.GameObjects.Container;
+  private actionBannerBg!: Phaser.GameObjects.Graphics;
+  private actionBannerText!: Phaser.GameObjects.BitmapText | Phaser.GameObjects.Text;
 
   constructor() {
     super('Battle');
   }
 
-  init(data: { state: GameData; enemies?: string[]; bg?: string; returnScene?: string }): void {
-    this.state = data.state;
-    this.bgKey = data.bg ?? 'battle_apartment_bg';
-    this.returnScene = data.returnScene ?? 'World';
-    this.enemyIds = data.enemies && data.enemies.length > 0 ? data.enemies : ['bolKregoslupa'];
+  init(data: BattleParams): void {
+    this.isResolving = false;
+    this.isActionPlaying = false;
+    this.actionTimerMs = 0;
+    this.commandMenu = null;
+    this.subMenu = null;
+    this.heroSprites.clear();
+    this.enemySprites.clear();
+
+    this.config = resolveBattleConfig(data);
+    this.state = this.config.state;
+    this.bgKey = this.config.bg;
+    this.returnScene = this.config.returnScene;
   }
 
   create(): void {
+    this.isResolving = false;
+    this.isActionPlaying = false;
+    this.actionTimerMs = 0;
+    this.commandMenu = null;
+    this.subMenu = null;
+    this.heroSprites.clear();
+    this.enemySprites.clear();
+
     applyCrtToCamera(this);
-    Audio.playSong('ch01_battle', { fadeMs: 300 });
+    Audio.playSong(this.config.music as any, { fadeMs: 300 });
 
     // Background
     this.add.image(GAME_W / 2, GAME_H / 2, this.bgKey).setDisplaySize(GAME_W, GAME_H);
 
-    // Build Combatants using GameState
-    const heroCombatants = this.state.party.map((hid) => {
-      const def = HEROES[hid];
-      const member = this.state.roster[hid];
-      return makeHeroCombatant(def, member.level, member.hp, member.mp);
-    });
-
-    const enemyCombatants = this.enemyIds.map((eid, idx) => {
-      const def = (ENEMIES as Record<string, any>)[eid] ?? ENEMIES.bolKregoslupa;
-      return makeEnemyCombatant(def, idx);
-    });
-
+    // Initialize BattleEngine with resolved combatants and status effects
     const enemyDefsList = Object.values(ENEMIES);
-    this.engine = new BattleEngine(heroCombatants, enemyCombatants, enemyDefsList, {
-      partyEffects: partyEffects(this.state),
+    this.engine = new BattleEngine(this.config.heroes, this.config.enemies, enemyDefsList, {
+      partyEffects: this.config.partyEffects,
     });
+
+    // Apply any initial enemy status effects
+    if (this.config.enemyEffects && this.config.enemyEffects.length > 0) {
+      for (const e of this.engine.enemies) {
+        for (const eff of this.config.enemyEffects) {
+          applyStatus(e, eff);
+        }
+      }
+    }
 
     this.gaugesGraphics = this.add.graphics().setDepth(200);
     this.uiContainer = this.add.container(0, 0).setDepth(800).setScrollFactor(0);
@@ -81,9 +104,9 @@ export class BattleScene extends Phaser.Scene {
     // Status Header Badge
     const badgeBg = this.add.graphics();
     badgeBg.fillStyle(PAL.panel, 0.9);
-    badgeBg.fillRoundedRect(22, GAME_H - 68, 120, 18, 3);
+    badgeBg.fillRoundedRect(22, GAME_H - 68, 140, 18, 3);
     this.uiContainer.add(badgeBg);
-    this.uiContainer.add(txt(this, 28, GAME_H - 66, '★ RAPORT BOJOWY', { color: PAL.yellow }));
+    this.uiContainer.add(txt(this, 28, GAME_H - 66, '★ RAPORT BOJOWY [v1.2]', { color: PAL.yellow }));
 
     // Combat status indicator on the right
     this.statusText = txt(this, GAME_W - 190, GAME_H - 66, 'STATUS: ATB AKTYWNE', { color: PAL.green });
@@ -108,6 +131,25 @@ export class BattleScene extends Phaser.Scene {
       .setDepth(850)
       .setScrollFactor(0);
     this.uiContainer.add(legendImg);
+
+    // Floating Action Banner (top center)
+    this.actionBannerContainer = this.add.container(GAME_W / 2, 60).setDepth(960).setScrollFactor(0);
+    this.actionBannerBg = this.add.graphics();
+    this.actionBannerText = txt(this, 0, 0, '', { color: PAL.yellow, big: true });
+    this.actionBannerText.setOrigin(0.5, 0.5);
+    this.actionBannerContainer.add([this.actionBannerBg, this.actionBannerText]);
+    this.actionBannerContainer.setAlpha(0);
+
+    // Display title banner if battle title was specified
+    if (this.config.battleTitle) {
+      this.showTitleBanner(this.config.battleTitle);
+    }
+
+    // Immediately trigger turn start for any ready hero so the action menu is open on frame 1
+    const initialEvents = this.engine.tick(0);
+    if (initialEvents.length > 0) {
+      this.processBattleEvents(initialEvents);
+    }
   }
 
   private heroCombatantsVisuals(): void {
@@ -196,7 +238,7 @@ export class BattleScene extends Phaser.Scene {
         ey = coords[i]?.y ?? (190 + Math.floor(i / 2) * 120);
       }
 
-      const sz = this.getEnemySpriteSize(e.sprite);
+      const sz = this.getEnemySpriteSize(e);
       // Grounded shadow beneath enemy
       this.add.ellipse(ex, ey + sz * 0.44, sz * 0.65, sz * 0.18, 0x000000, 0.45).setDepth(130);
 
@@ -209,31 +251,56 @@ export class BattleScene extends Phaser.Scene {
     });
   }
 
-  private getEnemySpriteSize(spriteKey?: string): number {
-    if (!spriteKey) return 96;
-    if (spriteKey.includes('panJanusz') || spriteKey.includes('kredyt') || spriteKey.includes('audyt')) {
-      return 144;
-    }
-    if (spriteKey.includes('bolKregoslupa') || spriteKey.includes('slacki')) {
-      return 96;
-    }
-    return 128;
+  private getEnemySpriteSize(combatant: Combatant): number {
+    return getEnemySpriteSize(combatant);
   }
 
   override update(_time: number, delta: number): void {
+    // Tick down action timer with delta so action locks can NEVER hang permanently
+    const dt = typeof delta === 'number' && !isNaN(delta) && delta > 0 ? delta : 16.6;
+    if (this.actionTimerMs > 0) {
+      this.actionTimerMs -= dt;
+      if (this.actionTimerMs <= 0 || isNaN(this.actionTimerMs)) {
+        this.actionTimerMs = 0;
+        this.isActionPlaying = false;
+        if (!this.commandMenu && !this.subMenu && !this.isResolving) {
+          (this.statusText as any).setText('STATUS: ŁADOWANIE ATB...');
+        }
+      }
+    } else if (this.isActionPlaying) {
+      this.isActionPlaying = false;
+    }
+
     this.renderGauges();
 
     if (this.subMenu) {
-      this.handleSubMenu();
-      return;
+      if (!this.engine.waitingHero) {
+        this.subMenu.destroy();
+        this.subMenu = null;
+      } else {
+        this.handleSubMenu();
+        return;
+      }
     }
 
     if (this.commandMenu) {
-      this.handleCommandMenu();
-      return;
+      // Defensive safeguard: if menu exists without a waiting hero, destroy orphan menu
+      if (!this.engine.waitingHero) {
+        this.commandMenu.destroy();
+        this.commandMenu = null;
+      } else {
+        this.handleCommandMenu();
+        return;
+      }
     }
 
-    if (this.isResolving) return;
+    if (this.isResolving || this.isActionPlaying) return;
+
+    // Safety fallback: if engine has a waiting hero but no menu is open, open it!
+    if (this.engine.waitingHero && !this.commandMenu && !this.subMenu) {
+      this.openHeroCommandMenu(this.engine.waitingHero.uid);
+      return;
+    }
 
     // Run ATB tick
     const events = this.engine.tick(delta);
@@ -268,7 +335,7 @@ export class BattleScene extends Phaser.Scene {
     this.engine.enemies.forEach((e) => {
       const spr = this.enemySprites.get(e.uid);
       if (!spr || !e.alive) return;
-      const sz = this.getEnemySpriteSize(e.sprite);
+      const sz = this.getEnemySpriteSize(e);
       const gx = spr.x - 45;
       const gy = spr.y - sz / 2 - 16;
 
@@ -343,47 +410,97 @@ export class BattleScene extends Phaser.Scene {
           damageNumber(this, targetSpr.x, targetSpr.y, 'MISS', PAL.silver);
         }
       } else if (ev.type === 'skill') {
-        // Trigger actor hero battle animation
         const actorHero = this.engine.heroes.find((h) => h.uid === ev.actorUid);
-        const actorSpr = this.heroSprites.get(ev.actorUid);
-        if (actorHero && actorSpr) {
+        const actorEnemy = this.engine.enemies.find((e) => e.uid === ev.actorUid);
+        const skill = SKILLS[ev.skillId];
+        const actorName = actorHero ? actorHero.name : (actorEnemy ? actorEnemy.name : 'Nieznany');
+        const skillName = skill ? skill.name : ev.skillId;
+        const isEnemy = !actorHero;
+
+        this.showActionBanner(actorName, skillName, isEnemy);
+        (this.statusText as any).setText(`AKCJA: ${skillName.toUpperCase()}`);
+
+        this.isActionPlaying = true;
+        this.actionTimerMs = 450;
+        this.time.delayedCall(450, () => {
+          this.isActionPlaying = false;
+          this.actionTimerMs = 0;
+          if (!this.commandMenu && !this.subMenu && !this.isResolving) {
+            (this.statusText as any).setText('STATUS: ŁADOWANIE ATB...');
+          }
+        });
+
+        // Trigger actor hero battle animation
+        const actorHeroSpr = this.heroSprites.get(ev.actorUid);
+        if (actorHero && actorHeroSpr) {
           const isAttack = ev.skillId === 'attack';
           const animKey = isAttack ? `anim_${actorHero.defId}_battle_attack` : `anim_${actorHero.defId}_battle_skill`;
           if (this.anims.exists(animKey)) {
-            const origX = actorSpr.x;
+            const origX = actorHeroSpr.x;
             this.tweens.add({
-              targets: actorSpr,
+              targets: actorHeroSpr,
               x: origX - 25,
               duration: 100,
               yoyo: true,
               onYoyo: () => {
-                actorSpr.play(animKey);
+                actorHeroSpr.play(animKey);
               },
               onComplete: () => {
-                actorSpr.x = origX;
+                actorHeroSpr.x = origX;
                 if (actorHero.alive && this.anims.exists(`anim_${actorHero.defId}_battle_idle`)) {
-                  actorSpr.play(`anim_${actorHero.defId}_battle_idle`);
+                  actorHeroSpr.play(`anim_${actorHero.defId}_battle_idle`);
                 }
               },
             });
           }
         }
 
-        // Play FX animation on target
+        // Trigger actor enemy battle animation (lunge & punchy squash/stretch)
+        const actorEnemySpr = this.enemySprites.get(ev.actorUid);
+        if (actorEnemy && actorEnemySpr) {
+          const origX = actorEnemySpr.x;
+          const origScaleX = actorEnemySpr.scaleX;
+          const origScaleY = actorEnemySpr.scaleY;
+          this.tweens.add({
+            targets: actorEnemySpr,
+            x: origX + 32,
+            scaleX: origScaleX * 1.18,
+            scaleY: origScaleY * 0.88,
+            duration: 120,
+            yoyo: true,
+            ease: 'Quad.easeOut',
+            onComplete: () => {
+              actorEnemySpr.x = origX;
+              actorEnemySpr.setScale(origScaleX, origScaleY);
+            },
+          });
+        }
+
+        // Play FX animation on target(s)
         if (ev.fx && this.textures.exists(`fx_${ev.fx}`)) {
-          const firstTarget = ev.targets[0];
-          const tspr = this.heroSprites.get(firstTarget) ?? this.enemySprites.get(firstTarget);
-          if (tspr) {
-            const fxSpr = this.add.sprite(tspr.x, tspr.y, `fx_${ev.fx}`).setDepth(300);
-            fxSpr.play(`anim_fx_${ev.fx}`);
-            fxSpr.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => fxSpr.destroy());
+          for (const tid of ev.targets) {
+            const tspr = this.heroSprites.get(tid) ?? this.enemySprites.get(tid);
+            if (tspr) {
+              const fxSpr = this.add.sprite(tspr.x, tspr.y, `fx_${ev.fx}`).setDepth(300);
+              fxSpr.play(`anim_fx_${ev.fx}`);
+              fxSpr.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => fxSpr.destroy());
+            }
           }
         }
+
         // Play corresponding signature sound effect
-        try {
-          Audio.sfx(ev.skillId as any);
-        } catch {
+        if (ev.skillId === 'slackPing') {
+          Audio.sfx('notification');
+        } else if (ev.skillId === 'stressDebuff') {
+          Audio.sfx('debuff');
+        } else if (ev.skillId === 'attack' || ev.skillId === 'backPain') {
           Audio.sfx('hit');
+        } else {
+          try {
+            Audio.sfx(ev.skillId as any);
+          } catch {
+            Audio.sfx('hit');
+          }
         }
       } else if (ev.type === 'ko') {
         const espr = this.enemySprites.get(ev.uid);
@@ -417,6 +534,11 @@ export class BattleScene extends Phaser.Scene {
           }
         });
         this.handleVictory(ev.xp);
+      } else if (ev.type === 'status') {
+        const targetSpr = this.heroSprites.get(ev.uid) ?? this.enemySprites.get(ev.uid);
+        if (targetSpr && ev.applied) {
+          damageNumber(this, targetSpr.x, targetSpr.y - 18, `[${ev.name.toUpperCase()}]`, PAL.yellow);
+        }
       } else if (ev.type === 'defeat') {
         (this.statusText as any).setText('STATUS: PORAŻKA');
         this.handleDefeat();
@@ -428,12 +550,26 @@ export class BattleScene extends Phaser.Scene {
     const hero = this.engine.getCombatant(heroUid);
     if (!hero) return;
 
+    // Clean up any existing stale menus to prevent leaks or orphan overlays
+    if (this.commandMenu) {
+      this.commandMenu.destroy();
+      this.commandMenu = null;
+    }
+    if (this.subMenu) {
+      this.subMenu.destroy();
+      this.subMenu = null;
+    }
+
     const items = [
       { label: 'ATAK', hint: 'Podstawowy atak fizyczny na wroga.' },
       { label: 'UMIEJĘTNOŚĆ', hint: 'Użyj unikalnej umiejętności bojowej.', disabled: !hero.skills || hero.skills.length === 0 },
       { label: 'PRZEDMIOT', hint: 'Użyj przedmiotu z ekwipunku drużyny.', disabled: Object.keys(this.state.inventory).length === 0 },
       { label: 'OBRONA', hint: 'Przyjmij postawę obronną (-50% obrażeń, redukcja stresu).' },
     ];
+
+    if (this.config.canFlee) {
+      items.push({ label: 'UCIECZKA', hint: 'Spróbuj uciec z pola walki.' });
+    }
 
     this.commandMenu = new Menu(this, 24, GAME_H - 220, 160, items, 950, (it) => {
       if (it.hint) (this.logText as any).setText(it.hint);
@@ -497,6 +633,36 @@ export class BattleScene extends Phaser.Scene {
       this.commandMenu = null;
       const evs = this.engine.defend(hero.uid);
       this.processBattleEvents(evs);
+    } else if (pick === 4 && this.config.canFlee) {
+      // Flee
+      this.commandMenu.destroy();
+      this.commandMenu = null;
+      this.handleFlee(hero);
+    }
+  }
+
+  private handleFlee(hero: Combatant): void {
+    const success = Math.random() < this.config.fleeSuccessChance;
+    if (success) {
+      this.isResolving = true;
+      Audio.sfx('confirm');
+      (this.logText as any).setText('UCIECZKA UDANA! Ekipa zrywa się z pola walki.');
+      this.time.delayedCall(1200, () => {
+        this.cameras.main.fadeOut(300, 0, 3, 11);
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+          this.scene.start(this.returnScene, {
+            state: this.state,
+            returnFromBattle: true,
+            battleResult: 'fled',
+            ...this.config.returnSceneData,
+          });
+        });
+      });
+    } else {
+      Audio.sfx('cancel');
+      (this.logText as any).setText('UCIECZKA NIEUDANA! Przeciwnicy blokują drogę ucieczki.');
+      hero.atb = 0;
+      this.engine.waitingHero = null;
     }
   }
 
@@ -551,13 +717,22 @@ export class BattleScene extends Phaser.Scene {
 
   private handleVictory(xp: number): void {
     this.isResolving = true;
-    Audio.playSong('victory', { loop: false });
+    Audio.playSong(this.config.victoryMusic as any, { loop: false });
 
-    // Grant XP and apply battle result to GameState
-    const levelUps = grantXp(this.state, xp);
-    applyBattleResult(this.state, this.engine);
+    // Grant XP and apply battle result to GameState if grantProgression is enabled
+    const scaledXp = Math.round(xp * this.config.rewards.xpMultiplier + this.config.rewards.bonusXp);
+    let levelUps: any[] = [];
+    if (this.config.rewards.grantProgression) {
+      levelUps = grantXp(this.state, scaledXp);
+      applyBattleResult(this.state, this.engine);
+    }
 
-    let msg = `ZWYCIĘSTWO! +${xp} XP.`;
+    // Award bonus items if any
+    for (const itm of this.config.rewards.bonusItems) {
+      this.state.inventory[itm] = (this.state.inventory[itm] ?? 0) + 1;
+    }
+
+    let msg = `ZWYCIĘSTWO! +${scaledXp} XP.`;
     if (levelUps.length > 0) {
       msg += ` Awans: ${levelUps.map((l) => `${l.heroId} -> Lvl ${l.newLevel}`).join(', ')}!`;
     }
@@ -570,20 +745,94 @@ export class BattleScene extends Phaser.Scene {
           state: this.state,
           returnFromBattle: true,
           battleResult: 'victory',
+          ...this.config.returnSceneData,
         });
       });
+    });
+  }
+
+  private showTitleBanner(title: string): void {
+    this.showActionBanner('', title, false);
+  }
+
+  private showActionBanner(actorName: string, actionName: string, isEnemy = false): void {
+    const textStr = actorName.trim().length > 0
+      ? `${actorName.toUpperCase()}: ${actionName.toUpperCase()}`
+      : actionName.toUpperCase();
+    (this.actionBannerText as any).setText(textStr);
+
+    const bannerW = Math.max(260, textStr.length * 11 + 40);
+    const bannerH = 32;
+
+    this.actionBannerBg.clear();
+    const borderColor = isEnemy ? PAL.fireHi : PAL.cyanHi;
+    drawPanel(this.actionBannerBg, -bannerW / 2, -bannerH / 2, bannerW, bannerH, {
+      fill: PAL.navy,
+      border: borderColor,
+      glow: true,
+    });
+
+    (this.actionBannerText as any).setColor?.(isEnemy ? '#ff7777' : '#ffff55');
+
+    this.tweens.killTweensOf(this.actionBannerContainer);
+    this.actionBannerContainer.setAlpha(0);
+    this.actionBannerContainer.setScale(0.9);
+
+    this.tweens.add({
+      targets: this.actionBannerContainer,
+      alpha: 1,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 100,
+      ease: 'Back.easeOut',
+      hold: 250,
+      yoyo: true,
+      onComplete: () => {
+        this.actionBannerContainer.setAlpha(0);
+      },
     });
   }
 
   private handleDefeat(): void {
     this.isResolving = true;
     Audio.sfx('ko');
+
+    if (this.config.allowDefeat) {
+      // Scripted defeat: restore heroes to at least 1 HP so caller scene can proceed
+      for (const h of this.engine.heroes) {
+        const hid = h.defId as HeroId;
+        const member = this.state.roster[hid];
+        if (member) {
+          member.hp = 1;
+        }
+      }
+      (this.logText as any).setText('PORAŻKA... Ale to jeszcze nie koniec!');
+
+      this.time.delayedCall(2000, () => {
+        this.cameras.main.fadeOut(400, 0, 3, 11);
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+          this.scene.start(this.returnScene, {
+            state: this.state,
+            returnFromBattle: true,
+            battleResult: 'defeat',
+            ...this.config.returnSceneData,
+          });
+        });
+      });
+      return;
+    }
+
     (this.logText as any).setText('PORAŻKA... Ekipa wraca do łóżka.');
 
     this.time.delayedCall(2000, () => {
       this.cameras.main.fadeOut(400, 0, 3, 11);
       this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-        this.scene.start('Title');
+        this.scene.start(this.config.defeatScene, {
+          state: this.state,
+          returnFromBattle: true,
+          battleResult: 'defeat',
+          ...this.config.returnSceneData,
+        });
       });
     });
   }

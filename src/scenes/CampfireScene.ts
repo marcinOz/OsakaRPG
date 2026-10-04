@@ -14,6 +14,7 @@ import { CH09 } from '@/content/chapters/ch09';
 import { DialogueRunner } from '@/systems/Dialogue';
 import { GameData, newGame } from '@/systems/GameState';
 import type { HeroId } from '@/types';
+import { startBattle } from '@/content/encounters';
 
 export class CampfireScene extends Phaser.Scene {
   private inputHandler!: Input;
@@ -244,11 +245,8 @@ export class CampfireScene extends Phaser.Scene {
     Audio.sfx('encounter');
 
     this.time.delayedCall(400, () => {
-      this.scene.start('Battle', {
+      startBattle(this, 'finalBossRift', {
         state: this.state,
-        enemies: ['panJanusz', 'kredyt', 'audyt', 'rwaKulszowa'],
-        bg: 'battle_rift_bg',
-        returnScene: 'Outro',
       });
     });
   }

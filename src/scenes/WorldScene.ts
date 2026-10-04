@@ -17,6 +17,7 @@ import { txt } from '@/ui/Text';
 import { drawPanel } from '@/ui/Panel';
 import { setTimeOfDay } from '@/fx/Palette';
 import { InteractPrompt } from '@/ui/InteractPrompt';
+import { startBattle } from '@/content/encounters';
 
 interface TrailPoint {
   x: number;
@@ -62,15 +63,6 @@ const MAP_EXITS: Record<string, MapExitDef> = {
     targetY: 5,
     isUnlocked: (state) => hasFlag(state, 'bought_coffee'),
     lockedReason: '[!] Najpierw muszę wejść do Żabki po kawę i elektrolity!',
-  },
-  zabka: {
-    x: 5,
-    y: 7,
-    targetMap: 'city',
-    targetX: 5,
-    targetY: 4,
-    isUnlocked: (_state) => true,
-    lockedReason: '',
   },
   garage: {
     x: 16,
@@ -166,6 +158,21 @@ export class WorldScene extends Phaser.Scene {
       this.state = newGame('danny');
     }
 
+    if (this.state?.mapId) {
+      this.currentMap = this.state.mapId;
+    }
+
+    // Clean up lingering GameObjects and caches on scene shutdown
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.followerSprites.clear();
+      this.trail = [];
+      this.npcSprites = [];
+      this.propSprites = [];
+      this.toastContainer = null;
+      this.qteContainer = null;
+      this.exitBeaconSprite = null;
+    });
+
     if (data.returnFromBattle) {
       this.isBusy = false;
       // Handle post-battle storyline
@@ -201,6 +208,7 @@ export class WorldScene extends Phaser.Scene {
   create(): void {
     applyCrtToCamera(this);
     this.cameras.main.setBackgroundColor(PAL.void);
+    this.cameras.main.fadeIn(300, 0, 3, 11);
 
     this.mapContainer = this.add.container(0, 0).setDepth(10);
     this.hudContainer = this.add.container(0, 0).setDepth(900).setScrollFactor(0);
@@ -220,7 +228,13 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.playerSprite, true, 0.1, 0.1);
     this.cameras.main.setBounds(0, 0, this.mapW * TILE, this.mapH * TILE);
 
-    // Followers
+    // Initialize fresh follower sprites and trail buffer
+    this.followerSprites.clear();
+    this.trail = [];
+    const initialFacing = this.state.facing || 'down';
+    for (let i = 0; i < 40; i++) {
+      this.trail.push({ x: this.playerSprite.x, y: this.playerSprite.y, dir: initialFacing });
+    }
     this.syncFollowerSprites();
 
     // HUD Top Bar
@@ -288,14 +302,17 @@ export class WorldScene extends Phaser.Scene {
   private syncFollowerSprites(): void {
     const followers = this.state.party.slice(1);
     for (const [hid, spr] of this.followerSprites.entries()) {
-      if (!followers.includes(hid as HeroId)) {
-        spr.destroy();
+      if (!followers.includes(hid as HeroId) || !spr.scene || !spr.active || !spr.anims) {
+        if (spr.scene && spr.active) {
+          spr.destroy();
+        }
         this.followerSprites.delete(hid);
       }
     }
 
     followers.forEach((hid) => {
-      if (!this.followerSprites.has(hid)) {
+      const existing = this.followerSprites.get(hid);
+      if (!existing || !existing.scene || !existing.active || !existing.anims) {
         const fspr = this.add.sprite(this.playerSprite.x, this.playerSprite.y, `${hid}_walk`, 0);
         fspr.setOrigin(0.5, 0.75);
         fspr.setDepth(fspr.y + 12);
@@ -1068,10 +1085,14 @@ export class WorldScene extends Phaser.Scene {
       this.checkTriggers(tileX, tileY);
       this.checkExitTriggers();
     } else {
-      this.playerSprite.stop();
+      if (this.playerSprite && this.playerSprite.active && this.playerSprite.anims) {
+        this.playerSprite.stop();
+      }
       this.followerSprites.forEach((spr) => {
-        spr.stop();
-        spr.setDepth(spr.y + 12);
+        if (spr && spr.active && spr.anims) {
+          spr.stop();
+          spr.setDepth(spr.y + 12);
+        }
       });
       this.checkExitTriggers();
     }
@@ -1170,7 +1191,7 @@ export class WorldScene extends Phaser.Scene {
         x: 5,
         y: 3,
         label: 'WEJDŹ DO ŻABKI',
-        action: () => this.transitionToMap('zabka', 5, 6),
+        action: () => this.transitionToMap('zabka', 5, 5, 'up'),
       });
 
       // Sąsiadka
@@ -1317,7 +1338,7 @@ export class WorldScene extends Phaser.Scene {
         x: 5,
         y: 7,
         label: 'WYJDŹ NA ULICĘ',
-        action: () => this.transitionToMap('city', 5, 4),
+        action: () => this.transitionToMap('city', 5, 4, 'down'),
       });
     } else if (map === 'garage') {
       if (!this.state.party.includes('danny') || !this.state.party.includes('alior')) {
@@ -1499,7 +1520,7 @@ export class WorldScene extends Phaser.Scene {
     const stepSpacing = 7; // ~28px distance per follower for natural 32px trail
     followers.forEach((hid, idx) => {
       const spr = this.followerSprites.get(hid);
-      if (!spr) return;
+      if (!spr || !spr.active || !spr.anims) return;
       const targetIndex = this.trail.length - 1 - (idx + 1) * stepSpacing;
       if (targetIndex >= 0) {
         const pt = this.trail[targetIndex];
@@ -1518,12 +1539,12 @@ export class WorldScene extends Phaser.Scene {
   private checkTriggers(x: number, y: number): void {
     if (this.currentMap === 'city') {
       if (x === 5 && y === 3) {
-        this.transitionToMap('zabka', 5, 6);
+        this.transitionToMap('zabka', 5, 5, 'up');
         return;
       }
     } else if (this.currentMap === 'zabka') {
       if (x === 5 && y === 7) {
-        this.transitionToMap('city', 5, 4);
+        this.transitionToMap('city', 5, 4, 'down');
         return;
       }
     } else if (this.currentMap === 'garage') {
@@ -1567,12 +1588,7 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.flash(300, 255, 255, 255);
     Audio.sfx('encounter');
     this.time.delayedCall(400, () => {
-      this.scene.start('Battle', {
-        state: this.state,
-        enemies: ['bolKregoslupa'],
-        bg: 'battle_apartment_bg',
-        returnScene: 'World',
-      });
+      startBattle(this, 'spineAmbush', { state: this.state });
     });
   }
 
@@ -1588,12 +1604,7 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.flash(300, 255, 255, 255);
     Audio.sfx('encounter');
     this.time.delayedCall(400, () => {
-      this.scene.start('Battle', {
-        state: this.state,
-        enemies: ['slacki'],
-        bg: 'battle_apartment_bg',
-        returnScene: 'World',
-      });
+      startBattle(this, 'slackInvasion', { state: this.state });
     });
   }
 
@@ -1722,12 +1733,7 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.flash(300, 255, 255, 255);
     Audio.sfx('encounter');
     this.time.delayedCall(400, () => {
-      this.scene.start('Battle', {
-        state: this.state,
-        enemies: ['sasiadSzkodnik'],
-        bg: 'battle_garage_bg',
-        returnScene: 'World',
-      });
+      startBattle(this, 'sasiadBoss', { state: this.state });
     });
   }
 
@@ -1765,12 +1771,7 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.flash(300, 255, 255, 255);
     Audio.sfx('encounter');
     this.time.delayedCall(400, () => {
-      this.scene.start('Battle', {
-        state: this.state,
-        enemies: ['autoTuneHipster', 'drogiePiwo'],
-        bg: 'battle_pub_bg',
-        returnScene: 'World',
-      });
+      startBattle(this, 'pubHipsters', { state: this.state });
     });
   }
 
@@ -1809,12 +1810,7 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.flash(300, 255, 255, 255);
     Audio.sfx('encounter');
     this.time.delayedCall(400, () => {
-      this.scene.start('Battle', {
-        state: this.state,
-        enemies: ['kark', 'straznik'],
-        bg: 'battle_alley_bg',
-        returnScene: 'World',
-      });
+      startBattle(this, 'karkAmbush', { state: this.state });
     });
   }
 
@@ -1891,26 +1887,35 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  private transitionToMap(mapName: string, targetX: number, targetY: number): void {
+  private transitionToMap(mapName: string, targetX: number, targetY: number, facing: 'down' | 'up' | 'left' | 'right' = 'down'): void {
     this.isBusy = true;
     this.cameras.main.fadeOut(250, 0, 3, 11);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.currentMap = mapName;
+      this.state.mapId = mapName;
       this.buildMap(mapName);
       this.updateAtmosphere();
       this.playerSprite.setPosition(targetX * TILE + TILE / 2, targetY * TILE + TILE / 2);
       this.playerSprite.setDepth(this.playerSprite.y + 12);
       this.state.x = targetX;
       this.state.y = targetY;
+      this.state.facing = facing;
+      if (this.playerSprite && this.playerSprite.active && this.playerSprite.anims) {
+        this.playerSprite.play(`anim_${this.state.leader}_walk_${facing}`);
+        this.playerSprite.stop();
+      }
       this.trail = [];
       for (let i = 0; i < 40; i++) {
-        this.trail.push({ x: this.playerSprite.x, y: this.playerSprite.y, dir: 'down' });
+        this.trail.push({ x: this.playerSprite.x, y: this.playerSprite.y, dir: facing });
       }
       this.syncFollowerSprites();
-      this.followerSprites.forEach((spr) => {
-        spr.setPosition(this.playerSprite.x, this.playerSprite.y);
-        spr.setDepth(spr.y + 12);
-        spr.stop();
+      this.followerSprites.forEach((spr, hid) => {
+        if (spr && spr.active && spr.anims) {
+          spr.setPosition(this.playerSprite.x, this.playerSprite.y);
+          spr.setDepth(spr.y + 12);
+          spr.play(`anim_${hid}_walk_${facing}`);
+          spr.stop();
+        }
       });
       this.updateHud();
       this.cameras.main.fadeIn(250, 0, 3, 11);

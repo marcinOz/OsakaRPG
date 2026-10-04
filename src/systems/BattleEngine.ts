@@ -147,8 +147,8 @@ export class BattleEngine {
     for (const c of all) {
       if (!c.alive) continue;
       const spd = effectiveStat(c, 'spd');
-      // Full gauge at spd 10 in ~2.5s: 100 in 2500ms -> rate = (spd / 10) * (100 / 2500) * dtMs = spd * 0.004 * dtMs
-      c.atb = Math.min(100, c.atb + spd * 0.004 * dtMs);
+      // Full gauge at spd 10 in ~1.4s: 100 in 1428ms -> rate = (spd / 10) * (100 / 1428) * dtMs = spd * 0.007 * dtMs
+      c.atb = Math.min(100, c.atb + spd * 0.007 * dtMs);
 
       if (c.atb >= 100) {
         if (c.side === 'hero') {
@@ -277,7 +277,7 @@ export class BattleEngine {
 
     // Reset ATB and clear waitingHero if this was hero turn
     actor.atb = 0;
-    if (this.waitingHero?.uid === actor.uid) {
+    if (actor.side === 'hero') {
       this.waitingHero = null;
     }
 
@@ -486,7 +486,7 @@ export class BattleEngine {
 
     actor.defending = true;
     actor.atb = 0;
-    if (this.waitingHero?.uid === actor.uid) {
+    if (actor.side === 'hero') {
       this.waitingHero = null;
     }
     events.push({ type: 'log', text: `${actor.name} przyjmuje postawę obronną!` });
@@ -502,7 +502,7 @@ export class BattleEngine {
     if (!item) return events;
 
     actor.atb = 0;
-    if (this.waitingHero?.uid === actor.uid) {
+    if (actor.side === 'hero') {
       this.waitingHero = null;
     }
 

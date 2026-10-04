@@ -144,3 +144,123 @@ export interface SongTrack {
   order: number[];
   duty?: number;
 }
+
+/** Game state contracts */
+export interface HeroState {
+  level: number;
+  xp: number;
+  hp: number;
+  mp: number;
+}
+
+export interface GameData {
+  version: number;
+  leader: HeroId;
+  party: HeroId[];
+  roster: Record<HeroId, HeroState>;
+  inventory: Record<string, number>;
+  chapter: number;
+  mapId: string;
+  x: number;
+  y: number;
+  facing: 'down' | 'up' | 'left' | 'right';
+  flags: Record<string, boolean | number | string>;
+  worldStatuses: string[];
+  playtime: number;
+  timestamp: number;
+}
+
+/** Battle configuration and parameter contracts */
+export type BattleAdvantage = 'normal' | 'preemptive' | 'ambush';
+
+export interface EnemySpec {
+  id: string;               // Key in ENEMIES registry
+  name?: string;           // Custom display name override
+  level?: number;          // Level override / scaling
+  stats?: Partial<Stats>;  // Stat overrides (HP, ATK, DEF, etc.)
+  hp?: number;             // Current HP override
+  mp?: number;             // Current MP override
+  atb?: number;            // Starting ATB (0..100)
+  sprite?: string;         // Texture key override
+  spriteSize?: number;     // Visual dimension (default: automatic based on texture/metadata)
+  boss?: boolean;          // Boss phase logic flag
+}
+
+export type EnemyParam = string | EnemySpec;
+
+export interface HeroSpec {
+  id: HeroId;              // Hero definition key
+  level?: number;          // Level override
+  stats?: Partial<Stats>;  // Stat overrides
+  hp?: number;             // Current HP override
+  mp?: number;             // Current MP override
+  atb?: number;            // Starting ATB override (0..100)
+  skills?: string[];       // Skill set override
+}
+
+export type HeroParam = HeroId | HeroSpec | any;
+
+export interface BattleRewardConfig {
+  xpMultiplier?: number;
+  bonusXp?: number;
+  bonusItems?: string[];
+  grantProgression?: boolean; // Set false for simulations / minigames
+}
+
+export interface BattleParams {
+  /** Global game state. Created automatically if omitted (for standalone/tests). */
+  state?: GameData;
+
+  /** Visual background texture key (e.g. 'battle_apartment_bg', 'battle_garage_bg', 'battle_rift_bg') */
+  bg?: string;
+
+  /** Battle BGM song ID (e.g. 'ch01_battle', 'ch09_finalboss'). Defaults to 'ch01_battle'. */
+  music?: string;
+
+  /** Victory fanfare song ID. Defaults to 'victory'. */
+  victoryMusic?: string;
+
+  /** Optional intro announcement banner displayed across screen at battle start */
+  battleTitle?: string;
+
+  /** Enemies in encounter (string IDs or EnemySpec objects) */
+  enemies: EnemyParam[];
+
+  /** Heroes in combat. Defaults to state.party if omitted. */
+  heroes?: HeroParam[];
+
+  /** Tactical advantage preset:
+   * - 'normal': Hero 1 starts at 100 ATB, others at 70, enemies at 25
+   * - 'preemptive': All heroes start at 100 ATB, enemies at 0
+   * - 'ambush': All enemies start at 100 ATB, heroes at 0
+   */
+  advantage?: BattleAdvantage;
+
+  /** Direct numeric ATB overrides */
+  heroAtbStart?: number | number[] | ((idx: number) => number);
+  enemyAtbStart?: number | number[] | ((idx: number) => number);
+
+  /** Whether player can escape / flee ('UCIECZKA' option in command menu) */
+  canFlee?: boolean;
+  fleeSuccessChance?: number;
+
+  /** Whether defeat continues story without Game Over */
+  allowDefeat?: boolean;
+
+  /** Destination scene on defeat if not Game Over (defaults to 'Title') */
+  defeatScene?: string;
+
+  /** Destination scene on victory (defaults to 'World') */
+  returnScene?: string;
+
+  /** Extra custom payload passed back to returnScene / defeatScene */
+  returnSceneData?: Record<string, any>;
+
+  /** Environmental or passive status effects applied at start */
+  partyEffects?: StatusEffectDef[];
+  enemyEffects?: StatusEffectDef[];
+
+  /** Progression and reward tuning */
+  rewards?: BattleRewardConfig;
+}
+

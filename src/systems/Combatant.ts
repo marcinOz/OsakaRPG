@@ -17,6 +17,7 @@ export interface Combatant {
   alive: boolean;
   defending: boolean;
   sprite?: string;
+  spriteSize?: number;
   boss?: boolean;
   immune?: EnemyDef['immune'];
 }

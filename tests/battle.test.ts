@@ -132,4 +132,103 @@ describe('BattleEngine', () => {
     const events = engine.act(danny.uid, 'attack', janusz.uid);
     expect(events.some((e) => e.type === 'phase' && e.say.includes('Nielegalne obozowisko'))).toBe(true);
   });
+
+  it('Slacki actions execute properly with damage, debuffs and fx', () => {
+    const danny = makeHeroCombatant(HEROES.danny, 1);
+    const alior = makeHeroCombatant(HEROES.alior, 1);
+    const slack = makeEnemyCombatant(ENEMIES.slacki, 0);
+    const engine = new BattleEngine([danny, alior], [slack], [ENEMIES.slacki], { rng: () => 0.5 });
+
+    // 1. Basic attack by Slack
+    const prevDannyHp = danny.hp;
+    const atkEvents = engine.act(slack.uid, 'attack', danny.uid);
+    expect(atkEvents.some((e) => e.type === 'skill' && e.skillId === 'attack' && e.fx === 'hit')).toBe(true);
+    expect(danny.hp).toBeLessThan(prevDannyHp);
+
+    // 2. @channel AoE attack by Slack
+    const prevAliorHp = alior.hp;
+    const prevDannyHp2 = danny.hp;
+    const pingEvents = engine.act(slack.uid, 'slackPing');
+    expect(pingEvents.some((e) => e.type === 'skill' && e.skillId === 'slackPing' && e.fx === 'glitch')).toBe(true);
+    // Should target both heroes
+    const skillEv = pingEvents.find((e) => e.type === 'skill' && e.skillId === 'slackPing') as any;
+    expect(skillEv.targets).toContain(danny.uid);
+    expect(skillEv.targets).toContain(alior.uid);
+    expect(danny.hp).toBeLessThan(prevDannyHp2);
+    expect(alior.hp).toBeLessThan(prevAliorHp);
+
+    // 3. Deadline debuff by Slack
+    const debuffEvents = engine.act(slack.uid, 'stressDebuff', danny.uid);
+    expect(debuffEvents.some((e) => e.type === 'skill' && e.skillId === 'stressDebuff' && e.fx === 'glitch')).toBe(true);
+    expect(hasStatus(danny, 'stress')).toBe(true);
+  });
+
+  it('simulation: Alior vs Slacki ATB progression reaches ready state', () => {
+    const alior = makeHeroCombatant(HEROES.alior, 1);
+    const slack = makeEnemyCombatant(ENEMIES.slacki, 0);
+    const engine = new BattleEngine([alior], [slack], [ENEMIES.slacki], { rng: () => 0.5 });
+    alior.atb = 40;
+    slack.atb = 25;
+
+    let time = 0;
+    const allEvents: any[] = [];
+    while (time < 5000 && !engine.waitingHero) {
+      time += 16;
+      const evs = engine.tick(16);
+      if (evs.length > 0) {
+        allEvents.push(...evs);
+      }
+    }
+
+    expect(engine.waitingHero?.uid).toBe(alior.uid);
+    expect(allEvents.some((e) => e.type === 'ready' && e.uid === alior.uid)).toBe(true);
+  });
+
+  it('slackInvasion encounter: hero attacks, waitingHero clears, Slack responds swiftly without hanging', () => {
+    const danny = makeHeroCombatant(HEROES.danny, 1);
+    const slack = makeEnemyCombatant(ENEMIES.slacki, 0);
+    // Simulating slackInvasion preset with hero 100 ATB and enemy 70 ATB
+    danny.atb = 100;
+    slack.atb = 70;
+
+    const engine = new BattleEngine([danny], [slack], [ENEMIES.slacki], { rng: () => 0.5 });
+    // Frame 0: tick(0) triggers ready for Danny
+    const initEvs = engine.tick(0);
+    expect(initEvs.some((e) => e.type === 'ready' && e.uid === danny.uid)).toBe(true);
+    expect(engine.waitingHero?.uid).toBe(danny.uid);
+
+    // Danny attacks Slack
+    const attackEvs = engine.act(danny.uid, 'attack', slack.uid);
+    expect(attackEvs.some((e) => e.type === 'damage')).toBe(true);
+    expect(engine.waitingHero).toBeNull();
+    expect(danny.atb).toBe(0);
+
+    // Within ~400ms (25 frames of 16ms), Slack (spd 11, starting at 70) reaches 100 ATB and acts!
+    let time = 0;
+    const enemyTurns: any[] = [];
+    while (time < 600) {
+      time += 16;
+      const evs = engine.tick(16);
+      if (evs.some((e) => e.type === 'skill' && e.actorUid === slack.uid)) {
+        enemyTurns.push(...evs);
+        break;
+      }
+    }
+
+    expect(enemyTurns.length).toBeGreaterThan(0);
+    expect(time).toBeLessThanOrEqual(500); // Swift response!
+
+    // Continuing ticks: Danny charges and receives next turn
+    let secondHeroTurn = false;
+    while (time < 3000) {
+      time += 16;
+      const evs = engine.tick(16);
+      if (evs.some((e) => e.type === 'ready' && e.uid === danny.uid)) {
+        secondHeroTurn = true;
+        break;
+      }
+    }
+    expect(secondHeroTurn).toBe(true);
+    expect(engine.waitingHero?.uid).toBe(danny.uid);
+  });
 });

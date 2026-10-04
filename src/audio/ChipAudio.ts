@@ -487,6 +487,20 @@ class ChipAudioEngine {
           osc.stop(t + 0.3);
           break;
         }
+        case 'debuff': {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320 * p, t);
+          osc.frequency.linearRampToValueAtTime(140 * p, t + 0.18);
+          gain.gain.setValueAtTime(0.22 * v, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+          osc.connect(gain);
+          gain.connect(this.sfxBus);
+          osc.start(t);
+          osc.stop(t + 0.22);
+          break;
+        }
         default: {
           // Standard fallback blip
           const osc = this.ctx.createOscillator();

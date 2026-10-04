@@ -1,33 +1,12 @@
-import type { HeroId, StatusEffectDef } from '@/types';
+import type { HeroId, StatusEffectDef, HeroState, GameData } from '@/types';
 import { HEROES } from '@/content/heroes';
 import { WORLD_STATUSES } from '@/content/statuses';
 import { Combatant } from './Combatant';
 import { heroStatsAtLevel, levelForXp } from './Stats';
 import { makeHeroCombatant, BattleEngine } from './BattleEngine';
 
-export interface HeroState {
-  level: number;
-  xp: number;
-  hp: number;
-  mp: number;
-}
+export type { HeroState, GameData };
 
-export interface GameData {
-  version: number;
-  leader: HeroId;
-  party: HeroId[];
-  roster: Record<HeroId, HeroState>;
-  inventory: Record<string, number>;
-  chapter: number;
-  mapId: string;
-  x: number;
-  y: number;
-  facing: 'down' | 'up' | 'left' | 'right';
-  flags: Record<string, boolean | number | string>;
-  worldStatuses: string[];
-  playtime: number;
-  timestamp: number;
-}
 
 export function newGame(leader: HeroId): GameData {
   const roster = {} as Record<HeroId, HeroState>;
