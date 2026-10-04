@@ -9,6 +9,11 @@ export interface TextOpts {
   maxWidth?: number;
   align?: 'left' | 'center' | 'right';
   origin?: [number, number];
+  fontFamily?: string;
+  fontSize?: string;
+  fontStyle?: string;
+  lineSpacing?: number;
+  resolution?: number;
 }
 
 /** Draws pixel text using bitmap font 'pixel' / 'pixel_big' if loaded, else a crisp canvas fallback. */
@@ -16,7 +21,7 @@ export function txt(scene: Phaser.Scene, x: number, y: number, s: string, o: Tex
   const key = o.big ? 'pixel_big' : 'pixel';
   const color = o.color ?? PAL.white;
   let t: TextObj;
-  if (scene.cache.bitmapFont.exists(key)) {
+  if (!o.fontFamily && scene.cache.bitmapFont.exists(key)) {
     const bt = scene.add.bitmapText(x, y, key, s);
     bt.setTint(color);
     if (o.maxWidth) bt.setMaxWidth(o.maxWidth);
@@ -25,13 +30,15 @@ export function txt(scene: Phaser.Scene, x: number, y: number, s: string, o: Tex
     t = bt;
   } else {
     const tt = scene.add.text(x, y, s, {
-      fontFamily: 'monospace',
-      fontSize: o.big ? '14px' : '8px',
+      fontFamily: o.fontFamily ?? 'monospace',
+      fontSize: o.fontSize ?? (o.big ? '14px' : '8px'),
+      fontStyle: o.fontStyle,
       color: hex(color),
       wordWrap: o.maxWidth ? { width: o.maxWidth, useAdvancedWrap: true } : undefined,
       align: o.align ?? 'left',
-      resolution: 1,
+      resolution: o.resolution ?? (o.fontFamily ? 2 : 1),
     });
+    if (o.lineSpacing) tt.setLineSpacing(o.lineSpacing);
     t = tt;
   }
   if (o.origin) t.setOrigin(o.origin[0], o.origin[1]);

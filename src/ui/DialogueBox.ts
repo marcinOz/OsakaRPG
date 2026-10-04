@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
-import { GAME_W, GAME_H, PAL } from '@/config';
+import { GAME_W, GAME_H, PAL, hex } from '@/config';
 import { drawPanel } from './Panel';
-import { txt, TextObj } from './Text';
 import type { Input } from './Input';
 import { Audio } from '@/audio/ChipAudio';
 
@@ -15,6 +14,7 @@ export interface BoxLine {
 
 const BOX_H = 110;
 const PAD = 10;
+const DIALOGUE_FONT = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
 
 /**
  * Bottom-screen dialogue window in the Analyzer panel style.
@@ -24,10 +24,10 @@ export class DialogueBox {
   private root: Phaser.GameObjects.Container;
   private g: Phaser.GameObjects.Graphics;
   private portrait: Phaser.GameObjects.Image;
-  private nameT: TextObj;
-  private bodyT: TextObj;
+  private nameT: Phaser.GameObjects.Text;
+  private bodyT: Phaser.GameObjects.Text;
   private arrow: Phaser.GameObjects.Triangle;
-  private choiceTexts: TextObj[] = [];
+  private choiceTexts: Phaser.GameObjects.Text[] = [];
   private queue: BoxLine[] = [];
   private full = '';
   private shown = 0;
@@ -43,8 +43,21 @@ export class DialogueBox {
     this.root = scene.add.container(0, 0).setDepth(depth).setScrollFactor(0);
     this.g = scene.add.graphics();
     this.portrait = scene.add.image(12 + PAD + 44, y + BOX_H / 2, '__DEFAULT').setVisible(false);
-    this.nameT = txt(scene, 0, y + PAD, '', { color: PAL.yellow, big: true });
-    this.bodyT = txt(scene, 0, y + PAD + 18, '', { color: PAL.white, maxWidth: GAME_W - 200 });
+    this.nameT = scene.add.text(0, y + PAD, '', {
+      fontFamily: DIALOGUE_FONT,
+      fontSize: '15px',
+      fontStyle: 'bold',
+      color: hex(PAL.yellow),
+      resolution: 2,
+    });
+    this.bodyT = scene.add.text(0, y + PAD + 22, '', {
+      fontFamily: DIALOGUE_FONT,
+      fontSize: '15px',
+      color: hex(PAL.white),
+      lineSpacing: 4,
+      wordWrap: { width: GAME_W - 200, useAdvancedWrap: true },
+      resolution: 2,
+    });
     this.arrow = scene.add.triangle(GAME_W - 28, y + BOX_H - 16, 0, 0, 8, 0, 4, 6, PAL.cyan).setOrigin(0, 0);
     this.root.add([this.g, this.portrait, this.nameT, this.bodyT, this.arrow]);
     this.root.setVisible(false);
@@ -74,7 +87,13 @@ export class DialogueBox {
     const x0 = this.textX();
     this.choiceTexts.forEach((t) => t.destroy());
     this.choiceTexts = options.map((o, i) => {
-      const t = txt(this.scene, x0 + 10, y0 + i * 16, `[${i + 1}] ${o}`, { color: PAL.cyan, big: true });
+      const t = this.scene.add.text(x0 + 10, y0 + i * 22, `[${i + 1}] ${o}`, {
+        fontFamily: DIALOGUE_FONT,
+        fontSize: '15px',
+        fontStyle: 'bold',
+        color: hex(PAL.cyan),
+        resolution: 2,
+      });
       this.root.add(t);
       return t;
     });
@@ -157,27 +176,26 @@ export class DialogueBox {
       this.root.bringToTop(this.portrait);
     }
     const x = this.textX();
-    this.nameT.setPosition(x, y + PAD);
-    (this.nameT as any).setText(l.name ? l.name.toUpperCase() + ':' : '');
-    if ('setTint' in this.nameT && this.nameT instanceof Phaser.GameObjects.BitmapText) this.nameT.setTint(l.color ?? PAL.yellow);
-    this.bodyT.setPosition(x, y + PAD + (l.name ? 20 : 6));
+    this.nameT.setPosition(x, y + 10);
+    this.nameT.setText(l.name ? l.name.toUpperCase() + ':' : '');
+    this.nameT.setColor(hex(l.color ?? PAL.yellow));
+    this.nameT.setVisible(!!l.name);
+    this.bodyT.setPosition(x, y + (l.name ? 32 : 14));
     const mw = GAME_W - 24 - (x - 12) - PAD - 20;
-    if (this.bodyT instanceof Phaser.GameObjects.BitmapText) this.bodyT.setMaxWidth(mw);
-    else this.bodyT.setWordWrapWidth(mw, true);
+    this.bodyT.setWordWrapWidth(mw, true);
   }
 
   private setBody(s: string): void {
-    (this.bodyT as any).setText(s);
+    this.bodyT.setText(s);
   }
 
   private refreshChoices(): void {
     this.choiceTexts.forEach((t, i) => {
       const sel = i === this.choiceIdx;
-      if (t instanceof Phaser.GameObjects.BitmapText) t.setTint(sel ? PAL.yellow : PAL.cyan);
-      else t.setColor(sel ? '#e8d84a' : '#9ecbd4');
-      const raw = (t as any).text as string;
+      t.setColor(sel ? hex(PAL.yellow) : hex(PAL.cyan));
+      const raw = t.text;
       const clean = raw.replace(/^▶ /, '');
-      (t as any).setText(sel ? '▶ ' + clean : clean);
+      t.setText(sel ? '▶ ' + clean : clean);
     });
   }
 }
