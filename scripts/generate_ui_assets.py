@@ -572,13 +572,15 @@ def generate_keys_legend_panels():
 
         elif bar_type == "battle":
             cx = 10
-            # [▲▼]
-            draw_keycap(d, cx, y_start + 4, 18, 18, "▲", font_key)
+            # [W] [S]
+            draw_keycap(d, cx, y_start + 4, 18, 18, "W", font_key, gold=True)
             cx += 22
-            draw_keycap(d, cx, y_start + 4, 18, 18, "▼", font_key)
+            draw_keycap(d, cx, y_start + 4, 18, 18, "S", font_key, gold=True)
             cx += 22
-            d.text((cx, y_start + 7), "Wybór Akcji", fill=(216, 218, 218, 255), font=font_lbl)
-            cx += 80
+            lbl_choice = "Wybór: Atak / Umiejętność"
+            d.text((cx, y_start + 7), lbl_choice, fill=(216, 218, 218, 255), font=font_lbl)
+            bbox = font_lbl.getbbox(lbl_choice)
+            cx += (bbox[2] - bbox[0]) + 12
             
             d.text((cx, y_start + 7), "|", fill=(94, 111, 122, 255), font=font_lbl)
             cx += 14
@@ -588,8 +590,10 @@ def generate_keys_legend_panels():
             cx += 22
             draw_keycap(d, cx, y_start + 4, 48, 18, "SPACJA", font_key, gold=True)
             cx += 52
-            d.text((cx, y_start + 7), "Zatwierdź Atak", fill=(216, 218, 218, 255), font=font_lbl)
-            cx += 105
+            lbl_confirm = "Zatwierdź"
+            d.text((cx, y_start + 7), lbl_confirm, fill=(216, 218, 218, 255), font=font_lbl)
+            bbox_c = font_lbl.getbbox(lbl_confirm)
+            cx += (bbox_c[2] - bbox_c[0]) + 12
             
             d.text((cx, y_start + 7), "|", fill=(94, 111, 122, 255), font=font_lbl)
             cx += 14

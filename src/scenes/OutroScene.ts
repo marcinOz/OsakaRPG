@@ -16,6 +16,7 @@ export class OutroScene extends Phaser.Scene {
   private dialogueBox!: DialogueBox;
   private state!: GameData;
   private photoShown = false;
+  private isEnding = false;
 
   constructor() {
     super('Outro');
@@ -71,72 +72,64 @@ export class OutroScene extends Phaser.Scene {
   private showCommemorativePhoto(): void {
     this.photoShown = true;
 
-    // Dim overlay
-    const overlay = this.add.graphics().setDepth(200);
-    overlay.fillStyle(0x00030b, 0.88);
-    overlay.fillRect(0, 0, GAME_W, GAME_H);
+    // Full-screen Commemorative Photograph
+    this.add.image(GAME_W / 2, GAME_H / 2, 'memorial_photo')
+      .setDisplaySize(GAME_W, GAME_H)
+      .setDepth(205);
 
-    // Photo frame container (Polaroid style)
-    const pg = this.add.graphics().setDepth(210);
-    drawPanel(pg, 48, 28, GAME_W - 96, GAME_H - 56, { fill: PAL.navy, border: PAL.yellow, glow: true });
+    // Retro Polaroid & Golden frame border
+    const frameG = this.add.graphics().setDepth(210);
+    frameG.lineStyle(2, PAL.yellow, 0.85);
+    frameG.strokeRect(8, 8, GAME_W - 16, GAME_H - 16);
+    frameG.lineStyle(1, PAL.cyan, 0.5);
+    frameG.strokeRect(12, 12, GAME_W - 24, GAME_H - 24);
 
-    txt(this, GAME_W / 2, 52, '★ FRIEND PACK ANALYZER v1.0 – PAMIĄTKOWE ZDJĘCIE ★', {
+    // Header panel (top sky band)
+    const topG = this.add.graphics().setDepth(210);
+    drawPanel(topG, 32, 16, GAME_W - 64, 52, { fill: PAL.navy, border: PAL.yellow, glow: true, alpha: 0.85 });
+
+    txt(this, GAME_W / 2, 32, '★ FRIEND PACK ANALYZER v1.0 – PAMIĄTKOWE ZDJĘCIE ★', {
       color: PAL.yellow,
       origin: [0.5, 0.5],
-    });
-    txt(this, GAME_W / 2, 74, 'LEGENDA LEŚNEGO OGNISKA • 2026 REUNION • WILCZY LAS', {
+    }).setDepth(220);
+
+    txt(this, GAME_W / 2, 52, 'LEGENDA LEŚNEGO OGNISKA • 2026 REUNION • WILCZY LAS', {
       color: PAL.cyanHi,
       origin: [0.5, 0.5],
-    });
+    }).setDepth(220);
 
-    // 6 Hero Portraits in individual framed cards (using high-res 96x96 portraits)
-    const heroInfo: Record<string, { name: string; tag: string }> = {
-      danny: { name: 'DANNY', tag: 'SIŁACZ' },
-      alior: { name: 'ALIOR', tag: 'MAG TECH' },
-      lisu: { name: 'LISU', tag: 'SZPIEG' },
-      barti: { name: 'BARTI', tag: 'BARD' },
-      oziem: { name: 'OZIEM', tag: 'PALADYN' },
-      luki: { name: 'ŁUKI', tag: 'RATOWNIK' },
-    };
+    // Stats & summary box (bottom shoreline band)
+    const bottomG = this.add.graphics().setDepth(210);
+    drawPanel(bottomG, 32, 486, GAME_W - 64, 72, { fill: PAL.navy, border: PAL.steel, glow: true, alpha: 0.88 });
 
-    const heroes = ['danny', 'alior', 'lisu', 'barti', 'oziem', 'luki'];
-    const startPx = GAME_W / 2 - 350;
-    heroes.forEach((hid, i) => {
-      const px = startPx + i * 140;
-      const py = 180;
-
-      // Card frame
-      const frameG = this.add.graphics().setDepth(215);
-      frameG.fillStyle(PAL.panel, 1);
-      frameG.lineStyle(2, PAL.steel, 1);
-      frameG.fillRoundedRect(px - 52, py - 52, 104, 134, 4);
-      frameG.strokeRoundedRect(px - 52, py - 52, 104, 134, 4);
-
-      this.add.image(px, py, `portrait_${hid}_96`).setDisplaySize(92, 92).setDepth(220);
-      txt(this, px, py + 56, heroInfo[hid].name, { color: PAL.yellow, origin: [0.5, 0.5] });
-      txt(this, px, py + 70, heroInfo[hid].tag, { color: PAL.cyan, origin: [0.5, 0.5] });
-    });
-
-    // Stats summary box
-    const sg = this.add.graphics().setDepth(215);
-    drawPanel(sg, 80, 320, GAME_W - 160, 110, { fill: PAL.panel, border: PAL.steel });
-
-    txt(this, GAME_W / 2, 342, `LIDER: ${this.state.leader.toUpperCase()}   |   ROSTER: 6/6 ZWERBOWANYCH   |   KLIMAT: 100%   |   WSPOMNIENIA: ZAPISANE`, {
+    txt(this, GAME_W / 2, 502, `LIDER: ${this.state.leader.toUpperCase()}   |   ROSTER: 6/6 ZWERBOWANYCH   |   KLIMAT: 100%   |   WSPOMNIENIA: ZAPISANE`, {
       color: PAL.green,
       origin: [0.5, 0.5],
-    });
-    txt(this, GAME_W / 2, 370, 'POKONANE WYZWANIA: BÓL KRĘGOSŁUPA, SLACKI, SĄSIAD SZKODNIK, HIPSTERZY, KARK, PAN JANUSZ', {
+    }).setDepth(220);
+
+    txt(this, GAME_W / 2, 522, 'POKONANE WYZWANIA: BÓL KRĘGOSŁUPA, SLACKI, SĄSIAD SZKODNIK, HIPSTERZY, KARK, PAN JANUSZ', {
       color: PAL.cyanHi,
       origin: [0.5, 0.5],
-    });
-    txt(this, GAME_W / 2, 398, 'STATUS DOROSŁOŚCI: PRZEŁAMANA   |   PRZYJAŹŃ: LEGENDARNA   |   FPS: 60 (BEZ LAGÓW)', {
-      color: PAL.yellow,
-      origin: [0.5, 0.5],
-    });
+    }).setDepth(220);
 
-    txt(this, GAME_W / 2, 470, '[ NACIŚNIJ SPACJA / ENTER / Z – POWRÓT DO MENU GŁÓWNEGO ]', {
+    txt(this, GAME_W / 2, 542, '[ NACIŚNIJ SPACJA / ENTER / Z LUB KLIKNIJ – POWRÓT DO MENU GŁÓWNEGO ]', {
       color: PAL.fireHi,
       origin: [0.5, 0.5],
+    }).setDepth(220);
+
+    // Click/tap support for touch & mouse players
+    this.input.once('pointerdown', () => {
+      this.finishOutro();
+    });
+  }
+
+  private finishOutro(): void {
+    if (this.isEnding) return;
+    this.isEnding = true;
+    Audio.sfx('confirm');
+    this.cameras.main.fadeOut(800, 0, 3, 11);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('Title');
     });
   }
 
@@ -147,11 +140,7 @@ export class OutroScene extends Phaser.Scene {
     }
 
     if (this.photoShown && (this.inputHandler.pressed('ok') || this.inputHandler.pressed('cancel'))) {
-      Audio.sfx('confirm');
-      this.cameras.main.fadeOut(800, 0, 3, 11);
-      this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-        this.scene.start('Title');
-      });
+      this.finishOutro();
     }
   }
 }
