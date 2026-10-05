@@ -82,9 +82,11 @@ export class TitleScene extends Phaser.Scene {
     bar.fillRect(0, 19, GAME_W, 1);
     bar.setDepth(1050);
 
-    const topBarTitle = txt(this, 12, 4, 'THE PACK: RETRO ENGINE v2.0 [HD PIXEL-PERFECT EDITION]', {
+    const topBarTitle = txt(this, 12, 3, 'THE PACK: RETRO ENGINE v2.0 [HD PIXEL-PERFECT EDITION]', {
       color: PAL.cyan,
-      big: false,
+      fontSize: '11px',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
     });
     topBarTitle.setDepth(1051);
 
@@ -136,7 +138,10 @@ export class TitleScene extends Phaser.Scene {
 
     txt(this, GAME_W / 2, 185, 'Ekipa 36+ • Kronika Przyjaźni i Ognia', {
       color: PAL.silver,
-      big: false,
+      fontSize: '13px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
       align: 'center',
       origin: [0.5, 0.5],
     });
@@ -157,14 +162,22 @@ export class TitleScene extends Phaser.Scene {
     const menuY = 260;
     this.menu = new Menu(this, menuX, menuY, menuW, menuItems);
 
-    // Footer credits
-    txt(this, GAME_W / 2, GAME_H - 24, '© 2026 THE PACK CREW • [STRZAŁKI / Z: WYBIERZ]', {
+    this.inputHandler = new Input(this);
+
+    // Footer credits & context-aware control hint
+    const isTouch = this.inputHandler.isTouch();
+    const footerHint = isTouch
+      ? '© 2026 THE PACK CREW • [D-PAD / A: WYBIERZ]'
+      : '© 2026 THE PACK CREW • [STRZAŁKI / Z: WYBIERZ]';
+
+    txt(this, GAME_W / 2, GAME_H - 24, footerHint, {
       color: PAL.grey,
+      fontSize: '12px',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
       align: 'center',
       origin: [0.5, 0.5],
     });
-
-    this.inputHandler = new Input(this);
 
     // Create Dev Panel Modal Container
     this.createDevPanel();

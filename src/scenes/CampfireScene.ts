@@ -79,31 +79,60 @@ export class CampfireScene extends Phaser.Scene {
 
   private createPartyStatsHud(): void {
     const hg = this.add.graphics().setDepth(500);
-    drawPanel(hg, 16, 12, GAME_W - 32, 64, { fill: PAL.navy, border: PAL.steel, glow: true });
+    drawPanel(hg, 16, 10, GAME_W - 32, 84, { fill: PAL.navy, border: PAL.steel, glow: true });
 
     txt(this, GAME_W / 2, 20, '★ PARTY STATS – ROZDZIAŁ 7: OGNISKO W WILCZYM LESIE ★', {
       color: PAL.yellow,
+      fontSize: '13px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
       origin: [0.5, 0.5],
     });
 
-    // 6 Heroes status summary row
-    const stats = [
+    // 6 Heroes organized into a 2 rows x 3 columns grid for mobile readability
+    const row1 = [
       'DANNY [HP: 100/100]',
       'ALIOR [MP: 85/85]',
       'LISU [SPD: MAX]',
+    ];
+    const row2 = [
       'BARTI [BUFF: BASS]',
       'OZIEM [FIRE: ON]',
       'ŁUKI [RESCUE: OK]',
     ];
+
     const startX = 36;
-    const colW = (GAME_W - 72) / 6;
-    stats.forEach((s, idx) => {
-      const color = idx % 2 === 0 ? PAL.cyan : PAL.cyanHi;
-      txt(this, startX + idx * colW + colW / 2, 40, s, { color, origin: [0.5, 0.5] });
+    const colW = (GAME_W - 72) / 3;
+
+    row1.forEach((s, idx) => {
+      txt(this, startX + idx * colW + colW / 2, 38, s, {
+        color: PAL.cyan,
+        fontSize: '13px',
+        fontStyle: 'bold',
+        fontFamily: 'monospace, sans-serif',
+        resolution: 2,
+        origin: [0.5, 0.5],
+      });
     });
 
-    txt(this, GAME_W / 2, 58, 'EKIPA: KOMPLET (6/6)   |   OGIEŃ: PŁONIE   |   BUFF: KLIMAT LAT MŁODOŚCI', {
+    row2.forEach((s, idx) => {
+      txt(this, startX + idx * colW + colW / 2, 58, s, {
+        color: PAL.cyanHi,
+        fontSize: '13px',
+        fontStyle: 'bold',
+        fontFamily: 'monospace, sans-serif',
+        resolution: 2,
+        origin: [0.5, 0.5],
+      });
+    });
+
+    txt(this, GAME_W / 2, 78, 'EKIPA: KOMPLET (6/6)   |   OGIEŃ: PŁONIE   |   BUFF: KLIMAT LAT MŁODOŚCI', {
       color: PAL.green,
+      fontSize: '13px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
       origin: [0.5, 0.5],
     });
   }

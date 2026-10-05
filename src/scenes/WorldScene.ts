@@ -18,6 +18,7 @@ import { drawPanel } from '@/ui/Panel';
 import { setTimeOfDay } from '@/fx/Palette';
 import { InteractPrompt } from '@/ui/InteractPrompt';
 import { startBattle } from '@/content/encounters';
+import { isTouchDevice } from '@/ui/VirtualPad';
 
 interface TrailPoint {
   x: number;
@@ -248,10 +249,16 @@ export class WorldScene extends Phaser.Scene {
 
     // HUD Top Bar
     const hg = this.add.graphics();
-    drawPanel(hg, 4, 4, GAME_W - 8, 16, { fill: PAL.navy, border: PAL.steel, glow: false });
+    drawPanel(hg, 4, 3, GAME_W - 8, 28, { fill: PAL.navy, border: PAL.steel, glow: false });
     this.hudContainer.add(hg);
 
-    this.hudText = txt(this, 10, 8, '', { color: PAL.cyan });
+    this.hudText = txt(this, 12, 7, '', {
+      color: PAL.cyan,
+      fontSize: '14px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
+    });
     this.hudContainer.add(this.hudText);
     this.updateHud();
 
@@ -262,6 +269,10 @@ export class WorldScene extends Phaser.Scene {
     this.dialogueBox = new DialogueBox(this, 1000);
     this.interactPrompt = new InteractPrompt(this);
     this.inputHandler = new Input(this);
+
+    if (this.inputHandler.isTouch()) {
+      legendImg.setVisible(false);
+    }
 
     // Initial wake-up sequence
     if (this.currentMap === 'apartment' && !hasFlag(this.state, 'ch1_woke_up')) {
@@ -905,77 +916,94 @@ export class WorldScene extends Phaser.Scene {
       },
     ];
 
-    const startY = -120;
-    const rowStep = 74;
+    const startY = -135;
+    const rowStep = 82;
 
     messages.forEach((m, idx) => {
       const my = startY + idx * rowStep;
       if (!m.isOutgoing) {
-        // Incoming bubble: Left side
-        const avatar = this.add.image(-158, my, `avatar_${m.fromId}`).setDisplaySize(32, 32);
+        // Incoming bubble: Left side (340x68)
+        const avatar = this.add.image(-188, my, `avatar_${m.fromId}`).setDisplaySize(36, 36);
         pop.add(avatar);
 
         const bubble = this.add.image(-10, my, 'chat_bubble_in');
         pop.add(bubble);
 
-        const nameText = this.add.text(-138, my - 22, m.name, {
+        const nameText = this.add.text(-168, my - 24, m.name, {
           fontFamily: 'Helvetica Neue, Arial, sans-serif',
-          fontSize: '11px',
+          fontSize: '14px',
           fontStyle: 'bold',
           color: m.color,
+          resolution: 2,
         });
         pop.add(nameText);
 
-        const bodyText = this.add.text(-138, my - 8, m.text, {
+        const bodyText = this.add.text(-168, my - 6, m.text, {
           fontFamily: 'Helvetica Neue, Arial, sans-serif',
-          fontSize: '10px',
+          fontSize: '13px',
           color: '#E9EDEF',
-          wordWrap: { width: 205 },
+          wordWrap: { width: 260 },
+          resolution: 2,
         });
         pop.add(bodyText);
 
-        const timeText = this.add.text(105, my + 13, m.time, {
+        const timeText = this.add.text(135, my + 18, m.time, {
           fontFamily: 'Helvetica Neue, Arial, sans-serif',
-          fontSize: '9px',
+          fontSize: '11px',
           color: '#8696A0',
+          resolution: 2,
         }).setOrigin(1, 0.5);
         pop.add(timeText);
       } else {
-        // Outgoing bubble: Right side
+        // Outgoing bubble: Right side (340x68)
         const bubble = this.add.image(10, my, 'chat_bubble_out');
         pop.add(bubble);
 
-        const avatar = this.add.image(158, my, `avatar_${m.fromId}`).setDisplaySize(32, 32);
+        const avatar = this.add.image(188, my, `avatar_${m.fromId}`).setDisplaySize(36, 36);
         pop.add(avatar);
 
-        const nameText = this.add.text(-118, my - 22, m.name, {
+        const nameText = this.add.text(-140, my - 24, m.name, {
           fontFamily: 'Helvetica Neue, Arial, sans-serif',
-          fontSize: '11px',
+          fontSize: '14px',
           fontStyle: 'bold',
           color: m.color,
+          resolution: 2,
         });
         pop.add(nameText);
 
-        const bodyText = this.add.text(-118, my - 8, m.text, {
+        const bodyText = this.add.text(-140, my - 6, m.text, {
           fontFamily: 'Helvetica Neue, Arial, sans-serif',
-          fontSize: '10px',
+          fontSize: '13px',
           color: '#E9EDEF',
-          wordWrap: { width: 205 },
+          wordWrap: { width: 260 },
+          resolution: 2,
         });
         pop.add(bodyText);
 
-        const timeText = this.add.text(98, my + 13, m.time, {
+        const timeText = this.add.text(125, my + 18, m.time, {
           fontFamily: 'Helvetica Neue, Arial, sans-serif',
-          fontSize: '9px',
+          fontSize: '11px',
           color: '#8696A0',
+          resolution: 2,
         }).setOrigin(1, 0.5);
         pop.add(timeText);
       }
     });
 
-    // Action button "[Z] DALEJ ▶"
-    const btnZone = this.add.zone(127, 228, 110, 36).setInteractive({ useHandCursor: true });
+    // Action button "[Z] DALEJ ▶" on keyboard / "[A] DALEJ ▶" on touch
+    const btnZone = this.add.zone(154, 235, 124, 36).setInteractive({ useHandCursor: true });
     pop.add(btnZone);
+
+    const isTouch = isTouchDevice(this);
+    const btnText = txt(this, 154, 235, isTouch ? '[A] DALEJ ▶' : '[Z] DALEJ ▶', {
+      color: PAL.white,
+      fontSize: '13px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
+      origin: [0.5, 0.5],
+    });
+    pop.add(btnText);
 
     // Initial entrance animation
     pop.setScale(0.85);

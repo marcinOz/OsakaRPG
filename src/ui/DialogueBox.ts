@@ -12,7 +12,7 @@ export interface BoxLine {
   pitch?: number;          // blip pitch
 }
 
-const BOX_H = 110;
+const BOX_H = 126;
 const PAD = 10;
 const DIALOGUE_FONT = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
 
@@ -45,16 +45,16 @@ export class DialogueBox {
     this.portrait = scene.add.image(12 + PAD + 44, y + BOX_H / 2, '__DEFAULT').setVisible(false);
     this.nameT = scene.add.text(0, y + PAD, '', {
       fontFamily: DIALOGUE_FONT,
-      fontSize: '15px',
+      fontSize: '18px',
       fontStyle: 'bold',
       color: hex(PAL.yellow),
       resolution: 2,
     });
-    this.bodyT = scene.add.text(0, y + PAD + 22, '', {
+    this.bodyT = scene.add.text(0, y + PAD + 26, '', {
       fontFamily: DIALOGUE_FONT,
-      fontSize: '15px',
+      fontSize: '18px',
       color: hex(PAL.white),
-      lineSpacing: 4,
+      lineSpacing: 5,
       wordWrap: { width: GAME_W - 200, useAdvancedWrap: true },
       resolution: 2,
     });
@@ -83,13 +83,13 @@ export class DialogueBox {
     this.shown = this.full.length;
     this.setBody(this.full);
     this.arrow.setVisible(false);
-    const y0 = GAME_H - BOX_H - 10 + PAD + (prompt?.text ? 36 : 14);
+    const y0 = GAME_H - BOX_H - 10 + PAD + (prompt?.text ? 40 : 14);
     const x0 = this.textX();
     this.choiceTexts.forEach((t) => t.destroy());
     this.choiceTexts = options.map((o, i) => {
-      const t = this.scene.add.text(x0 + 10, y0 + i * 22, `[${i + 1}] ${o}`, {
+      const t = this.scene.add.text(x0 + 10, y0 + i * 26, `[${i + 1}] ${o}`, {
         fontFamily: DIALOGUE_FONT,
-        fontSize: '15px',
+        fontSize: '18px',
         fontStyle: 'bold',
         color: hex(PAL.cyan),
         resolution: 2,
@@ -180,7 +180,7 @@ export class DialogueBox {
     this.nameT.setText(l.name ? l.name.toUpperCase() + ':' : '');
     this.nameT.setColor(hex(l.color ?? PAL.yellow));
     this.nameT.setVisible(!!l.name);
-    this.bodyT.setPosition(x, y + (l.name ? 32 : 14));
+    this.bodyT.setPosition(x, y + (l.name ? 36 : 14));
     const mw = GAME_W - 24 - (x - 12) - PAD - 20;
     this.bodyT.setWordWrapWidth(mw, true);
   }

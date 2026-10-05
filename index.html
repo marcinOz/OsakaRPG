@@ -2,7 +2,7 @@
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>THE PACK – Legend of the Forest Fireplace</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14'>⚔️</text></svg>">
 
@@ -19,7 +19,10 @@
     <style>
       html, body {
         margin: 0;
+        padding: 0;
+        width: 100%;
         height: 100%;
+        height: 100dvh;
         background: #00030b;
         overflow: hidden;
         touch-action: none;
@@ -28,17 +31,217 @@
         user-select: none;
       }
       #game {
+        position: fixed;
+        inset: 0;
         width: 100vw;
-        height: 100vh;
+        height: 100dvh;
         display: flex;
         align-items: center;
         justify-content: center;
         touch-action: none;
+        overflow: hidden;
       }
-      canvas {
+      #game > canvas {
         image-rendering: pixelated;
         image-rendering: crisp-edges;
         touch-action: none;
+        margin: 0 !important;
+        max-width: 100vw;
+        max-height: 100dvh;
+      }
+
+      /* 16-bit Arcade Responsive Touch Controls Layer */
+      .touch-controls {
+        display: none;
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 9999;
+      }
+      body.touch-active .touch-controls {
+        display: block;
+      }
+
+      .touch-cluster {
+        position: absolute;
+        pointer-events: auto;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      /* 4-way D-Pad Grid */
+      .dpad-cluster {
+        width: 156px;
+        height: 156px;
+        display: grid;
+        grid-template-columns: 52px 52px 52px;
+        grid-template-rows: 52px 52px 52px;
+        left: max(16px, env(safe-area-inset-left));
+        bottom: max(16px, env(safe-area-inset-bottom));
+      }
+
+      .dpad-btn {
+        background: rgba(12, 33, 52, 0.84);
+        border: 2px solid #203d54;
+        color: #9ecbd4;
+        font-family: monospace, "Courier New", sans-serif;
+        font-size: 22px;
+        font-weight: bold;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        box-shadow: 2px 2px 0px rgba(0, 3, 11, 0.8), inset 0 1px 0 rgba(200, 238, 244, 0.35);
+        touch-action: none;
+        padding: 0;
+        margin: 0;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.05s ease, background-color 0.05s ease, border-color 0.05s ease;
+      }
+      .dpad-up {
+        grid-column: 2;
+        grid-row: 1;
+        border-bottom: 1px solid #203d54;
+        border-radius: 6px 6px 2px 2px;
+      }
+      .dpad-left {
+        grid-column: 1;
+        grid-row: 2;
+        border-right: 1px solid #203d54;
+        border-radius: 6px 2px 2px 6px;
+      }
+      .dpad-center-cap {
+        grid-column: 2;
+        grid-row: 2;
+        background: rgba(6, 18, 32, 0.88);
+        border: 1px solid #102d3b;
+        position: relative;
+      }
+      .dpad-center-cap::after {
+        content: '';
+        position: absolute;
+        inset: 12px;
+        background: #203d54;
+        border-radius: 2px;
+      }
+      .dpad-right {
+        grid-column: 3;
+        grid-row: 2;
+        border-left: 1px solid #203d54;
+        border-radius: 2px 6px 6px 2px;
+      }
+      .dpad-down {
+        grid-column: 2;
+        grid-row: 3;
+        border-top: 1px solid #203d54;
+        border-radius: 2px 2px 6px 6px;
+      }
+
+      .dpad-btn.pressed {
+        background: rgba(32, 61, 84, 0.96);
+        border-color: #e8d84a;
+        color: #ffffff;
+        box-shadow: 0 0 8px rgba(232, 216, 74, 0.5), inset 0 1px 0 rgba(246, 192, 74, 0.6);
+        transform: translate(1px, 1px);
+      }
+
+      /* Action Buttons Cluster */
+      .action-cluster {
+        width: 170px;
+        height: 156px;
+        right: max(16px, env(safe-area-inset-right));
+        bottom: max(16px, env(safe-area-inset-bottom));
+        position: absolute;
+      }
+
+      .action-btn {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(12, 33, 52, 0.84);
+        border: 2px solid #406a6a;
+        border-radius: 6px;
+        box-shadow: 2px 2px 0px rgba(0, 3, 11, 0.8), inset 0 1px 0 rgba(200, 238, 244, 0.35);
+        color: #9ecbd4;
+        font-family: monospace, "Courier New", sans-serif;
+        touch-action: none;
+        padding: 0;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.05s ease, background-color 0.05s ease, border-color 0.05s ease;
+      }
+      .action-btn .btn-primary {
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+      }
+      .action-btn .btn-sub {
+        font-size: 9px;
+        font-weight: bold;
+        color: #5e6f7a;
+        margin-top: 2px;
+      }
+
+      /* Button [A] - Primary OK / Action */
+      .action-a {
+        width: 62px;
+        height: 62px;
+        right: 0;
+        bottom: 24px;
+        border-color: #e8d84a;
+        color: #e8d84a;
+      }
+      .action-a .btn-primary {
+        font-size: 22px;
+      }
+
+      /* Button [B] - Back / Cancel */
+      .action-b {
+        width: 56px;
+        height: 56px;
+        right: 74px;
+        bottom: 0;
+        border-color: #406a6a;
+      }
+
+      /* Button [M] - Menu / Phone */
+      .action-m {
+        width: 54px;
+        height: 42px;
+        right: 6px;
+        bottom: 102px;
+        border-color: #203d54;
+      }
+      .action-m .btn-primary {
+        font-size: 16px;
+      }
+
+      .action-btn.pressed {
+        background: rgba(32, 61, 84, 0.96);
+        border-color: #e8d84a;
+        color: #ffffff;
+        box-shadow: 0 0 10px rgba(232, 216, 74, 0.6), inset 0 1px 0 rgba(246, 192, 74, 0.7);
+        transform: translate(1px, 1px);
+      }
+      .action-btn.pressed .btn-sub {
+        color: #e8d84a;
+      }
+
+      /* Portrait Orientation: Controls placed comfortably in lower letterbox zone */
+      @media (orientation: portrait) {
+        .dpad-cluster {
+          left: 20px;
+          bottom: max(24px, env(safe-area-inset-bottom));
+        }
+        .action-cluster {
+          right: 20px;
+          bottom: max(24px, env(safe-area-inset-bottom));
+        }
       }
     </style>
     <script>
@@ -50,7 +253,31 @@
     </script>
   </head>
   <body>
-    <div id="game"></div>
+    <div id="game">
+      <div id="touch-controls" class="touch-controls" aria-hidden="true">
+        <div class="touch-cluster dpad-cluster">
+          <button type="button" class="dpad-btn dpad-up" data-btn="up" aria-label="Góra">▲</button>
+          <button type="button" class="dpad-btn dpad-left" data-btn="left" aria-label="Lewo">◀</button>
+          <div class="dpad-center-cap"></div>
+          <button type="button" class="dpad-btn dpad-right" data-btn="right" aria-label="Prawo">▶</button>
+          <button type="button" class="dpad-btn dpad-down" data-btn="down" aria-label="Dół">▼</button>
+        </div>
+        <div class="touch-cluster action-cluster">
+          <button type="button" class="action-btn action-m" data-btn="m" aria-label="Menu">
+            <span class="btn-primary">M</span>
+            <span class="btn-sub">MENU</span>
+          </button>
+          <button type="button" class="action-btn action-b" data-btn="b" aria-label="Anuluj">
+            <span class="btn-primary">B</span>
+            <span class="btn-sub">BACK</span>
+          </button>
+          <button type="button" class="action-btn action-a" data-btn="a" aria-label="Zatwierdź">
+            <span class="btn-primary">A</span>
+            <span class="btn-sub">OK</span>
+          </button>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

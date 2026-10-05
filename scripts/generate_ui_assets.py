@@ -163,51 +163,49 @@ def draw_whatsapp_doodles(draw, area):
                 fn(dx, dy)
 
 def generate_phone_frame():
-    w, h = 400, 540
+    w, h = 470, 548
     img = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     
-    # 1. Phone Outer Body / Chassis
-    # Matte titanium/slate chassis with bevel
-    draw.rounded_rectangle((2, 2, 397, 537), radius=30, fill=(20, 23, 27, 255), outline=(48, 54, 62, 255), width=2)
-    draw.rounded_rectangle((4, 4, 395, 535), radius=28, fill=(16, 18, 22, 255))
+    # 1. Phone Outer Body / Chassis (Matte titanium/slate chassis with bevel)
+    draw.rounded_rectangle((2, 2, 467, 545), radius=32, fill=(20, 23, 27, 255), outline=(48, 54, 62, 255), width=2)
+    draw.rounded_rectangle((4, 4, 465, 543), radius=30, fill=(16, 18, 22, 255))
     
-    # Outer highlights & shadows
-    # Top speaker slit
-    draw.rounded_rectangle((175, 7, 225, 11), radius=2, fill=(35, 39, 46, 255), outline=(22, 25, 30, 255), width=1)
+    # Outer highlights & shadows: Top speaker slit
+    draw.rounded_rectangle((205, 7, 265, 11), radius=2, fill=(35, 39, 46, 255), outline=(22, 25, 30, 255), width=1)
     
-    # 2. Inner Screen (372 x 506)
-    scr_x0, scr_y0, scr_x1, scr_y1 = 14, 16, 386, 524
+    # 2. Inner Screen (442 x 516)
+    scr_x0, scr_y0, scr_x1, scr_y1 = 14, 16, 456, 532
     screen_rect = (scr_x0, scr_y0, scr_x1, scr_y1)
     draw.rounded_rectangle(screen_rect, radius=18, fill=(11, 20, 26, 255))
     
     # 3. Status Bar (y: 16 .. 38)
     draw.rectangle((scr_x0, scr_y0, scr_x1, 38), fill=(31, 44, 52, 255))
-    # Punch-hole camera (centered at x=200, y=27)
-    draw.ellipse((196, 23, 204, 31), fill=(9, 10, 13, 255), outline=(28, 34, 42, 255), width=1)
-    draw.point((198, 25), fill=(40, 80, 140, 255)) # Camera lens reflection
+    # Punch-hole camera (centered at x=235, y=27)
+    draw.ellipse((231, 23, 239, 31), fill=(9, 10, 13, 255), outline=(28, 34, 42, 255), width=1)
+    draw.point((233, 25), fill=(40, 80, 140, 255)) # Camera lens reflection
     
-    font_status = get_font(10)
+    font_status = get_font(11)
     # Time
     draw.text((28, 22), "08:14", fill=(233, 237, 239, 255), font=font_status)
     
     # Cellular Signal (4 bars)
-    sig_x = 312
+    sig_x = 380
     for i in range(4):
         h_bar = 3 + i * 2
         draw.line([(sig_x + i * 4, 31), (sig_x + i * 4, 31 - h_bar)], fill=(233, 237, 239, 255), width=2)
         
     # Wi-Fi icon
-    wifi_x = 338
+    wifi_x = 406
     draw.arc((wifi_x, 21, wifi_x + 10, 31), start=210, end=330, fill=(233, 237, 239, 255), width=1)
     draw.arc((wifi_x + 2, 24, wifi_x + 8, 30), start=210, end=330, fill=(233, 237, 239, 255), width=1)
     draw.point((wifi_x + 5, 29), fill=(233, 237, 239, 255))
     
-    # Battery icon (358..376)
-    draw.rounded_rectangle((356, 22, 374, 31), radius=2, outline=(233, 237, 239, 255), width=1)
-    draw.line([(375, 24), (375, 29)], fill=(233, 237, 239, 255), width=1)
+    # Battery icon
+    draw.rounded_rectangle((424, 22, 442, 31), radius=2, outline=(233, 237, 239, 255), width=1)
+    draw.line([(443, 24), (443, 29)], fill=(233, 237, 239, 255), width=1)
     # 90% Battery fill
-    draw.rectangle((358, 24, 371, 29), fill=(37, 211, 102, 255))
+    draw.rectangle((426, 24, 439, 29), fill=(37, 211, 102, 255))
     
     # 4. WhatsApp Header (y: 38 .. 94)
     draw.rectangle((scr_x0, 38, scr_x1, 94), fill=(31, 44, 52, 255))
@@ -215,103 +213,101 @@ def generate_phone_frame():
     draw.line([(scr_x0, 94), (scr_x1, 94)], fill=(24, 34, 41, 255), width=1)
     
     # Back chevron <
-    draw.line([(24, 65), (28, 60)], fill=(174, 196, 181, 255), width=2)
-    draw.line([(24, 65), (28, 70)], fill=(174, 196, 181, 255), width=2)
+    draw.line([(24, 66), (28, 61)], fill=(174, 196, 181, 255), width=2)
+    draw.line([(24, 66), (28, 71)], fill=(174, 196, 181, 255), width=2)
     
-    # Circular Group Avatar (34x34) at (36, 48)
-    grp_avatar = Image.open(f'{UI_DIR}/avatar_group.png').resize((34, 34), Image.Resampling.LANCZOS)
-    img.paste(grp_avatar, (36, 48), grp_avatar)
+    # Circular Group Avatar (40x40) at (36, 46)
+    grp_avatar = Image.open(f'{UI_DIR}/avatar_group.png').resize((40, 40), Image.Resampling.LANCZOS)
+    img.paste(grp_avatar, (36, 46), grp_avatar)
     
-    # Header Titles
-    font_title = get_font(12, bold=True)
-    font_sub = get_font(9)
-    draw.text((78, 51), "EKIPA 36+ [REUNION NIGHT]", fill=(233, 237, 239, 255), font=font_title)
-    draw.text((78, 69), "Danny, Alior, Lisu, Barti, Oziem, Łuki", fill=(134, 150, 160, 255), font=font_sub)
+    # Header Titles (Enlarged for high-DPI mobile clarity)
+    font_title = get_font(15, bold=True)
+    font_sub = get_font(12)
+    draw.text((86, 49), "EKIPA 36+ [REUNION NIGHT]", fill=(233, 237, 239, 255), font=font_title)
+    draw.text((86, 70), "Danny, Alior, Lisu, Barti, Oziem, Łuki", fill=(134, 150, 160, 255), font=font_sub)
     
     # Header icons: Video, Phone, Menu
     # Video icon
-    draw.rounded_rectangle((318, 59, 331, 71), radius=2, outline=(174, 196, 181, 255), width=1)
-    draw.polygon([(331, 62), (336, 59), (336, 71), (331, 68)], fill=(174, 196, 181, 255))
+    draw.rounded_rectangle((388, 59, 401, 71), radius=2, outline=(174, 196, 181, 255), width=1)
+    draw.polygon([(401, 62), (406, 59), (406, 71), (401, 68)], fill=(174, 196, 181, 255))
     # Phone icon
-    draw.arc((346, 59, 356, 71), start=120, end=300, fill=(174, 196, 181, 255), width=2)
+    draw.arc((414, 59, 424, 71), start=120, end=300, fill=(174, 196, 181, 255), width=2)
     # 3-dots Menu ⋮
-    draw.ellipse((370, 58, 372, 60), fill=(174, 196, 181, 255))
-    draw.ellipse((370, 64, 372, 66), fill=(174, 196, 181, 255))
-    draw.ellipse((370, 70, 372, 72), fill=(174, 196, 181, 255))
+    draw.ellipse((438, 58, 440, 60), fill=(174, 196, 181, 255))
+    draw.ellipse((438, 64, 440, 66), fill=(174, 196, 181, 255))
+    draw.ellipse((438, 70, 440, 72), fill=(174, 196, 181, 255))
     
-    # 5. WhatsApp Doodle Wallpaper Background (y: 95 .. 472)
-    draw_whatsapp_doodles(draw, (scr_x0, 95, scr_x1, 472))
+    # 5. WhatsApp Doodle Wallpaper Background (y: 95 .. 480)
+    draw_whatsapp_doodles(draw, (scr_x0, 95, scr_x1, 480))
     
-    # 6. Bottom Input & Action Bar (y: 472 .. 524)
-    draw.rectangle((scr_x0, 472, scr_x1, scr_y1 - 10), fill=(31, 44, 52, 255))
+    # 6. Bottom Input & Action Bar (y: 480 .. 532)
+    draw.rectangle((scr_x0, 480, scr_x1, scr_y1 - 10), fill=(31, 44, 52, 255))
     # Bottom curved screen boundary
-    draw.rounded_rectangle((scr_x0, 472, scr_x1, scr_y1), radius=16, fill=(31, 44, 52, 255))
-    draw.line([(scr_x0, 472), (scr_x1, 472)], fill=(24, 34, 41, 255), width=1)
+    draw.rounded_rectangle((scr_x0, 480, scr_x1, scr_y1), radius=16, fill=(31, 44, 52, 255))
+    draw.line([(scr_x0, 480), (scr_x1, 480)], fill=(24, 34, 41, 255), width=1)
     
     # Input Pill Box
-    input_box = (22, 482, 268, 514)
-    draw.rounded_rectangle(input_box, radius=16, fill=(42, 57, 66, 255), outline=(55, 66, 72, 255), width=1)
+    input_box = (22, 490, 315, 526)
+    draw.rounded_rectangle(input_box, radius=18, fill=(42, 57, 66, 255), outline=(55, 66, 72, 255), width=1)
     
     # Smiley icon inside pill
-    draw.ellipse((32, 491, 44, 503), outline=(134, 150, 160, 255), width=1)
-    draw.point((35, 495), fill=(134, 150, 160, 255))
-    draw.point((41, 495), fill=(134, 150, 160, 255))
-    draw.arc((35, 496, 41, 501), start=0, end=180, fill=(134, 150, 160, 255), width=1)
+    draw.ellipse((34, 499, 46, 511), outline=(134, 150, 160, 255), width=1)
+    draw.point((37, 503), fill=(134, 150, 160, 255))
+    draw.point((43, 503), fill=(134, 150, 160, 255))
+    draw.arc((37, 504, 43, 509), start=0, end=180, fill=(134, 150, 160, 255), width=1)
     
     # Placeholder text
-    draw.text((50, 493), "Wiadomość...", fill=(134, 150, 160, 255), font=get_font(10))
+    draw.text((54, 501), "Wiadomość...", fill=(134, 150, 160, 255), font=get_font(11))
     
     # Paperclip icon inside pill
-    draw.line([(230, 494), (236, 500)], fill=(134, 150, 160, 255), width=1)
-    draw.arc((234, 498, 238, 504), start=0, end=180, fill=(134, 150, 160, 255), width=1)
+    draw.line([(275, 502), (281, 508)], fill=(134, 150, 160, 255), width=1)
+    draw.arc((279, 506, 283, 512), start=0, end=180, fill=(134, 150, 160, 255), width=1)
     # Camera icon inside pill
-    draw.rounded_rectangle((246, 492, 258, 502), radius=1, outline=(134, 150, 160, 255), width=1)
-    draw.ellipse((249, 494, 255, 500), outline=(134, 150, 160, 255), width=1)
+    draw.rounded_rectangle((291, 500, 303, 510), radius=1, outline=(134, 150, 160, 255), width=1)
+    draw.ellipse((294, 502, 300, 508), outline=(134, 150, 160, 255), width=1)
     
-    # Action Button "[Z] DALEJ ▶" (WhatsApp Emerald Green)
-    act_box = (276, 482, 378, 514)
-    draw.rounded_rectangle(act_box, radius=16, fill=(0, 168, 132, 255), outline=(0, 196, 154, 255), width=1)
+    # Action Button Pill (WhatsApp Emerald Green) - 124x36px
+    # Pre-baked text is omitted so Phaser can render dynamic [A] DALEJ ▶ on touch or [Z] DALEJ ▶ on keyboard
+    act_box = (325, 490, 449, 526)
+    draw.rounded_rectangle(act_box, radius=18, fill=(0, 168, 132, 255), outline=(0, 196, 154, 255), width=1)
     # Subtle button highlight on upper half
-    draw.rounded_rectangle((278, 483, 376, 497), radius=14, fill=(0, 185, 145, 255))
-    
-    font_btn = get_font(10, bold=True)
-    draw.text((292, 493), "[Z] DALEJ ▶", fill=(255, 255, 255, 255), font=font_btn)
+    draw.rounded_rectangle((327, 491, 447, 508), radius=16, fill=(0, 185, 145, 255))
     
     # Save phone frame
     img.save(f'{UI_DIR}/phone_frame.png')
-    print(f'Generated: {UI_DIR}/phone_frame.png (400x540 RGBA)')
+    print(f'Generated: {UI_DIR}/phone_frame.png (470x548 RGBA)')
 
 # -------------------------------------------------------------
 # 3. SPEECH BUBBLES (INCOMING & OUTGOING)
 # -------------------------------------------------------------
 def generate_speech_bubbles():
-    # Incoming message bubble (Dark Slate #202C33)
-    w_b, h_b = 280, 56
+    # Incoming message bubble (Dark Slate #202C33) - 340x68
+    w_b, h_b = 340, 68
     b_in = Image.new('RGBA', (w_b, h_b), (0, 0, 0, 0))
     d_in = ImageDraw.Draw(b_in)
     
     # Main bubble
     d_in.rounded_rectangle((8, 0, w_b - 1, h_b - 1), radius=8, fill=(32, 44, 51, 255), outline=(42, 57, 66, 255), width=1)
     # Left tail
-    d_in.polygon([(0, 6), (8, 0), (8, 14)], fill=(32, 44, 51, 255))
-    d_in.line([(0, 6), (8, 0)], fill=(42, 57, 66, 255), width=1)
-    d_in.line([(0, 6), (8, 14)], fill=(42, 57, 66, 255), width=1)
+    d_in.polygon([(0, 8), (8, 0), (8, 16)], fill=(32, 44, 51, 255))
+    d_in.line([(0, 8), (8, 0)], fill=(42, 57, 66, 255), width=1)
+    d_in.line([(0, 8), (8, 16)], fill=(42, 57, 66, 255), width=1)
     b_in.save(f'{UI_DIR}/chat_bubble_in.png')
-    print(f'Generated: {UI_DIR}/chat_bubble_in.png')
+    print(f'Generated: {UI_DIR}/chat_bubble_in.png (340x68 RGBA)')
     
-    # Outgoing message bubble (Dark Emerald #005C4B)
+    # Outgoing message bubble (Dark Emerald #005C4B) - 340x68
     b_out = Image.new('RGBA', (w_b, h_b), (0, 0, 0, 0))
     d_out = ImageDraw.Draw(b_out)
     
     # Main bubble
     d_out.rounded_rectangle((0, 0, w_b - 9, h_b - 1), radius=8, fill=(0, 92, 75, 255), outline=(0, 122, 101, 255), width=1)
     # Right tail
-    d_out.polygon([(w_b - 1, 6), (w_b - 9, 0), (w_b - 9, 14)], fill=(0, 92, 75, 255))
-    d_out.line([(w_b - 1, 6), (w_b - 9, 0)], fill=(0, 122, 101, 255), width=1)
-    d_out.line([(w_b - 1, 6), (w_b - 9, 14)], fill=(0, 122, 101, 255), width=1)
+    d_out.polygon([(w_b - 1, 8), (w_b - 9, 0), (w_b - 9, 16)], fill=(0, 92, 75, 255))
+    d_out.line([(w_b - 1, 8), (w_b - 9, 0)], fill=(0, 122, 101, 255), width=1)
+    d_out.line([(w_b - 1, 8), (w_b - 9, 16)], fill=(0, 122, 101, 255), width=1)
     
     # Double checkmarks (Blue ticks #53BDEB) in bottom right
-    tick_x, tick_y = w_b - 28, h_b - 12
+    tick_x, tick_y = w_b - 24, h_b - 15
     # First tick
     d_out.line([(tick_x, tick_y + 3), (tick_x + 3, tick_y + 6)], fill=(83, 189, 235, 255), width=1)
     d_out.line([(tick_x + 3, tick_y + 6), (tick_x + 8, tick_y)], fill=(83, 189, 235, 255), width=1)
@@ -320,7 +316,7 @@ def generate_speech_bubbles():
     d_out.line([(tick_x + 7, tick_y + 6), (tick_x + 12, tick_y)], fill=(83, 189, 235, 255), width=1)
     
     b_out.save(f'{UI_DIR}/chat_bubble_out.png')
-    print(f'Generated: {UI_DIR}/chat_bubble_out.png')
+    print(f'Generated: {UI_DIR}/chat_bubble_out.png (340x68 RGBA)')
 
 def draw_pixel_badge_text(draw, x, y, text, color):
     GLYPHS = {

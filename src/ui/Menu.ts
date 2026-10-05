@@ -18,7 +18,7 @@ export class Menu {
   private texts: TextObj[] = [];
   private cursor: Phaser.GameObjects.Triangle;
   idx = 0;
-  rowH = 18;
+  rowH = 26;
 
   constructor(
     private scene: Phaser.Scene,
@@ -38,7 +38,7 @@ export class Menu {
   }
 
   get h(): number {
-    return this.items.length * this.rowH + 12;
+    return this.items.length * this.rowH + 16;
   }
 
   get selectedItem(): MenuItem | undefined {
@@ -51,7 +51,7 @@ export class Menu {
     this.g.clear();
     drawPanel(this.g, this.x, this.y, this.w, this.h);
     this.texts = items.map((it, i) => {
-      const t = txt(this.scene, this.x + 16, this.y + 6 + i * this.rowH, it.label, { color: it.disabled ? PAL.grey : PAL.white, big: true });
+      const t = txt(this.scene, this.x + 18, this.y + 8 + i * this.rowH, it.label, { color: it.disabled ? PAL.grey : PAL.white, big: true });
       this.root.add(t);
       return t;
     });
@@ -81,7 +81,7 @@ export class Menu {
     }
     const tap = input.tap();
     if (tap && tap.x >= this.x && tap.x <= this.x + this.w && tap.y >= this.y && tap.y <= this.y + this.h) {
-      const clickedIdx = Math.floor((tap.y - (this.y + 6)) / this.rowH);
+      const clickedIdx = Math.floor((tap.y - (this.y + 8)) / this.rowH);
       if (clickedIdx >= 0 && clickedIdx < this.items.length) {
         if (clickedIdx === this.idx) {
           if (this.items[this.idx].disabled) { Audio.sfx('miss'); return -1; }
@@ -98,7 +98,7 @@ export class Menu {
   }
 
   private place(): void {
-    this.cursor.setPosition(this.x + 6, this.y + 7 + this.idx * this.rowH);
+    this.cursor.setPosition(this.x + 6, this.y + 11 + this.idx * this.rowH);
     this.texts.forEach((t, i) => {
       const it = this.items[i];
       const c = it.disabled ? PAL.grey : i === this.idx ? PAL.yellow : PAL.white;

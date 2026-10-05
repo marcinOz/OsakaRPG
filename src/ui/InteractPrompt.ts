@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { PAL } from '@/config';
 import { txt } from './Text';
 import { drawPanel } from './Panel';
+import { isTouchDevice } from './VirtualPad';
 
 export class InteractPrompt {
   private container: Phaser.GameObjects.Container;
@@ -18,10 +19,25 @@ export class InteractPrompt {
     this.background = scene.add.graphics();
     this.container.add(this.background);
 
-    this.keycapText = txt(scene, 0, 0, '[Z]', { color: PAL.yellow, origin: [0, 0.5] });
+    const isTouch = isTouchDevice(scene);
+    this.keycapText = txt(scene, 0, 0, isTouch ? '[A]' : '[Z]', {
+      color: PAL.yellow,
+      fontSize: '14px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
+      origin: [0, 0.5],
+    });
     this.container.add(this.keycapText);
 
-    this.labelText = txt(scene, 0, 0, '', { color: PAL.cyanHi, origin: [0, 0.5] });
+    this.labelText = txt(scene, 0, 0, '', {
+      color: PAL.cyanHi,
+      fontSize: '14px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
+      origin: [0, 0.5],
+    });
     this.container.add(this.labelText);
 
     this.floatTween = scene.tweens.add({
@@ -43,17 +59,19 @@ export class InteractPrompt {
     this.isVisible = true;
 
     // Position container above target
-    this.container.setPosition(worldX, worldY - 28);
+    this.container.setPosition(worldX, worldY - 32);
 
     // Update text
+    const isTouch = isTouchDevice(this.scene);
+    (this.keycapText as any).setText(isTouch ? '[A]' : '[Z]');
     (this.labelText as any).setText(actionLabel);
 
     // Layout
     const padX = 8;
-    const keyW = 28;
-    const labelW = (this.labelText as any).width ?? (actionLabel.length * 8);
+    const keyW = (this.keycapText as any).width ?? (isTouch ? 28 : 30);
+    const labelW = (this.labelText as any).width ?? (actionLabel.length * 8.5);
     const totalW = padX * 3 + keyW + labelW;
-    const h = 22;
+    const h = 28;
 
     this.background.clear();
     drawPanel(this.background, -totalW / 2, -h / 2, totalW, h, {

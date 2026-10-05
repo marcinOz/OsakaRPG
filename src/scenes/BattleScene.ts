@@ -27,6 +27,7 @@ export class BattleScene extends Phaser.Scene {
 
   private heroSprites: Map<string, Phaser.GameObjects.Sprite> = new Map();
   private enemySprites: Map<string, Phaser.GameObjects.Sprite> = new Map();
+  private heroHpTexts: Map<string, Phaser.GameObjects.Text> = new Map();
 
   private uiContainer!: Phaser.GameObjects.Container;
   private logText!: Phaser.GameObjects.BitmapText | Phaser.GameObjects.Text;
@@ -60,6 +61,7 @@ export class BattleScene extends Phaser.Scene {
     this.subMenu = null;
     this.heroSprites.clear();
     this.enemySprites.clear();
+    this.heroHpTexts.clear();
 
     this.config = resolveBattleConfig(data);
     this.state = this.config.state;
@@ -75,6 +77,7 @@ export class BattleScene extends Phaser.Scene {
     this.subMenu = null;
     this.heroSprites.clear();
     this.enemySprites.clear();
+    this.heroHpTexts.clear();
 
     applyCrtToCamera(this);
     Audio.playSong(this.config.music as any, { fadeMs: 300 });
@@ -102,23 +105,39 @@ export class BattleScene extends Phaser.Scene {
 
     // Bottom Combat Log Panel (1024x576 wide)
     const lg = this.add.graphics();
-    drawPanel(lg, 12, GAME_H - 74, GAME_W - 24, 62, { fill: PAL.navy, border: PAL.steel, glow: true });
+    drawPanel(lg, 12, GAME_H - 80, GAME_W - 24, 68, { fill: PAL.navy, border: PAL.steel, glow: true });
     this.uiContainer.add(lg);
 
     // Status Header Badge
     const badgeBg = this.add.graphics();
     badgeBg.fillStyle(PAL.panel, 0.9);
-    badgeBg.fillRoundedRect(22, GAME_H - 68, 140, 18, 3);
+    badgeBg.fillRoundedRect(22, GAME_H - 74, 165, 20, 3);
     this.uiContainer.add(badgeBg);
-    this.uiContainer.add(txt(this, 28, GAME_H - 66, '★ RAPORT BOJOWY [v1.2]', { color: PAL.yellow }));
+    this.uiContainer.add(txt(this, 28, GAME_H - 72, '★ RAPORT BOJOWY', {
+      color: PAL.yellow,
+      fontSize: '13px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
+    }));
 
     // Combat status indicator on the right
-    this.statusText = txt(this, GAME_W - 190, GAME_H - 66, 'STATUS: ATB AKTYWNE', { color: PAL.green });
+    this.statusText = txt(this, GAME_W - 250, GAME_H - 72, 'STATUS: ATB AKTYWNE', {
+      color: PAL.green,
+      fontSize: '14px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
+    });
     this.uiContainer.add(this.statusText);
 
-    // Main Log Text with styled typography
-    this.logText = txt(this, 28, GAME_H - 42, 'WALKA ROZPOCZĘTA! Wybierz działanie, gdy wskaźnik ATB będzie pełny.', {
+    // Main Log Text with styled typography (15px bold for mobile readability)
+    this.logText = txt(this, 28, GAME_H - 46, 'WALKA ROZPOCZĘTA! Wybierz działanie, gdy wskaźnik ATB będzie pełny.', {
       color: PAL.cyanHi,
+      fontSize: '15px',
+      fontStyle: 'bold',
+      fontFamily: 'monospace, sans-serif',
+      resolution: 2,
     });
     this.uiContainer.add(this.logText);
 
@@ -208,6 +227,18 @@ export class BattleScene extends Phaser.Scene {
         repeat: -1,
         ease: 'Sine.easeInOut',
       });
+
+      // Hero HP number badge above gauges (11px bold, high contrast stroke)
+      const hpText = this.add.text(hx, hy - 60, `HP: ${h.hp}/${h.max.hp}`, {
+        fontFamily: 'monospace, sans-serif',
+        fontSize: '11px',
+        fontStyle: 'bold',
+        color: '#FFFFFF',
+        stroke: '#000000',
+        strokeThickness: 3,
+        resolution: 2,
+      }).setOrigin(0.5, 1).setDepth(210);
+      this.heroHpTexts.set(h.uid, hpText);
 
       this.heroSprites.set(h.uid, spr);
     });
@@ -316,41 +347,50 @@ export class BattleScene extends Phaser.Scene {
   private renderGauges(): void {
     this.gaugesGraphics.clear();
 
-    // Render Hero Gauges (HP, MP, ATB)
+    // Render Hero Gauges (HP, MP, ATB) - Enlarged to 84px width with HP numbers badge
     this.engine.heroes.forEach((h) => {
       const spr = this.heroSprites.get(h.uid);
       if (!spr) return;
-      const gx = spr.x - 38;
-      const gy = spr.y - 56;
+      const gx = spr.x - 42;
+      const gy = spr.y - 54;
 
       // Dark backing container
       this.gaugesGraphics.fillStyle(PAL.navy, 0.85);
-      this.gaugesGraphics.fillRoundedRect(gx - 2, gy - 2, 76, 21, 2);
+      this.gaugesGraphics.fillRoundedRect(gx - 2, gy - 2, 88, 25, 2);
 
-      // HP Bar (green)
-      gauge(this.gaugesGraphics, gx, gy, 72, 5, Math.max(0, h.hp / h.max.hp), PAL.green);
-      // MP Bar (cyan)
-      gauge(this.gaugesGraphics, gx, gy + 7, 72, 4, Math.max(0, h.mp / h.max.mp), PAL.cyan);
-      // ATB Bar (yellow/gold)
-      gauge(this.gaugesGraphics, gx, gy + 13, 72, 3, Math.min(1, h.atb / 100), PAL.yellow);
+      // HP Bar (green) - 84x7
+      gauge(this.gaugesGraphics, gx, gy, 84, 7, Math.max(0, h.hp / h.max.hp), PAL.green);
+      // MP Bar (cyan) - 84x5
+      gauge(this.gaugesGraphics, gx, gy + 9, 84, 5, Math.max(0, h.mp / h.max.mp), PAL.cyan);
+      // ATB Bar (yellow/gold) - 84x4
+      gauge(this.gaugesGraphics, gx, gy + 16, 84, 4, Math.min(1, h.atb / 100), PAL.yellow);
+
+      // Update HP numbers badge
+      const hpText = this.heroHpTexts.get(h.uid);
+      if (hpText) {
+        hpText.setPosition(spr.x, gy - 3);
+        hpText.setText(`HP: ${h.hp}/${h.max.hp}`);
+        hpText.setColor(h.hp <= h.max.hp * 0.25 ? '#FF5555' : '#FFFFFF');
+        hpText.setVisible(h.alive);
+      }
     });
 
-    // Render Enemy Gauges
+    // Render Enemy Gauges - Enlarged to 96x8
     this.engine.enemies.forEach((e) => {
       const spr = this.enemySprites.get(e.uid);
       if (!spr || !e.alive) return;
       const sz = this.getEnemySpriteSize(e);
-      const gx = spr.x - 45;
-      const gy = spr.y - sz / 2 - 16;
+      const gx = spr.x - 48;
+      const gy = spr.y - sz / 2 - 18;
 
       // Dark backing container
       this.gaugesGraphics.fillStyle(PAL.navy, 0.85);
-      this.gaugesGraphics.fillRoundedRect(gx - 2, gy - 2, 94, 14, 2);
+      this.gaugesGraphics.fillRoundedRect(gx - 2, gy - 2, 100, 18, 2);
 
-      // HP Bar (red)
-      gauge(this.gaugesGraphics, gx, gy, 90, 6, Math.max(0, e.hp / e.max.hp), PAL.red);
-      // ATB Bar (amber)
-      gauge(this.gaugesGraphics, gx, gy + 8, 90, 3, Math.min(1, e.atb / 100), PAL.fireHi);
+      // HP Bar (red) - 96x8
+      gauge(this.gaugesGraphics, gx, gy, 96, 8, Math.max(0, e.hp / e.max.hp), PAL.red);
+      // ATB Bar (amber) - 96x4
+      gauge(this.gaugesGraphics, gx, gy + 10, 96, 4, Math.min(1, e.atb / 100), PAL.fireHi);
     });
   }
 
@@ -575,7 +615,7 @@ export class BattleScene extends Phaser.Scene {
       items.push({ label: 'UCIECZKA', hint: 'Spróbuj uciec z pola walki.' });
     }
 
-    this.commandMenu = new Menu(this, 24, GAME_H - 220, 160, items, 950, (it) => {
+    this.commandMenu = new Menu(this, 24, GAME_H - 238, 160, items, 950, (it) => {
       if (it.hint) (this.logText as any).setText(it.hint);
     });
   }
@@ -608,7 +648,7 @@ export class BattleScene extends Phaser.Scene {
           disabled: !canAfford,
         };
       });
-      this.subMenu = new Menu(this, 195, GAME_H - 220, 260, skillItems, 960, (it) => {
+      this.subMenu = new Menu(this, 195, GAME_H - 238, 260, skillItems, 960, (it) => {
         if (it.hint) (this.logText as any).setText(it.hint);
       });
     } else if (pick === 2) {
@@ -628,7 +668,7 @@ export class BattleScene extends Phaser.Scene {
           hint: idef?.description,
         };
       });
-      this.subMenu = new Menu(this, 195, GAME_H - 220, 240, menuItems, 960, (it) => {
+      this.subMenu = new Menu(this, 195, GAME_H - 238, 240, menuItems, 960, (it) => {
         if (it.hint) (this.logText as any).setText(it.hint);
       });
     } else if (pick === 3) {

@@ -51,6 +51,19 @@ const HEX_WHITE = hex(PAL.white);
 const HEX_SLATE = hex(PAL.slate);
 
 /**
+ * Trigger subtle arcade haptic pulse on mobile devices.
+ */
+export function triggerHaptic(durationMs = 10): void {
+  try {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(durationMs);
+    }
+  } catch {
+    // Ignore restricted navigator
+  }
+}
+
+/**
  * Auto-detect touch capability on the device.
  */
 export function isTouchDevice(scene?: Phaser.Scene): boolean {
@@ -180,6 +193,8 @@ export class VirtualPad extends Phaser.GameObjects.Container {
 
   private pointerMoveHandler?: (p: Phaser.Input.Pointer) => void;
   private pointerUpHandler?: () => void;
+  private domCleanup?: () => void;
+  private domRoot?: HTMLElement;
 
   constructor(scene: Phaser.Scene, depth = 990) {
     super(scene, 0, 0);
@@ -200,6 +215,9 @@ export class VirtualPad extends Phaser.GameObjects.Container {
     // Auto-detect touch capability
     const touchAvailable = isTouchDevice(scene);
     this.setVisible(touchAvailable);
+
+    // Bind responsive DOM touch overlay if present
+    this.bindDomControls();
 
     // Global pointer listeners for smooth sliding and safety release
     if (scene.input?.on) {
@@ -484,6 +502,97 @@ export class VirtualPad extends Phaser.GameObjects.Container {
     this.releaseAll();
   }
 
+  private bindDomControls(): void {
+    if (typeof document === 'undefined') return;
+    const domRoot = document.getElementById('touch-controls');
+    if (!domRoot) return;
+
+    this.domRoot = domRoot;
+
+    // When DOM touch controls exist and pad is visible, activate body class
+    if (this.visible) {
+      document.body.classList.add('touch-active');
+    }
+
+    // Hide in-canvas graphics so we don't display duplicate controls over the game canvas
+    const hideCanvasGraphics = () => {
+      this.list?.forEach((c: any) => {
+        if (typeof c.setVisible === 'function' && !(c instanceof Phaser.GameObjects.Zone)) {
+          c.setVisible(false);
+        }
+      });
+    };
+    hideCanvasGraphics();
+
+    const activePointers = new Map<number, { btn: VirtualPadBtn; el: HTMLElement }>();
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = (e.target as HTMLElement)?.closest<HTMLElement>('[data-btn]');
+      if (!target) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const btnKey = target.getAttribute('data-btn') as VirtualPadBtn;
+      if (!btnKey) return;
+
+      activePointers.set(e.pointerId, { btn: btnKey, el: target });
+      target.classList.add('pressed');
+      this.handleButtonDown(btnKey);
+      triggerHaptic(10);
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      const tracked = activePointers.get(e.pointerId);
+      if (!tracked) return;
+
+      const currentElement = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-btn]');
+      if (currentElement && currentElement !== tracked.el) {
+        const newKey = currentElement.getAttribute('data-btn') as VirtualPadBtn;
+        if (
+          newKey &&
+          ['up', 'down', 'left', 'right'].includes(newKey) &&
+          ['up', 'down', 'left', 'right'].includes(tracked.btn)
+        ) {
+          tracked.el.classList.remove('pressed');
+          this.handleButtonUp(tracked.btn);
+
+          tracked.btn = newKey;
+          tracked.el = currentElement;
+          currentElement.classList.add('pressed');
+          this.handleButtonDown(newKey);
+          triggerHaptic(8);
+        }
+      }
+    };
+
+    const onPointerEnd = (e: PointerEvent) => {
+      const tracked = activePointers.get(e.pointerId);
+      if (!tracked) return;
+      tracked.el.classList.remove('pressed');
+      this.handleButtonUp(tracked.btn);
+      activePointers.delete(e.pointerId);
+    };
+
+    const onBlur = () => {
+      this.releaseAll();
+    };
+
+    domRoot.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerEnd);
+    window.addEventListener('pointercancel', onPointerEnd);
+    window.addEventListener('blur', onBlur);
+
+    this.domCleanup = () => {
+      domRoot.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerEnd);
+      window.removeEventListener('pointercancel', onPointerEnd);
+      window.removeEventListener('blur', onBlur);
+      domRoot.querySelectorAll<HTMLElement>('.pressed').forEach((el) => el.classList.remove('pressed'));
+    };
+  }
+
   /**
    * Release all buttons and reset edge-triggered states.
    */
@@ -500,6 +609,10 @@ export class VirtualPad extends Phaser.GameObjects.Container {
     this.justPressed.b = false;
     this.justPressed.m = false;
     this.isPointerInDPadState = false;
+
+    if (typeof document !== 'undefined' && this.domRoot) {
+      this.domRoot.querySelectorAll<HTMLElement>('.pressed').forEach((el) => el.classList.remove('pressed'));
+    }
   }
 
   /**
@@ -512,6 +625,9 @@ export class VirtualPad extends Phaser.GameObjects.Container {
 
   override setVisible(v: boolean): this {
     super.setVisible(v);
+    if (typeof document !== 'undefined') {
+      document.body.classList.toggle('touch-active', v);
+    }
     for (let i = 0; i < this.zones.length; i++) {
       const input = this.zones[i].input;
       if (input) {
@@ -616,6 +732,7 @@ export class VirtualPad extends Phaser.GameObjects.Container {
   }
 
   override destroy(fromScene?: boolean): void {
+    this.domCleanup?.();
     if (this.pointerMoveHandler && this.scene?.input) {
       this.scene.input.off('pointermove', this.pointerMoveHandler);
     }

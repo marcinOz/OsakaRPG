@@ -134,4 +134,8 @@ export class Input {
     const y = (this.held('down') ? 1 : 0) - (this.held('up') ? 1 : 0);
     return { x, y };
   }
+
+  isTouch(): boolean {
+    return this.virtualPad?.visible ?? false;
+  }
 }
