@@ -107,9 +107,8 @@ async function watchDeployment(owner, repo, targetSha) {
         const data = await response.json();
         const runs = data.workflow_runs || [];
 
-        // Match run either by target commit SHA or latest run on main
-        const matchingRun = runs.find((r) => r.head_sha === targetSha)
-          || runs.find((r) => r.head_branch === 'main' && (r.name.includes('Pages') || r.name.includes('Deploy')));
+        // Match run strictly by the target commit SHA
+        const matchingRun = runs.find((r) => r.head_sha === targetSha);
 
         if (matchingRun) {
           runId = matchingRun.id;
