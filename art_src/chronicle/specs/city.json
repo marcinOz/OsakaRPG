@@ -1,0 +1,189 @@
+{
+  "scene": "city",
+  "src": "public/assets/bg/battle_city.png",
+  "pixelScale": 2,
+  "mood": "pink-violet dawn bleeding into morning daylight, toxic Żabka neon and warm street lamp",
+  "camera": {
+    "from": { "x": 360, "y": 320, "zoom": 1.12 },
+    "to": { "x": 620, "y": 340, "zoom": 1.05 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "sky_clouds",
+      "kind": "far",
+      "mask": { "rect": [0, 0, 1024, 280] },
+      "parallax": 0.35,
+      "anim": { "type": "drift", "dx": 20, "dy": 0 }
+    },
+    {
+      "id": "background_blocks",
+      "kind": "far",
+      "mask": {
+        "polys": [
+          [[380, 40], [650, 40], [650, 420], [380, 420]],
+          [[710, 80], [930, 80], [930, 420], [710, 420]]
+        ]
+      },
+      "parallax": 0.65
+    },
+    {
+      "id": "midground_tenements",
+      "kind": "near",
+      "mask": { "poly": [[0, 160], [540, 160], [540, 480], [0, 480]] },
+      "parallax": 1.05,
+      "fill": "dup"
+    },
+    {
+      "id": "sidewalk_street_fg",
+      "kind": "near",
+      "mask": { "poly": [[0, 460], [1024, 460], [1024, 576], [0, 576]] },
+      "parallax": 1.15,
+      "fill": "dup"
+    },
+    {
+      "id": "lamp_bench_fg",
+      "kind": "near",
+      "mask": { "poly": [[630, 270], [820, 270], [820, 520], [630, 520]] },
+      "parallax": 1.18,
+      "fill": "dup",
+      "depth": 1
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "zabka_neon",
+        "mask": { "rect": [274, 370, 174, 52] },
+        "key": { "lumMin": 0.5 },
+        "style": "neonBuzz",
+        "intensity": [0.75, 1.0],
+        "glow": { "radius": 95, "color": "#28ff62", "alpha": 0.65 },
+        "at": [361, 395],
+        "seed": 15
+      },
+      {
+        "id": "zabka_window",
+        "mask": { "rect": [278, 420, 165, 60] },
+        "key": { "lumMin": 0.55 },
+        "style": "steady",
+        "intensity": [0.7, 0.95],
+        "glow": { "radius": 60, "color": "#42f87a", "alpha": 0.4 },
+        "at": [360, 448],
+        "seed": 6
+      },
+      {
+        "id": "street_lamp",
+        "mask": { "rect": [772, 272, 38, 48] },
+        "key": { "lumMin": 0.7 },
+        "style": "candle",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 120, "color": "#ffb242", "alpha": 0.6 },
+        "at": [791, 290],
+        "seed": 3
+      },
+      {
+        "id": "block_window_left",
+        "mask": { "rect": [470, 120, 20, 22] },
+        "key": { "lumMin": 0.6 },
+        "style": "steady",
+        "intensity": [0.0, 1.0],
+        "glow": { "radius": 35, "color": "#ffe082", "alpha": 0.4 },
+        "at": [480, 131],
+        "seed": 14
+      },
+      {
+        "id": "block_window_right",
+        "mask": { "rect": [830, 180, 20, 22] },
+        "key": { "lumMin": 0.6 },
+        "style": "steady",
+        "intensity": [0.0, 1.0],
+        "glow": { "radius": 35, "color": "#ffe082", "alpha": 0.4 },
+        "at": [840, 191],
+        "seed": 18
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "wet_road_reflection",
+      "mask": { "rect": [0, 485, 1024, 91] },
+      "shader": "water",
+      "params": { "amp": 1, "wavelength": 16, "speed": 0.3, "sparkle": 0.6, "sparkleColor": "#6aff88" }
+    },
+    {
+      "id": "zabka_sign_shimmer",
+      "mask": { "rect": [276, 372, 170, 48] },
+      "shader": "shimmer",
+      "params": { "speed": 0.8, "colors": ["#1fe852", "#48ff7e", "#0bc03d"] }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "neon_moths_flutter",
+      "at": [791, 280],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 8,
+      "loop": true,
+      "alpha": 0.85,
+      "blend": "normal",
+      "path": null,
+      "startMs": 0,
+      "endMs": 4200,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "steam",
+      "zone": { "rect": [510, 460, 80, 80] },
+      "density": 0.65,
+      "color": "#d0d8e8",
+      "depthLayer": "front",
+      "params": { "origin": [550, 490] }
+    },
+    {
+      "preset": "dust",
+      "zone": { "rect": [730, 300, 130, 170] },
+      "density": 0.75,
+      "color": "#ffe2a0",
+      "depthLayer": "front",
+      "params": {}
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#e2d4f0", "add": "#100618", "sat": 1.15 },
+    { "t": 0.45, "mul": "#f4e0dc", "add": "#08040a", "sat": 1.05 },
+    { "t": 0.80, "mul": "#fff0dc", "add": "#020104", "sat": 1.0 },
+    { "t": 1.0, "mul": "#ffffff", "add": "#000000", "sat": 1.0 }
+  ],
+  "cues": [
+    { "atMs": 1200, "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 2500, "do": "lightOff", "args": { "id": "block_window_left" } },
+    { "atMs": 3400, "do": "lightOff", "args": { "id": "block_window_right" } },
+    { "atMs": 4200, "do": "lightOff", "args": { "id": "street_lamp" } },
+    { "atMs": 4250, "do": "sfx", "args": { "id": "blip" } },
+    { "atMs": 4800, "do": "sfx", "args": { "id": "door" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 475,
+    "walk": { "from": [-40, 475], "to": [690, 475], "startMs": 600, "durationMs": 5600 }
+  },
+  "briefs": [
+    {
+      "id": "neon_moths_flutter",
+      "kind": "sprite",
+      "frames": 4,
+      "frameSize": [16, 16],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 4 frames side by side in one horizontal row, equal spacing, solid flat magenta #FF00FF background. Two tiny moths fluttering in erratic circular loops around an urban streetlight, warm amber pixel speckles with faint translucent wings, 2px retro pixel art style.",
+      "palette": "scene",
+      "priority": "nice"
+    }
+  ],
+  "notes": "Scene 3: Morning City. Transition from dawn to morning daylight as the city wakes up. Block windows and the sodium street lamp click off one by one, while the 24/7 toxic green Żabka neon stays buzzing. The team leader strides into the shot along the wet sidewalk to meet up with the crew."
+}

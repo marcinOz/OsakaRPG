@@ -1,0 +1,177 @@
+{
+  "scene": "apartment",
+  "src": "public/assets/bg/battle_apartment.png",
+  "pixelScale": 2,
+  "mood": "amber and honey morning sunlight vs cool cyber RGB glow",
+  "camera": {
+    "from": { "x": 280, "y": 280, "zoom": 1.14 },
+    "to": { "x": 480, "y": 300, "zoom": 1.06 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "skirmish_banner_patch",
+      "kind": "near",
+      "mask": { "rect": [0, 0, 404, 46] },
+      "parallax": 1.0,
+      "fill": "plate:apartment_clean_plate"
+    },
+    {
+      "id": "window_outside_sky",
+      "kind": "far",
+      "mask": { "rect": [36, 80, 460, 230] },
+      "parallax": 0.85
+    },
+    {
+      "id": "desk_monitors_fg",
+      "kind": "near",
+      "mask": { "poly": [[28, 160], [440, 160], [440, 370], [530, 370], [530, 576], [0, 576], [0, 360]] },
+      "parallax": 1.1,
+      "fill": "dup"
+    },
+    {
+      "id": "bed_blanket_fg",
+      "kind": "near",
+      "mask": { "poly": [[570, 380], [1024, 380], [1024, 576], [550, 576], [550, 440]] },
+      "parallax": 1.08,
+      "fill": "dup"
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "monitors_glow",
+        "mask": { "rect": [136, 170, 300, 175] },
+        "key": { "lumMin": 0.45 },
+        "style": "monitor",
+        "intensity": [0.75, 1.0],
+        "glow": { "radius": 75, "color": "#64c8ff", "alpha": 0.4 },
+        "at": [270, 250],
+        "seed": 4
+      },
+      {
+        "id": "pc_tower_rgb",
+        "mask": { "rect": [350, 350, 135, 135] },
+        "key": { "lumMin": 0.4 },
+        "style": "pulse",
+        "intensity": [0.6, 1.0],
+        "glow": { "radius": 60, "color": "#ff38aa", "alpha": 0.5 },
+        "at": [415, 420],
+        "seed": 8
+      },
+      {
+        "id": "window_sun_bloom",
+        "mask": { "rect": [40, 50, 460, 260] },
+        "key": { "lumMin": 0.72 },
+        "style": "sunBloom",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 140, "color": "#ffe296", "alpha": 0.55 },
+        "at": [300, 180],
+        "seed": 2
+      },
+      {
+        "id": "phone_screen",
+        "mask": { "rect": [225, 340, 25, 20] },
+        "key": { "lumMin": 0.6 },
+        "style": "lightning",
+        "intensity": [0.0, 1.0],
+        "glow": { "radius": 35, "color": "#80e0ff", "alpha": 0.6 },
+        "at": [237, 348],
+        "seed": 11
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "sunshaft_haze",
+      "mask": { "poly": [[470, 70], [530, 70], [920, 480], [720, 540], [540, 450]] },
+      "shader": "haze",
+      "params": { "amp": 2, "speed": 0.8 }
+    },
+    {
+      "id": "pc_reflection_shimmer",
+      "mask": { "rect": [340, 490, 160, 60] },
+      "shader": "shimmer",
+      "params": { "speed": 1.2, "colors": ["#ff2299", "#22eeff", "#aa44ff"] }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "phone_buzz_waves",
+      "at": [237, 348],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 10,
+      "loop": false,
+      "alpha": 0.9,
+      "blend": "add",
+      "path": null,
+      "startMs": 1800,
+      "endMs": 3200,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "dust",
+      "zone": { "rect": [420, 80, 460, 380] },
+      "density": 0.85,
+      "color": "#ffe6a0",
+      "depthLayer": "front",
+      "params": {}
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#fff6e8", "add": "#080400", "sat": 1.0 },
+    { "t": 0.5, "mul": "#fffaee", "add": "#050200", "sat": 1.05 },
+    { "t": 1.0, "mul": "#ffffff", "add": "#000000", "sat": 1.0 }
+  ],
+  "cues": [
+    { "atMs": 1400, "do": "sfx", "args": { "id": "notification" } },
+    { "atMs": 1500, "do": "shake", "args": { "px": 3, "ms": 250 } },
+    { "atMs": 1800, "do": "spriteStart", "args": { "asset": "phone_buzz_waves" } },
+    { "atMs": 2400, "do": "sfx", "args": { "id": "notification" } },
+    { "atMs": 2500, "do": "shake", "args": { "px": 4, "ms": 300 } },
+    { "atMs": 3800, "do": "enemyIn", "args": { "id": "bolKregoslupa" } },
+    { "atMs": 4000, "do": "sfx", "args": { "id": "debuff" } },
+    { "atMs": 5800, "do": "enemyOut", "args": { "id": "bolKregoslupa" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 490,
+    "enemies": [
+      {
+        "id": "bolKregoslupa",
+        "at": [760, 290],
+        "scale": 1,
+        "inMs": 3800,
+        "outMs": 5800,
+        "style": "ghostFlash"
+      }
+    ]
+  },
+  "briefs": [
+    {
+      "id": "apartment_clean_plate",
+      "kind": "plate",
+      "editOf": "public/assets/bg/battle_apartment.png",
+      "removeMask": { "rect": [0, 0, 404, 46] },
+      "prompt": "Clean background edit of public/assets/bg/battle_apartment.png. Remove the top-left UI battle banner containing '...RMISH' within the region [0, 0, 404, 46]. Inpaint the removed region seamlessly to match the surrounding wall plaster, ceiling molding line, and upper window blind frame. Preserve exact 1024x576 canvas, pixel art texture, palette, and lighting.",
+      "palette": "scene",
+      "priority": "must"
+    },
+    {
+      "id": "phone_buzz_waves",
+      "kind": "sprite",
+      "frames": 4,
+      "frameSize": [16, 16],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 4 frames side by side in one horizontal row, equal spacing, solid flat magenta #FF00FF background. Cyan and white vibration ripple arcs radiating outward from a vibrating smartphone screen, pixel art 2px aesthetic, snappy animation.",
+      "palette": "scene",
+      "priority": "nice"
+    }
+  ],
+  "notes": "Chapter 1 establishing shot. Morning hangover ('Kac Gigant'). The camera drifts from the high-tech gamer desk across golden diagonal sun shafts to the messy bed. Phone vibrates with group notifications, and the player is hit with the dreaded 36-year-old 'Ból Kręgosłupa' ghost debuff."
+}

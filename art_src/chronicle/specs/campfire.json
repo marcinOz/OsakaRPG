@@ -1,0 +1,251 @@
+{
+  "scene": "campfire",
+  "src": "public/assets/bg/campfire.png",
+  "pixelScale": 2,
+  "mood": "fire orange on deep green",
+
+  "camera": {
+    "from": { "x": 512, "y": 340, "zoom": 1.14 },
+    "to":   { "x": 512, "y": 320, "zoom": 1.06 },
+    "ease": "sineInOut"
+  },
+
+  "layers": [
+    {
+      "id": "sky_stars",
+      "kind": "far",
+      "mask": {
+        "poly": [
+          [430, 0],
+          [620, 0],
+          [620, 180],
+          [430, 180]
+        ],
+        "key": { "lumMin": 0.08 }
+      },
+      "parallax": 0.30,
+      "anim": null,
+      "depth": 1
+    },
+    {
+      "id": "hammock_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [315, 205],
+          [540, 220],
+          [530, 310],
+          [420, 360],
+          [320, 310]
+        ]
+      },
+      "parallax": 1.05,
+      "fill": "smear",
+      "anim": { "type": "swing", "pivot": [425, 205], "deg": 2.0, "periodMs": 3600, "phase": 0.0 },
+      "depth": 4
+    },
+    {
+      "id": "hammock_right",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [565, 220],
+          [745, 195],
+          [745, 300],
+          [650, 360],
+          [565, 300]
+        ]
+      },
+      "parallax": 1.05,
+      "fill": "smear",
+      "anim": { "type": "swing", "pivot": [655, 200], "deg": 2.0, "periodMs": 3400, "phase": 0.5 },
+      "depth": 4
+    },
+    {
+      "id": "fg_trunk_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [0, 0],
+          [190, 0],
+          [210, 380],
+          [240, 576],
+          [0, 576]
+        ]
+      },
+      "parallax": 1.25,
+      "fill": "dup",
+      "anim": null,
+      "depth": 10
+    },
+    {
+      "id": "fg_trunk_right",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [810, 0],
+          [1024, 0],
+          [1024, 576],
+          [780, 576],
+          [800, 380]
+        ]
+      },
+      "parallax": 1.25,
+      "fill": "dup",
+      "anim": null,
+      "depth": 10
+    }
+  ],
+
+  "lights": {
+    "named": [
+      {
+        "id": "fire_blaze",
+        "mask": { "rect": [415, 370, 185, 140] },
+        "key": { "lumMin": 0.55 },
+        "style": "candle",
+        "intensity": [0.65, 1.0],
+        "glow": { "radius": 180, "color": "#ff8820", "alpha": 0.45 },
+        "at": [512, 440],
+        "seed": 1
+      },
+      {
+        "id": "fire_ambient_clearing",
+        "mask": { "rect": [250, 280, 524, 250] },
+        "key": { "lumMin": 0.35 },
+        "style": "candle",
+        "intensity": [0.30, 0.70],
+        "glow": { "radius": 260, "color": "#ffaa40", "alpha": 0.25 },
+        "at": [512, 450],
+        "seed": 2
+      },
+      {
+        "id": "star_north",
+        "mask": { "rect": [520, 12, 22, 22] },
+        "key": { "lumMin": 0.80 },
+        "style": "pulse",
+        "intensity": [0.50, 1.0],
+        "glow": { "radius": 35, "color": "#c8eef4", "alpha": 0.50 },
+        "at": [530, 22],
+        "seed": 42
+      },
+      {
+        "id": "star_cluster",
+        "mask": { "rect": [470, 20, 140, 80] },
+        "key": { "lumMin": 0.70 },
+        "style": "pulse",
+        "intensity": [0.30, 0.85],
+        "glow": { "radius": 20, "color": "#e0f0ff", "alpha": 0.30 },
+        "at": [540, 60],
+        "seed": 18
+      }
+    ]
+  },
+
+  "regions": [
+    {
+      "id": "fire_heat_haze",
+      "mask": { "rect": [440, 280, 144, 130] },
+      "shader": "haze",
+      "params": {
+        "amp": 3,
+        "speed": 1.4
+      }
+    }
+  ],
+
+  "sprites": [
+    {
+      "asset": "campfire_flames",
+      "at": [510, 440],
+      "origin": [0.5, 0.85],
+      "scale": 2,
+      "fps": 8,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "add",
+      "path": null,
+      "startMs": 0,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+
+  "particles": [
+    {
+      "preset": "embers",
+      "zone": { "rect": [440, 120, 144, 340] },
+      "density": 1.2,
+      "color": "#ff9933",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "smoke",
+      "zone": { "rect": [450, 60, 124, 300] },
+      "density": 0.6,
+      "color": "#4a3c36",
+      "depthLayer": "behindNear",
+      "params": { "origin": [510, 400] }
+    },
+    {
+      "preset": "sparkles",
+      "zone": { "rect": [440, 0, 160, 140] },
+      "density": 0.5,
+      "color": "#c8eef4",
+      "depthLayer": "behindNear",
+      "params": {}
+    },
+    {
+      "preset": "fireflies",
+      "zone": { "rect": [120, 260, 784, 260] },
+      "density": 0.4,
+      "color": "#ffd060",
+      "depthLayer": "behindNear",
+      "params": {}
+    }
+  ],
+
+  "grade": [
+    { "t": 0.0, "mul": "#ffeedd", "add": "#0a0401", "sat": 1.10 },
+    { "t": 0.5, "mul": "#fff2e0", "add": "#0e0602", "sat": 1.15 },
+    { "t": 1.0, "mul": "#ffeed0", "add": "#0a0401", "sat": 1.10 }
+  ],
+
+  "cues": [
+    { "atMs": 0,    "do": "sfx", "args": { "id": "fireCrackle" } },
+    { "atMs": 2500, "do": "sfx", "args": { "id": "fireCrackle" } },
+    { "atMs": 5000, "do": "sfx", "args": { "id": "fireCrackle" } },
+    { "atMs": 7200, "do": "sfx", "args": { "id": "fireCrackle" } }
+  ],
+
+  "actors": {
+    "scale": 2,
+    "groundY": 460,
+    "sit": [
+      [345, 425],
+      [395, 455],
+      [445, 485],
+      [575, 485],
+      [625, 455],
+      [675, 425]
+    ]
+  },
+
+  "briefs": [
+    {
+      "id": "campfire_flames",
+      "kind": "sprite",
+      "frames": 6,
+      "frameSize": [40, 48],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 6 frames side by side in one horizontal row, equal spacing, roaring campfire flame with intense bright yellow-white core, energetic leaping orange tongue tips, gentle licking embers at the base, solid flat magenta #FF00FF background, side/isometric perspective matching campfire.png stone pit logs",
+      "palette": "scene",
+      "priority": "must"
+    }
+  ],
+
+  "notes": "Shot 9: Ognisko, Rap i Złote Czasy. Rozdział 7 · Ognisko, Rap i Złote Czasy · 'Sześciu. Znowu razem. Jak dwadzieścia lat temu.' The fellowship is fully reunited in the forest clearing. All six friends (Danny, Alior, Lisu, Barti, Oziem, Łuki) sit gathered in a half-circle around the blazing stone campfire. Roaring flames lick upwards into a heat-haze distortion shader, throwing warm flickering firelight across the camp clearing, hammocks, and gear, while sparks and embers rise into the starry night sky. The hammocks gently sway between the trees."
+}

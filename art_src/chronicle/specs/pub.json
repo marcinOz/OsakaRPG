@@ -1,0 +1,323 @@
+{
+  "scene": "pub",
+  "src": "public/assets/bg/battle_pub.png",
+  "pixelScale": 2,
+  "mood": "deep amber mahogany, warm swinging bulbs, violet Technics glow",
+  "camera": {
+    "from": { "x": 480, "y": 300, "zoom": 1.05 },
+    "to": { "x": 510, "y": 325, "zoom": 1.14 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "bulb_cord_1",
+      "kind": "near",
+      "mask": { "rect": [220, 0, 36, 150] },
+      "parallax": 1.1,
+      "fill": "dup",
+      "anim": {
+        "type": "swing",
+        "pivot": [236, 0],
+        "deg": 1.5,
+        "periodMs": 3600,
+        "phase": 0.0
+      },
+      "depth": 0
+    },
+    {
+      "id": "bulb_cord_2",
+      "kind": "near",
+      "mask": { "rect": [374, 0, 36, 180] },
+      "parallax": 1.08,
+      "fill": "dup",
+      "anim": {
+        "type": "swing",
+        "pivot": [391, 0],
+        "deg": 1.2,
+        "periodMs": 3300,
+        "phase": 0.25
+      },
+      "depth": 1
+    },
+    {
+      "id": "bulb_cord_3",
+      "kind": "near",
+      "mask": { "rect": [650, 0, 36, 180] },
+      "parallax": 1.08,
+      "fill": "dup",
+      "anim": {
+        "type": "swing",
+        "pivot": [667, 0],
+        "deg": 1.2,
+        "periodMs": 3500,
+        "phase": 0.5
+      },
+      "depth": 2
+    },
+    {
+      "id": "bulb_cord_4",
+      "kind": "near",
+      "mask": { "rect": [840, 0, 36, 180] },
+      "parallax": 1.1,
+      "fill": "dup",
+      "anim": {
+        "type": "swing",
+        "pivot": [857, 0],
+        "deg": 1.5,
+        "periodMs": 3900,
+        "phase": 0.75
+      },
+      "depth": 3
+    },
+    {
+      "id": "bar_stools_left",
+      "kind": "near",
+      "mask": { "rect": [108, 380, 82, 146] },
+      "parallax": 1.15,
+      "fill": "smear",
+      "anim": null,
+      "depth": 4
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "bulb_far_left",
+        "mask": { "rect": [222, 95, 30, 52] },
+        "key": { "lumMin": 0.75 },
+        "style": "candle",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 110, "color": "#ffa834", "alpha": 0.45 },
+        "at": [236, 122],
+        "followLayer": "bulb_cord_1",
+        "seed": 301
+      },
+      {
+        "id": "bulb_mid_left",
+        "mask": { "rect": [376, 125, 32, 54] },
+        "key": { "lumMin": 0.75 },
+        "style": "candle",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 125, "color": "#ffa834", "alpha": 0.5 },
+        "at": [391, 152],
+        "followLayer": "bulb_cord_2",
+        "seed": 302
+      },
+      {
+        "id": "bulb_mid_right",
+        "mask": { "rect": [652, 125, 32, 54] },
+        "key": { "lumMin": 0.75 },
+        "style": "candle",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 125, "color": "#ffa834", "alpha": 0.5 },
+        "at": [667, 152],
+        "followLayer": "bulb_cord_3",
+        "seed": 303
+      },
+      {
+        "id": "bulb_far_right",
+        "mask": { "rect": [842, 125, 32, 54] },
+        "key": { "lumMin": 0.75 },
+        "style": "candle",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 110, "color": "#ffa834", "alpha": 0.45 },
+        "at": [857, 152],
+        "followLayer": "bulb_cord_4",
+        "seed": 304
+      },
+      {
+        "id": "technics_logo_left",
+        "mask": { "rect": [395, 305, 50, 10] },
+        "key": { "lumMin": 0.45 },
+        "style": "steady",
+        "intensity": [0.85, 1.0],
+        "glow": { "radius": 24, "color": "#c840ff", "alpha": 0.4 },
+        "at": [420, 310],
+        "followLayer": null,
+        "seed": 305
+      },
+      {
+        "id": "technics_logo_right",
+        "mask": { "rect": [570, 305, 50, 10] },
+        "key": { "lumMin": 0.45 },
+        "style": "steady",
+        "intensity": [0.85, 1.0],
+        "glow": { "radius": 24, "color": "#c840ff", "alpha": 0.4 },
+        "at": [595, 310],
+        "followLayer": null,
+        "seed": 306
+      },
+      {
+        "id": "strobe_led_left",
+        "mask": { "rect": [434, 324, 12, 12] },
+        "key": { "lumMin": 0.6 },
+        "style": "pulse",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 16, "color": "#40a0ff", "alpha": 0.6 },
+        "at": [440, 330],
+        "followLayer": null,
+        "seed": 307
+      },
+      {
+        "id": "strobe_led_right",
+        "mask": { "rect": [616, 324, 12, 12] },
+        "key": { "lumMin": 0.6 },
+        "style": "pulse",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 16, "color": "#40a0ff", "alpha": 0.6 },
+        "at": [621, 330],
+        "followLayer": null,
+        "seed": 308
+      },
+      {
+        "id": "mixer_vu_meters",
+        "mask": { "rect": [472, 308, 68, 28] },
+        "key": { "lumMin": 0.5 },
+        "style": "monitor",
+        "intensity": [0.65, 1.0],
+        "glow": { "radius": 30, "color": "#50ff50", "alpha": 0.35 },
+        "at": [508, 322],
+        "followLayer": null,
+        "seed": 309
+      },
+      {
+        "id": "beer_tap_highlight",
+        "mask": { "rect": [220, 200, 35, 95] },
+        "key": { "lumMin": 0.65 },
+        "style": "candle",
+        "intensity": [0.75, 1.0],
+        "glow": { "radius": 35, "color": "#ffd060", "alpha": 0.25 },
+        "at": [236, 245],
+        "followLayer": null,
+        "seed": 310
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "brass_rail_shimmer",
+      "mask": { "rect": [189, 435, 735, 28] },
+      "shader": "shimmer",
+      "params": {
+        "speed": 0.5,
+        "colors": ["#d4af37", "#f5d77f", "#aa7c11", "#e0b84c"]
+      }
+    },
+    {
+      "id": "amp_heat_haze",
+      "mask": { "rect": [465, 282, 90, 24] },
+      "shader": "haze",
+      "params": {
+        "amp": 1,
+        "speed": 0.8
+      }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "spinning_vinyl_deck",
+      "at": [420, 327],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 12,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "normal",
+      "path": null,
+      "startMs": 0,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    },
+    {
+      "asset": "spinning_vinyl_deck",
+      "at": [595, 327],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 12,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "normal",
+      "path": null,
+      "startMs": 0,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "dust",
+      "zone": { "rect": [180, 100, 720, 280] },
+      "density": 0.65,
+      "color": "#ffd280",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "sparkles",
+      "zone": { "rect": [380, 285, 280, 85] },
+      "density": 0.5,
+      "color": "#ffe699",
+      "depthLayer": "front",
+      "params": {}
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#fcecd8", "add": "#120600", "sat": 1.05 },
+    { "t": 0.5, "mul": "#ffeedc", "add": "#180800", "sat": 1.1 },
+    { "t": 1.0, "mul": "#fae8d4", "add": "#140600", "sat": 1.05 }
+  ],
+  "cues": [
+    { "atMs": 800, "do": "beatZoom", "args": { "bpm": 92 } },
+    { "atMs": 1600, "do": "beatZoom", "args": { "bpm": 92 } },
+    { "atMs": 2400, "do": "sfx", "args": { "id": "encounter" } },
+    { "atMs": 2400, "do": "enemyIn", "args": { "id": "autotuneHipster" } },
+    { "atMs": 2400, "do": "beatZoom", "args": { "bpm": 92 } },
+    { "atMs": 3200, "do": "beatZoom", "args": { "bpm": 92 } },
+    { "atMs": 3600, "do": "sfx", "args": { "id": "bassBlast" } },
+    { "atMs": 3600, "do": "shake", "args": { "px": 4, "ms": 220 } },
+    { "atMs": 4000, "do": "beatZoom", "args": { "bpm": 92 } },
+    { "atMs": 4400, "do": "sfx", "args": { "id": "crit" } },
+    { "atMs": 4800, "do": "enemyOut", "args": { "id": "autotuneHipster" } },
+    { "atMs": 4800, "do": "beatZoom", "args": { "bpm": 92 } },
+    { "atMs": 5100, "do": "join", "args": {} },
+    { "atMs": 5100, "do": "sfx", "args": { "id": "notification" } },
+    { "atMs": 5600, "do": "beatZoom", "args": { "bpm": 92 } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 490,
+    "walk": {
+      "from": [-40, 490],
+      "to": [340, 490],
+      "startMs": 600,
+      "durationMs": 3800
+    },
+    "joinAt": [560, 490],
+    "enemies": [
+      {
+        "id": "autotuneHipster",
+        "at": [780, 430],
+        "scale": 1,
+        "inMs": 2400,
+        "outMs": 4800,
+        "style": "ghostFlash"
+      }
+    ]
+  },
+  "briefs": [
+    {
+      "id": "spinning_vinyl_deck",
+      "kind": "sprite",
+      "frames": 4,
+      "frameSize": [48, 26],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 4 frames in a single horizontal row, equal spacing, solid flat magenta #FF00FF background. Angled perspective of a spinning 12-inch black vinyl disc on a Technics turntable platter. Realistic micro-pixel groove light reflections rotating clockwise, spinning center circular record label with red and cream tones, stroboscopic rim dots. Palette matched to the warm amber, mahogany, and deep vinyl charcoal of battle_pub.png.",
+      "palette": "scene",
+      "priority": "must"
+    }
+  ],
+  "notes": "Deep amber pub atmosphere: warm hanging filament bulbs swaying on cords, rich mahogany shelves, glowing violet Technics logos and pulsing blue strobe LEDs. Both turntables spin with hand-crafted vinyl groove reflections while mixer VU LEDs pulse to a 92 BPM boom-bap rhythm. Bass drop shake and beat zooms emphasize old-school beats before Barti joins the crew."
+}

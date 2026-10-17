@@ -1,0 +1,249 @@
+{
+  "scene": "rift",
+  "src": "public/assets/bg/battle_rift.png",
+  "pixelScale": 2,
+  "mood": "violet / magenta / cyan cosmic, electric",
+  "camera": {
+    "from": { "x": 460, "y": 320, "zoom": 1.06 },
+    "to": { "x": 580, "y": 280, "zoom": 1.16 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "cosmic_nebula_far",
+      "kind": "far",
+      "mask": {
+        "poly": [
+          [0, 0],
+          [1024, 0],
+          [1024, 250],
+          [700, 200],
+          [400, 220],
+          [0, 180]
+        ]
+      },
+      "parallax": 0.4,
+      "fill": "dup",
+      "anim": {
+        "type": "drift",
+        "dx": 8,
+        "dy": -2
+      },
+      "depth": -1
+    },
+    {
+      "id": "floating_rock_center",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [440, 310],
+          [470, 274],
+          [550, 276],
+          [588, 316],
+          [560, 368],
+          [480, 364],
+          [444, 330]
+        ]
+      },
+      "parallax": 1.08,
+      "fill": "smear",
+      "anim": {
+        "type": "bob",
+        "px": 4,
+        "periodMs": 2800,
+        "phase": 0.0
+      },
+      "depth": 1
+    },
+    {
+      "id": "floating_rock_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [320, 345],
+          [360, 324],
+          [425, 330],
+          [438, 360],
+          [405, 388],
+          [335, 375]
+        ]
+      },
+      "parallax": 1.12,
+      "fill": "smear",
+      "anim": {
+        "type": "bob",
+        "px": 3,
+        "periodMs": 3400,
+        "phase": 0.4
+      },
+      "depth": 1
+    },
+    {
+      "id": "floating_rock_lower",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [414, 385],
+          [445, 360],
+          [488, 375],
+          [480, 418],
+          [430, 415]
+        ]
+      },
+      "parallax": 1.15,
+      "fill": "smear",
+      "anim": {
+        "type": "bob",
+        "px": 3,
+        "periodMs": 2400,
+        "phase": 0.7
+      },
+      "depth": 2
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "rift_core_pulse",
+        "mask": { "rect": [420, 140, 240, 160] },
+        "key": { "lumMin": 0.65 },
+        "style": "pulse",
+        "intensity": [0.6, 1.0],
+        "glow": { "radius": 130, "color": "#d946ef", "alpha": 0.5 },
+        "at": [540, 220],
+        "seed": 7
+      },
+      {
+        "id": "lightning_veins_cyan",
+        "mask": { "rect": [150, 340, 500, 200] },
+        "key": { "lumMin": 0.7 },
+        "style": "lightning",
+        "intensity": [0.2, 1.0],
+        "glow": { "radius": 90, "color": "#06b6d4", "alpha": 0.45 },
+        "at": [380, 440],
+        "seed": 12
+      },
+      {
+        "id": "lightning_spikes_right",
+        "mask": { "rect": [640, 180, 320, 260] },
+        "key": { "lumMin": 0.7 },
+        "style": "lightning",
+        "intensity": [0.1, 1.0],
+        "glow": { "radius": 100, "color": "#a855f7", "alpha": 0.4 },
+        "at": [780, 300],
+        "seed": 19
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "rift_vortex",
+      "mask": {
+        "poly": [
+          [300, 80],
+          [780, 80],
+          [820, 360],
+          [260, 360]
+        ]
+      },
+      "shader": "swirl",
+      "params": {
+        "center": [540, 220],
+        "radius": 220,
+        "speed": 0.25,
+        "falloff": 1.5
+      }
+    }
+  ],
+  "sprites": [],
+  "particles": [
+    {
+      "preset": "debrisSpiral",
+      "zone": { "rect": [200, 80, 680, 400] },
+      "density": 1.4,
+      "color": "#c084fc",
+      "depthLayer": "front",
+      "params": { "center": [540, 220] }
+    },
+    {
+      "preset": "dust",
+      "zone": { "rect": [100, 100, 824, 380] },
+      "density": 1.0,
+      "color": "#67e8f9",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "embers",
+      "zone": { "rect": [250, 300, 500, 220] },
+      "density": 1.2,
+      "color": "#f472b6",
+      "depthLayer": "front",
+      "params": { "origin": [540, 380] }
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#e0b0ff", "add": "#0a0520", "sat": 1.1 },
+    { "t": 0.5, "mul": "#d0c0ff", "add": "#100828", "sat": 1.25 },
+    { "t": 0.9, "mul": "#f0e8ff", "add": "#281840", "sat": 1.2 },
+    { "t": 1.0, "mul": "#ffffff", "add": "#ffffff", "sat": 0.0 }
+  ],
+  "cues": [
+    { "atMs": 500, "do": "sfx", "args": { "id": "encounter" } },
+    { "atMs": 1400, "do": "lightning", "args": { "x": 540, "intensity": 1.0 } },
+    { "atMs": 1400, "do": "shake", "args": { "px": 4, "ms": 250 } },
+    { "atMs": 1400, "do": "sfx", "args": { "id": "bassBlast" } },
+    { "atMs": 2800, "do": "lightning", "args": { "x": 720, "intensity": 1.0 } },
+    { "atMs": 2800, "do": "shake", "args": { "px": 6, "ms": 300 } },
+    { "atMs": 2800, "do": "sfx", "args": { "id": "hit" } },
+    { "atMs": 4500, "do": "lightning", "args": { "x": 620, "intensity": 1.2 } },
+    { "atMs": 4500, "do": "shake", "args": { "px": 8, "ms": 400 } },
+    { "atMs": 4500, "do": "sfx", "args": { "id": "crit" } },
+    { "atMs": 6200, "do": "sfx", "args": { "id": "ko" } },
+    { "atMs": 6200, "do": "shake", "args": { "px": 5, "ms": 350 } },
+    { "atMs": 7200, "do": "flash", "args": { "color": "#ffffff" } },
+    { "atMs": 7200, "do": "shake", "args": { "px": 10, "ms": 600 } },
+    { "atMs": 7200, "do": "sfx", "args": { "id": "buff" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 480,
+    "walk": { "from": [40, 480], "to": [260, 480], "startMs": 400, "durationMs": 2800 },
+    "enemies": [
+      {
+        "id": "panJanusz",
+        "at": [680, 340],
+        "scale": 2,
+        "inMs": 1200,
+        "outMs": 7200,
+        "style": "bossHover"
+      },
+      {
+        "id": "kredyt",
+        "at": [560, 410],
+        "scale": 1,
+        "inMs": 1500,
+        "outMs": 7000,
+        "style": "popHitFade"
+      },
+      {
+        "id": "audyt",
+        "at": [760, 420],
+        "scale": 1,
+        "inMs": 1800,
+        "outMs": 7100,
+        "style": "popHitFade"
+      },
+      {
+        "id": "rwaKulszowa",
+        "at": [860, 440],
+        "scale": 1,
+        "inMs": 2100,
+        "outMs": 7200,
+        "style": "popHitFade"
+      }
+    ]
+  },
+  "briefs": [],
+  "notes": "Epic climactic battle inside the cosmic reality rift. The center of reality swirls as floating islands bob at varied harmonic rhythms. Pulsing lightning veins crackle across jagged precipices. The crew marches in while Pan Janusz and his three corporate-age curses hover ahead. Strikes build with heavy shakes until a blinding white victory blast erupts at 7.2 s."
+}

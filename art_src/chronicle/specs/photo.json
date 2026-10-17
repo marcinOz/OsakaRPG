@@ -1,0 +1,131 @@
+{
+  "scene": "photo",
+  "src": "public/assets/bg/memorial_photo.png",
+  "pixelScale": 2,
+  "mood": "warm gold, nostalgic, timeless",
+  "camera": {
+    "from": { "x": 512, "y": 300, "zoom": 1.02 },
+    "to": { "x": 512, "y": 340, "zoom": 1.12 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "desk_surface",
+      "kind": "near",
+      "mask": { "rect": [0, 490, 1024, 86] },
+      "parallax": 1.12,
+      "fill": "dup",
+      "anim": null,
+      "depth": 1
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "golden_frame_glint",
+        "mask": { "rect": [490, 450, 60, 60] },
+        "key": { "lumMin": 0.7 },
+        "style": "pulse",
+        "intensity": [0.6, 1.0],
+        "glow": { "radius": 50, "color": "#ffd700", "alpha": 0.35 },
+        "at": [512, 480],
+        "seed": 4
+      },
+      {
+        "id": "photo_sun_glow",
+        "mask": { "rect": [470, 200, 110, 80] },
+        "key": { "lumMin": 0.75 },
+        "style": "sunBloom",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 120, "color": "#ffe8a0", "alpha": 0.4 },
+        "at": [520, 240],
+        "seed": 8
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "golden_trim_shimmer",
+      "mask": {
+        "poly": [
+          [240, 480],
+          [780, 480],
+          [780, 508],
+          [240, 508]
+        ]
+      },
+      "shader": "shimmer",
+      "params": {
+        "speed": 0.5,
+        "colors": ["#ffeaa7", "#d4af37", "#f39c12"]
+      }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "polaroid_2006",
+      "at": [-140, 360],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 1,
+      "loop": false,
+      "alpha": 1.0,
+      "blend": "normal",
+      "path": { "to": [110, 360], "durationMs": 1800, "ease": "quadOut" },
+      "startMs": 2200,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "dust",
+      "zone": { "rect": [100, 64, 824, 170] },
+      "density": 0.6,
+      "color": "#ffebb5",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "dust",
+      "zone": { "rect": [20, 360, 200, 150] },
+      "density": 0.5,
+      "color": "#ffe8b0",
+      "depthLayer": "front",
+      "params": {}
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#ffffff", "add": "#ffffff", "sat": 0.0 },
+    { "t": 0.08, "mul": "#d0caa0", "add": "#908860", "sat": 0.0 },
+    { "t": 0.25, "mul": "#c8a474", "add": "#3a2818", "sat": 0.25 },
+    { "t": 0.45, "mul": "#e6be8a", "add": "#181008", "sat": 0.55 },
+    { "t": 0.7, "mul": "#f8e0c8", "add": "#0a0604", "sat": 0.9 },
+    { "t": 1.0, "mul": "#fff2dd", "add": "#080402", "sat": 1.05 }
+  ],
+  "cues": [
+    { "atMs": 0, "do": "flash", "args": { "color": "#ffffff" } },
+    { "atMs": 0, "do": "sfx", "args": { "id": "confirm" } },
+    { "atMs": 2200, "do": "spriteStart", "args": { "asset": "polaroid_2006" } },
+    { "atMs": 2300, "do": "sfx", "args": { "id": "door" } },
+    { "atMs": 4500, "do": "sfx", "args": { "id": "buff" } },
+    { "atMs": 7500, "do": "sfx", "args": { "id": "confirm" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 500
+  },
+  "briefs": [
+    {
+      "id": "polaroid_2006",
+      "kind": "sprite",
+      "frames": 1,
+      "frameSize": [64, 76],
+      "palette": "scene",
+      "priority": "must",
+      "prompt": "Pixel art Polaroid instant photo, vintage 2006 summer snapshot of six teenage friends huddled smiling on a concrete park bench in front of a grey Polish block of flats (blokowisko) at dusky twilight, classic white rectangular polaroid border with wide bottom margin bearing handwritten blue ballpoint text '2006', nostalgic sepia-warm tones, solid flat magenta #FF00FF background, retro 16-bit RPG aesthetic."
+    }
+  ],
+  "notes": "The emotional finale of the chronicle. A sharp camera flash freezes the moment with an authentic shutter click. The photograph develops organically through chemical stages: blinding white exposure, subtle silver contours, rich sepia tones, and finally blooming into glorious warm nostalgic colour. At 2.2 s, the 2006 polaroid snapshot from the bench slides in onto the desk beside the golden framed picture. No FX obscure the friends' faces. The camera gently glides in as the legend becomes eternal."
+}

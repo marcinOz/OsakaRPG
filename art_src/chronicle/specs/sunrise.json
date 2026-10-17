@@ -1,0 +1,187 @@
+{
+  "scene": "sunrise",
+  "src": "public/assets/bg/sunrise.png",
+  "pixelScale": 2,
+  "mood": "pink-gold, warm dawn, release",
+  "camera": {
+    "from": { "x": 512, "y": 280, "zoom": 1.04 },
+    "to": { "x": 524, "y": 260, "zoom": 1.12 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "distant_mist_band",
+      "kind": "far",
+      "mask": { "rect": [0, 240, 1024, 60] },
+      "parallax": 0.5,
+      "fill": "dup",
+      "anim": {
+        "type": "drift",
+        "dx": -16,
+        "dy": 0
+      },
+      "depth": -1
+    },
+    {
+      "id": "reeds_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [0, 370],
+          [220, 380],
+          [260, 500],
+          [240, 576],
+          [0, 576]
+        ]
+      },
+      "parallax": 1.25,
+      "fill": "dup",
+      "anim": {
+        "type": "swing",
+        "pivot": [40, 576],
+        "deg": 2,
+        "periodMs": 3800,
+        "phase": 0.0
+      },
+      "depth": 1
+    },
+    {
+      "id": "reeds_right",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [760, 370],
+          [1024, 360],
+          [1024, 576],
+          [780, 576],
+          [750, 480]
+        ]
+      },
+      "parallax": 1.28,
+      "fill": "dup",
+      "anim": {
+        "type": "swing",
+        "pivot": [980, 576],
+        "deg": 2,
+        "periodMs": 4200,
+        "phase": 0.5
+      },
+      "depth": 1
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "sun_bloom",
+        "mask": { "rect": [460, 190, 130, 90] },
+        "key": { "lumMin": 0.8 },
+        "style": "sunBloom",
+        "intensity": [0.75, 1.0],
+        "glow": { "radius": 160, "color": "#ffe082", "alpha": 0.55 },
+        "at": [524, 236],
+        "seed": 5
+      },
+      {
+        "id": "lake_sparkle_core",
+        "mask": { "rect": [460, 280, 130, 200] },
+        "key": { "lumMin": 0.82 },
+        "style": "pulse",
+        "intensity": [0.6, 1.0],
+        "glow": { "radius": 70, "color": "#fff0b0", "alpha": 0.35 },
+        "at": [520, 360],
+        "seed": 11
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "lake_sparkle_water",
+      "mask": {
+        "poly": [
+          [120, 265],
+          [920, 265],
+          [980, 505],
+          [50, 505]
+        ]
+      },
+      "shader": "water",
+      "params": {
+        "amp": 2,
+        "wavelength": 20,
+        "speed": 0.4,
+        "sparkle": 0.85,
+        "sparkleColor": "#fff5d0"
+      }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "birds_v_formation",
+      "at": [880, 100],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 6,
+      "loop": true,
+      "alpha": 0.85,
+      "blend": "normal",
+      "path": { "to": [120, 75], "durationMs": 7600, "ease": "linear" },
+      "startMs": 400,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "dust",
+      "zone": { "rect": [300, 120, 440, 360] },
+      "density": 0.8,
+      "color": "#fff2a8",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "sparkles",
+      "zone": { "rect": [420, 270, 210, 230] },
+      "density": 1.2,
+      "color": "#ffffff",
+      "depthLayer": "front",
+      "params": {}
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#f0c0b8", "add": "#100608", "sat": 0.9 },
+    { "t": 0.5, "mul": "#ffd4a8", "add": "#120a06", "sat": 1.05 },
+    { "t": 1.0, "mul": "#ffe8b8", "add": "#140e06", "sat": 1.1 }
+  ],
+  "cues": [
+    { "atMs": 0, "do": "sfx", "args": { "id": "wildernessSurvival" } },
+    { "atMs": 400, "do": "spriteStart", "args": { "asset": "birds_v_formation" } },
+    { "atMs": 3000, "do": "sfx", "args": { "id": "buff" } },
+    { "atMs": 7200, "do": "sfx", "args": { "id": "confirm" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 500,
+    "sit": [
+      [340, 502],
+      [400, 498],
+      [460, 495],
+      [580, 495],
+      [640, 498],
+      [700, 502]
+    ]
+  },
+  "briefs": [
+    {
+      "id": "birds_v_formation",
+      "kind": "sprite",
+      "frames": 6,
+      "frameSize": [48, 24],
+      "palette": "scene",
+      "priority": "must",
+      "prompt": "Pixel art sprite sheet, 6 frames side by side in one horizontal row, equal spacing, migratory birds flying in classic V-formation, subtle gentle wing flap cycle, silhouette in soft dusky mauve #4a2838 against solid flat magenta #FF00FF background, side/three-quarter viewing angle matching retro 16-bit RPG cinematic sunrise sky."
+    }
+  ],
+  "notes": "The triumphant quiet after the storm. Dawn breaks over the still lake as the golden sun rises above the distant ridge. The water shimmers with a brilliant sparkle path, reeds sway in the morning breeze, and a flock of birds crosses the pink-gold sky. All six companions sit side by side on the shore, watching the dawn of a new day."
+}

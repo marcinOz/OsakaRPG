@@ -1,0 +1,268 @@
+{
+  "scene": "garage",
+  "src": "public/assets/bg/battle_garage.png",
+  "pixelScale": 2,
+  "mood": "teal concrete gloom, cold fluorescent stutter, cyan projector beam",
+  "camera": {
+    "from": { "x": 500, "y": 300, "zoom": 1.04 },
+    "to": { "x": 546, "y": 318, "zoom": 1.12 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "shelf_tires_left",
+      "kind": "near",
+      "mask": { "poly": [[0, 160], [188, 160], [188, 540], [0, 540]] },
+      "parallax": 1.15,
+      "fill": "smear",
+      "anim": null,
+      "depth": 0
+    },
+    {
+      "id": "canisters_right",
+      "kind": "near",
+      "mask": { "poly": [[890, 440], [1024, 440], [1024, 576], [890, 576]] },
+      "parallax": 1.18,
+      "fill": "smear",
+      "anim": null,
+      "depth": 1
+    },
+    {
+      "id": "projector_housing",
+      "kind": "near",
+      "mask": { "rect": [470, 112, 90, 72] },
+      "parallax": 1.05,
+      "fill": "dup",
+      "anim": { "type": "bob", "px": 2, "periodMs": 3800, "phase": 0.0 },
+      "depth": 2
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "fl_top_left",
+        "mask": { "rect": [95, 45, 205, 24] },
+        "key": { "lumMin": 0.75 },
+        "style": "fluorescentStutter",
+        "intensity": [0.65, 1.0],
+        "glow": { "radius": 95, "color": "#f0eed4", "alpha": 0.35 },
+        "at": [197, 56],
+        "followLayer": null,
+        "seed": 101
+      },
+      {
+        "id": "fl_top_center",
+        "mask": { "rect": [410, 45, 200, 24] },
+        "key": { "lumMin": 0.75 },
+        "style": "fluorescentStutter",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 110, "color": "#f1efd7", "alpha": 0.4 },
+        "at": [510, 56],
+        "followLayer": null,
+        "seed": 102
+      },
+      {
+        "id": "fl_top_right",
+        "mask": { "rect": [705, 45, 215, 25] },
+        "key": { "lumMin": 0.75 },
+        "style": "fluorescentStutter",
+        "intensity": [0.65, 1.0],
+        "glow": { "radius": 95, "color": "#f2f0d7", "alpha": 0.35 },
+        "at": [812, 57],
+        "followLayer": null,
+        "seed": 103
+      },
+      {
+        "id": "fl_mid_left",
+        "mask": { "rect": [200, 102, 160, 20] },
+        "key": { "lumMin": 0.75 },
+        "style": "fluorescentStutter",
+        "intensity": [0.6, 1.0],
+        "glow": { "radius": 80, "color": "#eae6ce", "alpha": 0.3 },
+        "at": [280, 112],
+        "followLayer": null,
+        "seed": 104
+      },
+      {
+        "id": "fl_mid_center",
+        "mask": { "rect": [435, 102, 160, 26] },
+        "key": { "lumMin": 0.75 },
+        "style": "fluorescentStutter",
+        "intensity": [0.6, 1.0],
+        "glow": { "radius": 80, "color": "#e3e7d6", "alpha": 0.3 },
+        "at": [515, 115],
+        "followLayer": null,
+        "seed": 105
+      },
+      {
+        "id": "fl_mid_right",
+        "mask": { "rect": [660, 102, 170, 22] },
+        "key": { "lumMin": 0.75 },
+        "style": "fluorescentStutter",
+        "intensity": [0.6, 1.0],
+        "glow": { "radius": 80, "color": "#e8e8d2", "alpha": 0.3 },
+        "at": [745, 113],
+        "followLayer": null,
+        "seed": 106
+      },
+      {
+        "id": "projector_lens",
+        "mask": { "rect": [508, 118, 36, 32] },
+        "key": { "lumMin": 0.65 },
+        "style": "monitor",
+        "intensity": [0.75, 1.0],
+        "glow": { "radius": 65, "color": "#8ceaff", "alpha": 0.5 },
+        "at": [525, 134],
+        "followLayer": "projector_housing",
+        "seed": 107
+      },
+      {
+        "id": "projector_screen_glow",
+        "mask": { "rect": [614, 168, 190, 140] },
+        "key": { "lumMin": 0.55 },
+        "style": "monitor",
+        "intensity": [0.8, 1.0],
+        "glow": { "radius": 130, "color": "#8ee6ff", "alpha": 0.35 },
+        "at": [709, 238],
+        "followLayer": null,
+        "seed": 108
+      },
+      {
+        "id": "floor_projection_reflection",
+        "mask": { "rect": [580, 390, 280, 60] },
+        "key": { "lumMin": 0.5 },
+        "style": "monitor",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 90, "color": "#78dfff", "alpha": 0.25 },
+        "at": [720, 420],
+        "followLayer": null,
+        "seed": 109
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "oil_slick_floor",
+      "mask": {
+        "poly": [
+          [40, 480],
+          [70, 455],
+          [130, 442],
+          [220, 436],
+          [290, 440],
+          [360, 445],
+          [440, 452],
+          [504, 460],
+          [470, 478],
+          [440, 492],
+          [380, 506],
+          [320, 514],
+          [250, 522],
+          [180, 524],
+          [110, 518],
+          [60, 502]
+        ]
+      },
+      "shader": "shimmer",
+      "params": {
+        "speed": 0.7,
+        "colors": ["#183a37", "#432850", "#2c4a6f", "#6b6228", "#1a524c"]
+      }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "ufc_screen_fight",
+      "at": [709, 238],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 8,
+      "loop": true,
+      "alpha": 0.95,
+      "blend": "normal",
+      "path": null,
+      "startMs": 0,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "dust",
+      "zone": {
+        "poly": [
+          [515, 132],
+          [614, 168],
+          [804, 168],
+          [804, 308],
+          [614, 308],
+          [515, 150]
+        ]
+      },
+      "density": 1.4,
+      "color": "#a0edff",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "dust",
+      "zone": { "rect": [80, 160, 860, 320] },
+      "density": 0.35,
+      "color": "#c6d8e8",
+      "depthLayer": "front",
+      "params": {}
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#d4eff6", "add": "#020812", "sat": 0.95 },
+    { "t": 0.6, "mul": "#e2f8fc", "add": "#02070e", "sat": 1.0 },
+    { "t": 1.0, "mul": "#d8f2f6", "add": "#020810", "sat": 0.95 }
+  ],
+  "cues": [
+    { "atMs": 1200, "do": "sfx", "args": { "id": "encounter" } },
+    { "atMs": 2400, "do": "enemyIn", "args": { "id": "sasiadSzkodnik" } },
+    { "atMs": 3300, "do": "sfx", "args": { "id": "hit" } },
+    { "atMs": 3350, "do": "shake", "args": { "px": 3, "ms": 200 } },
+    { "atMs": 4100, "do": "sfx", "args": { "id": "crit" } },
+    { "atMs": 4150, "do": "shake", "args": { "px": 4, "ms": 250 } },
+    { "atMs": 4800, "do": "enemyOut", "args": { "id": "sasiadSzkodnik" } },
+    { "atMs": 5100, "do": "join", "args": {} },
+    { "atMs": 5100, "do": "sfx", "args": { "id": "notification" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 470,
+    "walk": {
+      "from": [-40, 470],
+      "to": [340, 470],
+      "startMs": 600,
+      "durationMs": 3800
+    },
+    "joinAt": [560, 470],
+    "enemies": [
+      {
+        "id": "sasiadSzkodnik",
+        "at": [780, 440],
+        "scale": 1,
+        "inMs": 2400,
+        "outMs": 4800,
+        "style": "popHitFade"
+      }
+    ]
+  },
+  "briefs": [
+    {
+      "id": "ufc_screen_fight",
+      "kind": "sprite",
+      "frames": 6,
+      "frameSize": [96, 70],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 6 frames in a single horizontal row, equal spacing, solid flat magenta #FF00FF background. Retro low-res pixel broadcast of two MMA/UFC fighters grappling inside an octagonal cage, cyan/blue lit projector display, side-three-quarter camera angle, punches, clinch and high kick in fluid 8fps pixel animation, 16 colors matching the cyan and teal palette of battle_garage.png.",
+      "palette": "scene",
+      "priority": "must"
+    }
+  ],
+  "notes": "Fluorescent garage aesthetic: cold overhead fluorescents with subtle stutter, cyan projector beam slicing the concrete gloom with illuminated floating dust motes. Animated UFC cage fight plays seamlessly inside the projector screen canvas. Iridescent oil slick reflects subtle colors on the garage floor. Sąsiad Szkodnik pops in and gets defeated before Danny and Alior join the pack."
+}

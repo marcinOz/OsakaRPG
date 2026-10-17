@@ -1,0 +1,5119 @@
+{
+  "version": "1.0",
+  "resolution": {
+    "width": 1024,
+    "height": 576
+  },
+  "scenes": {
+    "alley": {
+      "scene": "alley",
+      "pixelScale": 2,
+      "mood": "wet blue-grey brick, single warm sodium street lamp, cold rainy fog",
+      "camera": {
+        "from": {
+          "x": 490,
+          "y": 300,
+          "zoom": 1.04
+        },
+        "to": {
+          "x": 520,
+          "y": 320,
+          "zoom": 1.12
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "distant_fog_alley",
+          "kind": "far",
+          "path": "assets/chronicle/alley/layer_distant_fog_alley.png",
+          "parallax": 0.65,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "dumpster_left",
+          "kind": "near",
+          "path": "assets/chronicle/alley/layer_dumpster_left.png",
+          "parallax": 1.08,
+          "anim": null,
+          "depth": 1
+        },
+        {
+          "id": "foreground_wall_left",
+          "kind": "near",
+          "path": "assets/chronicle/alley/layer_foreground_wall_left.png",
+          "parallax": 1.22,
+          "anim": null,
+          "depth": 2
+        },
+        {
+          "id": "foreground_wall_right",
+          "kind": "near",
+          "path": "assets/chronicle/alley/layer_foreground_wall_right.png",
+          "parallax": 1.25,
+          "anim": null,
+          "depth": 3
+        }
+      ],
+      "regions": [
+        {
+          "id": "puddle_water_ripples",
+          "path": "assets/chronicle/alley/region_puddle_water_ripples.png",
+          "shader": "water",
+          "params": {
+            "amp": 1,
+            "wavelength": 16,
+            "speed": 0.6,
+            "sparkle": 0.35,
+            "sparkleColor": "#dceeff"
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "street_lamp_sodium",
+          "style": "neonBuzz",
+          "intensity": [
+            0.75,
+            1.0
+          ],
+          "glow": {
+            "radius": 160,
+            "color": "#ffb03a",
+            "alpha": 0.5
+          },
+          "at": [
+            359,
+            111
+          ],
+          "seed": 201,
+          "followLayer": null,
+          "pixelCount": 695
+        },
+        {
+          "id": "lamp_wall_cone",
+          "style": "neonBuzz",
+          "intensity": [
+            0.8,
+            1.0
+          ],
+          "glow": {
+            "radius": 140,
+            "color": "#e8942a",
+            "alpha": 0.3
+          },
+          "at": [
+            280,
+            240
+          ],
+          "seed": 201,
+          "followLayer": null,
+          "pixelCount": 8182
+        },
+        {
+          "id": "distant_lamp",
+          "style": "steady",
+          "intensity": [
+            0.8,
+            1.0
+          ],
+          "glow": {
+            "radius": 45,
+            "color": "#f0c060",
+            "alpha": 0.35
+          },
+          "at": [
+            494,
+            255
+          ],
+          "seed": 202,
+          "followLayer": null,
+          "pixelCount": 168
+        },
+        {
+          "id": "puddle_lamp_reflection",
+          "style": "neonBuzz",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 40,
+            "color": "#ffb840",
+            "alpha": 0.35
+          },
+          "at": [
+            494,
+            475
+          ],
+          "seed": 201,
+          "followLayer": null,
+          "pixelCount": 131
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "alley_cat",
+          "at": [
+            820,
+            445
+          ],
+          "origin": [
+            0.5,
+            1.0
+          ],
+          "scale": 2,
+          "fps": 8,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "normal",
+          "path": {
+            "to": [
+              250,
+              445
+            ],
+            "durationMs": 6500,
+            "ease": "linear"
+          },
+          "startMs": 400,
+          "endMs": 7000,
+          "followLayer": null,
+          "depth": "behindNear"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "rain",
+          "zone": {
+            "rect": [
+              420,
+              80,
+              240,
+              340
+            ]
+          },
+          "density": 0.7,
+          "color": "#54687a",
+          "depthLayer": "behindNear",
+          "params": {
+            "speed": 18,
+            "angle": 78,
+            "length": 8
+          }
+        },
+        {
+          "preset": "rain",
+          "zone": {
+            "rect": [
+              160,
+              56,
+              720,
+              460
+            ]
+          },
+          "density": 1.0,
+          "color": "#7894aa",
+          "depthLayer": "front",
+          "params": {
+            "speed": 26,
+            "angle": 78,
+            "length": 14
+          }
+        },
+        {
+          "preset": "rain",
+          "zone": {
+            "rect": [
+              0,
+              56,
+              1024,
+              464
+            ]
+          },
+          "density": 1.4,
+          "color": "#a8c8e0",
+          "depthLayer": "front",
+          "params": {
+            "speed": 36,
+            "angle": 78,
+            "length": 22
+          }
+        },
+        {
+          "preset": "rainSplash",
+          "zone": {
+            "rect": [
+              180,
+              430,
+              700,
+              120
+            ]
+          },
+          "density": 1.2,
+          "color": "#b0d0e8",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "steam",
+          "zone": {
+            "rect": [
+              380,
+              390,
+              120,
+              90
+            ]
+          },
+          "density": 0.8,
+          "color": "#8ea4b8",
+          "depthLayer": "behindNear",
+          "params": {
+            "origin": [
+              430,
+              460
+            ]
+          }
+        },
+        {
+          "preset": "smoke",
+          "zone": {
+            "rect": [
+              500,
+              370,
+              140,
+              110
+            ]
+          },
+          "density": 1.6,
+          "color": "#8ea4b8",
+          "depthLayer": "front",
+          "params": {
+            "origin": [
+              560,
+              450
+            ]
+          }
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#c8d8e8",
+          "add": "#040810",
+          "sat": 0.9
+        },
+        {
+          "t": 0.6,
+          "mul": "#d4e4f0",
+          "add": "#03060c",
+          "sat": 0.95
+        },
+        {
+          "t": 1.0,
+          "mul": "#c8d8e8",
+          "add": "#040810",
+          "sat": 0.9
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 1400,
+          "do": "sfx",
+          "args": {
+            "id": "encounter"
+          }
+        },
+        {
+          "atMs": 1600,
+          "do": "enemyIn",
+          "args": {
+            "id": "kark"
+          }
+        },
+        {
+          "atMs": 1800,
+          "do": "enemyIn",
+          "args": {
+            "id": "straznik"
+          }
+        },
+        {
+          "atMs": 3400,
+          "do": "sfx",
+          "args": {
+            "id": "smokeScreen"
+          }
+        },
+        {
+          "atMs": 3400,
+          "do": "shake",
+          "args": {
+            "px": 2,
+            "ms": 160
+          }
+        },
+        {
+          "atMs": 3800,
+          "do": "sfx",
+          "args": {
+            "id": "crit"
+          }
+        },
+        {
+          "atMs": 4200,
+          "do": "enemyOut",
+          "args": {
+            "id": "kark"
+          }
+        },
+        {
+          "atMs": 4500,
+          "do": "enemyOut",
+          "args": {
+            "id": "straznik"
+          }
+        },
+        {
+          "atMs": 4900,
+          "do": "join",
+          "args": {}
+        },
+        {
+          "atMs": 4900,
+          "do": "sfx",
+          "args": {
+            "id": "notification"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 470,
+        "walk": {
+          "from": [
+            -40,
+            470
+          ],
+          "to": [
+            340,
+            470
+          ],
+          "startMs": 600,
+          "durationMs": 3800
+        },
+        "joinAt": [
+          560,
+          470
+        ],
+        "enemies": [
+          {
+            "id": "kark",
+            "at": [
+              460,
+              370
+            ],
+            "scale": 1,
+            "inMs": 1600,
+            "outMs": 5200,
+            "style": "silhouette"
+          },
+          {
+            "id": "straznik",
+            "at": [
+              530,
+              370
+            ],
+            "scale": 1,
+            "inMs": 1800,
+            "outMs": 5400,
+            "style": "silhouette"
+          }
+        ]
+      },
+      "base": "assets/chronicle/alley/base.png",
+      "lightsAsset": "assets/chronicle/alley/lights.png"
+    },
+    "apartment": {
+      "scene": "apartment",
+      "pixelScale": 2,
+      "mood": "amber and honey morning sunlight vs cool cyber RGB glow",
+      "camera": {
+        "from": {
+          "x": 280,
+          "y": 280,
+          "zoom": 1.14
+        },
+        "to": {
+          "x": 480,
+          "y": 300,
+          "zoom": 1.06
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "skirmish_banner_patch",
+          "kind": "near",
+          "path": "assets/chronicle/apartment/layer_skirmish_banner_patch.png",
+          "parallax": 1.0,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "window_outside_sky",
+          "kind": "far",
+          "path": "assets/chronicle/apartment/layer_window_outside_sky.png",
+          "parallax": 0.85,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "desk_monitors_fg",
+          "kind": "near",
+          "path": "assets/chronicle/apartment/layer_desk_monitors_fg.png",
+          "parallax": 1.1,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "bed_blanket_fg",
+          "kind": "near",
+          "path": "assets/chronicle/apartment/layer_bed_blanket_fg.png",
+          "parallax": 1.08,
+          "anim": null,
+          "depth": 0
+        }
+      ],
+      "regions": [
+        {
+          "id": "sunshaft_haze",
+          "path": "assets/chronicle/apartment/region_sunshaft_haze.png",
+          "shader": "haze",
+          "params": {
+            "amp": 2,
+            "speed": 0.8
+          }
+        },
+        {
+          "id": "pc_reflection_shimmer",
+          "path": "assets/chronicle/apartment/region_pc_reflection_shimmer.png",
+          "shader": "shimmer",
+          "params": {
+            "speed": 1.2,
+            "colors": [
+              "#ff2299",
+              "#22eeff",
+              "#aa44ff"
+            ]
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "monitors_glow",
+          "style": "monitor",
+          "intensity": [
+            0.75,
+            1.0
+          ],
+          "glow": {
+            "radius": 75,
+            "color": "#64c8ff",
+            "alpha": 0.4
+          },
+          "at": [
+            270,
+            250
+          ],
+          "seed": 4,
+          "followLayer": null,
+          "pixelCount": 19265
+        },
+        {
+          "id": "pc_tower_rgb",
+          "style": "pulse",
+          "intensity": [
+            0.6,
+            1.0
+          ],
+          "glow": {
+            "radius": 60,
+            "color": "#ff38aa",
+            "alpha": 0.5
+          },
+          "at": [
+            415,
+            420
+          ],
+          "seed": 8,
+          "followLayer": null,
+          "pixelCount": 698
+        },
+        {
+          "id": "window_sun_bloom",
+          "style": "sunBloom",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 140,
+            "color": "#ffe296",
+            "alpha": 0.55
+          },
+          "at": [
+            300,
+            180
+          ],
+          "seed": 2,
+          "followLayer": null,
+          "pixelCount": 47563
+        },
+        {
+          "id": "phone_screen",
+          "style": "lightning",
+          "intensity": [
+            0.0,
+            1.0
+          ],
+          "glow": {
+            "radius": 35,
+            "color": "#80e0ff",
+            "alpha": 0.6
+          },
+          "at": [
+            237,
+            348
+          ],
+          "seed": 11,
+          "followLayer": null,
+          "pixelCount": 19
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "phone_buzz_waves",
+          "at": [
+            237,
+            348
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 10,
+          "loop": false,
+          "alpha": 0.9,
+          "blend": "add",
+          "path": null,
+          "startMs": 1800,
+          "endMs": 3200,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "dust",
+          "zone": {
+            "rect": [
+              420,
+              80,
+              460,
+              380
+            ]
+          },
+          "density": 0.85,
+          "color": "#ffe6a0",
+          "depthLayer": "front",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#fff6e8",
+          "add": "#080400",
+          "sat": 1.0
+        },
+        {
+          "t": 0.5,
+          "mul": "#fffaee",
+          "add": "#050200",
+          "sat": 1.05
+        },
+        {
+          "t": 1.0,
+          "mul": "#ffffff",
+          "add": "#000000",
+          "sat": 1.0
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 1400,
+          "do": "sfx",
+          "args": {
+            "id": "notification"
+          }
+        },
+        {
+          "atMs": 1500,
+          "do": "shake",
+          "args": {
+            "px": 3,
+            "ms": 250
+          }
+        },
+        {
+          "atMs": 1800,
+          "do": "spriteStart",
+          "args": {
+            "asset": "phone_buzz_waves"
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "sfx",
+          "args": {
+            "id": "notification"
+          }
+        },
+        {
+          "atMs": 2500,
+          "do": "shake",
+          "args": {
+            "px": 4,
+            "ms": 300
+          }
+        },
+        {
+          "atMs": 3800,
+          "do": "enemyIn",
+          "args": {
+            "id": "bolKregoslupa"
+          }
+        },
+        {
+          "atMs": 4000,
+          "do": "sfx",
+          "args": {
+            "id": "debuff"
+          }
+        },
+        {
+          "atMs": 5800,
+          "do": "enemyOut",
+          "args": {
+            "id": "bolKregoslupa"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 490,
+        "enemies": [
+          {
+            "id": "bolKregoslupa",
+            "at": [
+              760,
+              290
+            ],
+            "scale": 1,
+            "inMs": 3800,
+            "outMs": 5800,
+            "style": "ghostFlash"
+          }
+        ]
+      },
+      "base": "assets/chronicle/apartment/base.png",
+      "lightsAsset": "assets/chronicle/apartment/lights.png"
+    },
+    "campfire": {
+      "scene": "campfire",
+      "pixelScale": 2,
+      "mood": "fire orange on deep green",
+      "camera": {
+        "from": {
+          "x": 512,
+          "y": 340,
+          "zoom": 1.14
+        },
+        "to": {
+          "x": 512,
+          "y": 320,
+          "zoom": 1.06
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "sky_stars",
+          "kind": "far",
+          "path": "assets/chronicle/campfire/layer_sky_stars.png",
+          "parallax": 0.3,
+          "anim": null,
+          "depth": 1
+        },
+        {
+          "id": "hammock_left",
+          "kind": "near",
+          "path": "assets/chronicle/campfire/layer_hammock_left.png",
+          "parallax": 1.05,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              425,
+              205
+            ],
+            "deg": 2.0,
+            "periodMs": 3600,
+            "phase": 0.0
+          },
+          "depth": 4
+        },
+        {
+          "id": "hammock_right",
+          "kind": "near",
+          "path": "assets/chronicle/campfire/layer_hammock_right.png",
+          "parallax": 1.05,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              655,
+              200
+            ],
+            "deg": 2.0,
+            "periodMs": 3400,
+            "phase": 0.5
+          },
+          "depth": 4
+        },
+        {
+          "id": "fg_trunk_left",
+          "kind": "near",
+          "path": "assets/chronicle/campfire/layer_fg_trunk_left.png",
+          "parallax": 1.25,
+          "anim": null,
+          "depth": 10
+        },
+        {
+          "id": "fg_trunk_right",
+          "kind": "near",
+          "path": "assets/chronicle/campfire/layer_fg_trunk_right.png",
+          "parallax": 1.25,
+          "anim": null,
+          "depth": 10
+        }
+      ],
+      "regions": [
+        {
+          "id": "fire_heat_haze",
+          "path": "assets/chronicle/campfire/region_fire_heat_haze.png",
+          "shader": "haze",
+          "params": {
+            "amp": 3,
+            "speed": 1.4
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "fire_blaze",
+          "style": "candle",
+          "intensity": [
+            0.65,
+            1.0
+          ],
+          "glow": {
+            "radius": 180,
+            "color": "#ff8820",
+            "alpha": 0.45
+          },
+          "at": [
+            512,
+            440
+          ],
+          "seed": 1,
+          "followLayer": null,
+          "pixelCount": 1051
+        },
+        {
+          "id": "fire_ambient_clearing",
+          "style": "candle",
+          "intensity": [
+            0.3,
+            0.7
+          ],
+          "glow": {
+            "radius": 260,
+            "color": "#ffaa40",
+            "alpha": 0.25
+          },
+          "at": [
+            512,
+            450
+          ],
+          "seed": 2,
+          "followLayer": null,
+          "pixelCount": 11652
+        },
+        {
+          "id": "star_north",
+          "style": "pulse",
+          "intensity": [
+            0.5,
+            1.0
+          ],
+          "glow": {
+            "radius": 35,
+            "color": "#c8eef4",
+            "alpha": 0.5
+          },
+          "at": [
+            530,
+            22
+          ],
+          "seed": 42,
+          "followLayer": null,
+          "pixelCount": 3
+        },
+        {
+          "id": "star_cluster",
+          "style": "pulse",
+          "intensity": [
+            0.3,
+            0.85
+          ],
+          "glow": {
+            "radius": 20,
+            "color": "#e0f0ff",
+            "alpha": 0.3
+          },
+          "at": [
+            540,
+            60
+          ],
+          "seed": 18,
+          "followLayer": null,
+          "pixelCount": 137
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "campfire_flames",
+          "at": [
+            510,
+            440
+          ],
+          "origin": [
+            0.5,
+            0.85
+          ],
+          "scale": 2,
+          "fps": 8,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "add",
+          "path": null,
+          "startMs": 0,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "embers",
+          "zone": {
+            "rect": [
+              440,
+              120,
+              144,
+              340
+            ]
+          },
+          "density": 1.2,
+          "color": "#ff9933",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "smoke",
+          "zone": {
+            "rect": [
+              450,
+              60,
+              124,
+              300
+            ]
+          },
+          "density": 0.6,
+          "color": "#4a3c36",
+          "depthLayer": "behindNear",
+          "params": {
+            "origin": [
+              510,
+              400
+            ]
+          }
+        },
+        {
+          "preset": "sparkles",
+          "zone": {
+            "rect": [
+              440,
+              0,
+              160,
+              140
+            ]
+          },
+          "density": 0.5,
+          "color": "#c8eef4",
+          "depthLayer": "behindNear",
+          "params": {}
+        },
+        {
+          "preset": "fireflies",
+          "zone": {
+            "rect": [
+              120,
+              260,
+              784,
+              260
+            ]
+          },
+          "density": 0.4,
+          "color": "#ffd060",
+          "depthLayer": "behindNear",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#ffeedd",
+          "add": "#0a0401",
+          "sat": 1.1
+        },
+        {
+          "t": 0.5,
+          "mul": "#fff2e0",
+          "add": "#0e0602",
+          "sat": 1.15
+        },
+        {
+          "t": 1.0,
+          "mul": "#ffeed0",
+          "add": "#0a0401",
+          "sat": 1.1
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 0,
+          "do": "sfx",
+          "args": {
+            "id": "fireCrackle"
+          }
+        },
+        {
+          "atMs": 2500,
+          "do": "sfx",
+          "args": {
+            "id": "fireCrackle"
+          }
+        },
+        {
+          "atMs": 5000,
+          "do": "sfx",
+          "args": {
+            "id": "fireCrackle"
+          }
+        },
+        {
+          "atMs": 7200,
+          "do": "sfx",
+          "args": {
+            "id": "fireCrackle"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 460,
+        "sit": [
+          [
+            345,
+            425
+          ],
+          [
+            395,
+            455
+          ],
+          [
+            445,
+            485
+          ],
+          [
+            575,
+            485
+          ],
+          [
+            625,
+            455
+          ],
+          [
+            675,
+            425
+          ]
+        ]
+      },
+      "base": "assets/chronicle/campfire/base.png",
+      "lightsAsset": "assets/chronicle/campfire/lights.png"
+    },
+    "city": {
+      "scene": "city",
+      "pixelScale": 2,
+      "mood": "pink-violet dawn bleeding into morning daylight, toxic \u017babka neon and warm street lamp",
+      "camera": {
+        "from": {
+          "x": 360,
+          "y": 320,
+          "zoom": 1.12
+        },
+        "to": {
+          "x": 620,
+          "y": 340,
+          "zoom": 1.05
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "sky_clouds",
+          "kind": "far",
+          "path": "assets/chronicle/city/layer_sky_clouds.png",
+          "parallax": 0.35,
+          "anim": {
+            "type": "drift",
+            "dx": 20,
+            "dy": 0
+          },
+          "depth": 0
+        },
+        {
+          "id": "background_blocks",
+          "kind": "far",
+          "path": "assets/chronicle/city/layer_background_blocks.png",
+          "parallax": 0.65,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "midground_tenements",
+          "kind": "near",
+          "path": "assets/chronicle/city/layer_midground_tenements.png",
+          "parallax": 1.05,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "sidewalk_street_fg",
+          "kind": "near",
+          "path": "assets/chronicle/city/layer_sidewalk_street_fg.png",
+          "parallax": 1.15,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "lamp_bench_fg",
+          "kind": "near",
+          "path": "assets/chronicle/city/layer_lamp_bench_fg.png",
+          "parallax": 1.18,
+          "anim": null,
+          "depth": 1
+        }
+      ],
+      "regions": [
+        {
+          "id": "wet_road_reflection",
+          "path": "assets/chronicle/city/region_wet_road_reflection.png",
+          "shader": "water",
+          "params": {
+            "amp": 1,
+            "wavelength": 16,
+            "speed": 0.3,
+            "sparkle": 0.6,
+            "sparkleColor": "#6aff88"
+          }
+        },
+        {
+          "id": "zabka_sign_shimmer",
+          "path": "assets/chronicle/city/region_zabka_sign_shimmer.png",
+          "shader": "shimmer",
+          "params": {
+            "speed": 0.8,
+            "colors": [
+              "#1fe852",
+              "#48ff7e",
+              "#0bc03d"
+            ]
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "zabka_neon",
+          "style": "neonBuzz",
+          "intensity": [
+            0.75,
+            1.0
+          ],
+          "glow": {
+            "radius": 95,
+            "color": "#28ff62",
+            "alpha": 0.65
+          },
+          "at": [
+            361,
+            395
+          ],
+          "seed": 15,
+          "followLayer": null,
+          "pixelCount": 2650
+        },
+        {
+          "id": "zabka_window",
+          "style": "steady",
+          "intensity": [
+            0.7,
+            0.95
+          ],
+          "glow": {
+            "radius": 60,
+            "color": "#42f87a",
+            "alpha": 0.4
+          },
+          "at": [
+            360,
+            448
+          ],
+          "seed": 6,
+          "followLayer": null,
+          "pixelCount": 3761
+        },
+        {
+          "id": "street_lamp",
+          "style": "candle",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 120,
+            "color": "#ffb242",
+            "alpha": 0.6
+          },
+          "at": [
+            791,
+            290
+          ],
+          "seed": 3,
+          "followLayer": null,
+          "pixelCount": 174
+        },
+        {
+          "id": "block_window_left",
+          "style": "steady",
+          "intensity": [
+            0.0,
+            1.0
+          ],
+          "glow": {
+            "radius": 35,
+            "color": "#ffe082",
+            "alpha": 0.4
+          },
+          "at": [
+            480,
+            131
+          ],
+          "seed": 14,
+          "followLayer": null,
+          "pixelCount": 0
+        },
+        {
+          "id": "block_window_right",
+          "style": "steady",
+          "intensity": [
+            0.0,
+            1.0
+          ],
+          "glow": {
+            "radius": 35,
+            "color": "#ffe082",
+            "alpha": 0.4
+          },
+          "at": [
+            840,
+            191
+          ],
+          "seed": 18,
+          "followLayer": null,
+          "pixelCount": 0
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "neon_moths_flutter",
+          "at": [
+            791,
+            280
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 8,
+          "loop": true,
+          "alpha": 0.85,
+          "blend": "normal",
+          "path": null,
+          "startMs": 0,
+          "endMs": 4200,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "steam",
+          "zone": {
+            "rect": [
+              510,
+              460,
+              80,
+              80
+            ]
+          },
+          "density": 0.65,
+          "color": "#d0d8e8",
+          "depthLayer": "front",
+          "params": {
+            "origin": [
+              550,
+              490
+            ]
+          }
+        },
+        {
+          "preset": "dust",
+          "zone": {
+            "rect": [
+              730,
+              300,
+              130,
+              170
+            ]
+          },
+          "density": 0.75,
+          "color": "#ffe2a0",
+          "depthLayer": "front",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#e2d4f0",
+          "add": "#100618",
+          "sat": 1.15
+        },
+        {
+          "t": 0.45,
+          "mul": "#f4e0dc",
+          "add": "#08040a",
+          "sat": 1.05
+        },
+        {
+          "t": 0.8,
+          "mul": "#fff0dc",
+          "add": "#020104",
+          "sat": 1.0
+        },
+        {
+          "t": 1.0,
+          "mul": "#ffffff",
+          "add": "#000000",
+          "sat": 1.0
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 1200,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 2500,
+          "do": "lightOff",
+          "args": {
+            "id": "block_window_left"
+          }
+        },
+        {
+          "atMs": 3400,
+          "do": "lightOff",
+          "args": {
+            "id": "block_window_right"
+          }
+        },
+        {
+          "atMs": 4200,
+          "do": "lightOff",
+          "args": {
+            "id": "street_lamp"
+          }
+        },
+        {
+          "atMs": 4250,
+          "do": "sfx",
+          "args": {
+            "id": "blip"
+          }
+        },
+        {
+          "atMs": 4800,
+          "do": "sfx",
+          "args": {
+            "id": "door"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 475,
+        "walk": {
+          "from": [
+            -40,
+            475
+          ],
+          "to": [
+            690,
+            475
+          ],
+          "startMs": 600,
+          "durationMs": 5600
+        }
+      },
+      "base": "assets/chronicle/city/base.png",
+      "lightsAsset": "assets/chronicle/city/lights.png"
+    },
+    "curse": {
+      "scene": "curse",
+      "pixelScale": 2,
+      "mood": "ice-blue / cyan, desaturated, cold, eerie",
+      "camera": {
+        "from": {
+          "x": 512,
+          "y": 320,
+          "zoom": 1.04
+        },
+        "to": {
+          "x": 512,
+          "y": 360,
+          "zoom": 1.14
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "night_sky_canopy",
+          "kind": "far",
+          "path": "assets/chronicle/curse/layer_night_sky_canopy.png",
+          "parallax": 0.6,
+          "anim": {
+            "type": "drift",
+            "dx": -8,
+            "dy": 0
+          },
+          "depth": -1
+        },
+        {
+          "id": "foreground_trees_left",
+          "kind": "near",
+          "path": "assets/chronicle/curse/layer_foreground_trees_left.png",
+          "parallax": 1.2,
+          "anim": {
+            "type": "bob",
+            "px": 2,
+            "periodMs": 4800,
+            "phase": 0.0
+          },
+          "depth": 1
+        },
+        {
+          "id": "foreground_trees_right",
+          "kind": "near",
+          "path": "assets/chronicle/curse/layer_foreground_trees_right.png",
+          "parallax": 1.22,
+          "anim": {
+            "type": "bob",
+            "px": 2,
+            "periodMs": 5200,
+            "phase": 0.5
+          },
+          "depth": 1
+        }
+      ],
+      "regions": [
+        {
+          "id": "heat_haze",
+          "path": "assets/chronicle/curse/region_heat_haze.png",
+          "shader": "haze",
+          "params": {
+            "amp": 3,
+            "speed": 1.4
+          }
+        },
+        {
+          "id": "eerie_ground_fog",
+          "path": "assets/chronicle/curse/region_eerie_ground_fog.png",
+          "shader": "sway",
+          "params": {
+            "amp": 4,
+            "periodMs": 4200,
+            "anchor": "bottom"
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "dying_fire_glow",
+          "style": "candle",
+          "intensity": [
+            0.2,
+            0.6
+          ],
+          "glow": {
+            "radius": 80,
+            "color": "#ff7c30",
+            "alpha": 0.3
+          },
+          "at": [
+            515,
+            475
+          ],
+          "seed": 3,
+          "followLayer": null,
+          "pixelCount": 680
+        },
+        {
+          "id": "blue_eruption_glow",
+          "style": "pulse",
+          "intensity": [
+            0.6,
+            1.0
+          ],
+          "glow": {
+            "radius": 150,
+            "color": "#4deeea",
+            "alpha": 0.7
+          },
+          "at": [
+            515,
+            470
+          ],
+          "seed": 7,
+          "followLayer": null,
+          "pixelCount": 2555
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "ice_blue_fire",
+          "at": [
+            514,
+            480
+          ],
+          "origin": [
+            0.5,
+            1.0
+          ],
+          "scale": 2,
+          "fps": 10,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "add",
+          "path": null,
+          "startMs": 2400,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "snowFrost",
+          "zone": {
+            "rect": [
+              0,
+              64,
+              1024,
+              448
+            ]
+          },
+          "density": 1.4,
+          "color": "#74eeff",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "smoke",
+          "zone": {
+            "rect": [
+              120,
+              360,
+              784,
+              160
+            ]
+          },
+          "density": 1.2,
+          "color": "#2b4859",
+          "depthLayer": "front",
+          "params": {
+            "origin": [
+              512,
+              460
+            ]
+          }
+        },
+        {
+          "preset": "embers",
+          "zone": {
+            "rect": [
+              440,
+              280,
+              150,
+              190
+            ]
+          },
+          "density": 0.9,
+          "color": "#4deeea",
+          "depthLayer": "front",
+          "params": {
+            "origin": [
+              515,
+              470
+            ]
+          }
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#e8b888",
+          "add": "#100800",
+          "sat": 0.95
+        },
+        {
+          "t": 0.25,
+          "mul": "#483838",
+          "add": "#040204",
+          "sat": 0.4
+        },
+        {
+          "t": 0.32,
+          "mul": "#181c28",
+          "add": "#000004",
+          "sat": 0.2
+        },
+        {
+          "t": 0.35,
+          "mul": "#4288b8",
+          "add": "#08182c",
+          "sat": 0.85
+        },
+        {
+          "t": 1.0,
+          "mul": "#32628a",
+          "add": "#0a1c30",
+          "sat": 0.7
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 0,
+          "do": "sfx",
+          "args": {
+            "id": "fireCrackle"
+          }
+        },
+        {
+          "atMs": 1600,
+          "do": "sfx",
+          "args": {
+            "id": "smokeScreen"
+          }
+        },
+        {
+          "atMs": 1800,
+          "do": "lightOff",
+          "args": {
+            "id": "dying_fire_glow"
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "flash",
+          "args": {
+            "color": "#50e4ff"
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "shake",
+          "args": {
+            "px": 6,
+            "ms": 500
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "sfx",
+          "args": {
+            "id": "bassBlast"
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "lightOn",
+          "args": {
+            "id": "blue_eruption_glow"
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "spriteStart",
+          "args": {
+            "asset": "ice_blue_fire"
+          }
+        },
+        {
+          "atMs": 3500,
+          "do": "sfx",
+          "args": {
+            "id": "encounter"
+          }
+        },
+        {
+          "atMs": 3500,
+          "do": "enemyIn",
+          "args": {
+            "id": "panJanusz"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 474,
+        "sit": [
+          [
+            370,
+            474
+          ],
+          [
+            430,
+            470
+          ],
+          [
+            490,
+            480
+          ],
+          [
+            560,
+            482
+          ],
+          [
+            620,
+            478
+          ],
+          [
+            690,
+            470
+          ]
+        ],
+        "enemies": [
+          {
+            "id": "panJanusz",
+            "at": [
+              514,
+              380
+            ],
+            "scale": 2,
+            "inMs": 3500,
+            "outMs": 7000,
+            "style": "riseFromFog"
+          }
+        ]
+      },
+      "base": "assets/chronicle/curse/base.png",
+      "lightsAsset": "assets/chronicle/curse/lights.png"
+    },
+    "flashback_2006": {
+      "scene": "flashback_2006",
+      "pixelScale": 2,
+      "mood": "sepia nostalgia bleeding into warm 2006 summer dusk",
+      "camera": {
+        "from": {
+          "x": 512,
+          "y": 300,
+          "zoom": 1.05
+        },
+        "to": {
+          "x": 480,
+          "y": 335,
+          "zoom": 1.15
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "sky_clouds",
+          "kind": "far",
+          "path": "assets/chronicle/flashback_2006/layer_sky_clouds.png",
+          "parallax": 0.35,
+          "anim": {
+            "type": "drift",
+            "dx": 16,
+            "dy": 0
+          },
+          "depth": 0
+        },
+        {
+          "id": "blokowisko_tower",
+          "kind": "far",
+          "path": "assets/chronicle/flashback_2006/layer_blokowisko_tower.png",
+          "parallax": 0.65,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "tree_canopy_left",
+          "kind": "near",
+          "path": "assets/chronicle/flashback_2006/layer_tree_canopy_left.png",
+          "parallax": 1.12,
+          "anim": {
+            "type": "sway",
+            "amp": 2,
+            "periodMs": 4200,
+            "anchor": "top"
+          },
+          "depth": 0
+        },
+        {
+          "id": "bench_crew_fg",
+          "kind": "near",
+          "path": "assets/chronicle/flashback_2006/layer_bench_crew_fg.png",
+          "parallax": 1.25,
+          "anim": null,
+          "depth": 1
+        }
+      ],
+      "regions": [
+        {
+          "id": "tree_sway",
+          "path": "assets/chronicle/flashback_2006/region_tree_sway.png",
+          "shader": "sway",
+          "params": {
+            "amp": 3,
+            "periodMs": 3800,
+            "anchor": "top"
+          }
+        },
+        {
+          "id": "lawn_sway",
+          "path": "assets/chronicle/flashback_2006/region_lawn_sway.png",
+          "shader": "sway",
+          "params": {
+            "amp": 2,
+            "periodMs": 2800,
+            "anchor": "bottom"
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "street_lamp",
+          "style": "candle",
+          "intensity": [
+            0.65,
+            1.0
+          ],
+          "glow": {
+            "radius": 120,
+            "color": "#ffaa33",
+            "alpha": 0.5
+          },
+          "at": [
+            645,
+            202
+          ],
+          "seed": 7,
+          "followLayer": null,
+          "pixelCount": 22
+        },
+        {
+          "id": "block_window_1",
+          "style": "steady",
+          "intensity": [
+            0.0,
+            1.0
+          ],
+          "glow": {
+            "radius": 40,
+            "color": "#ffe090",
+            "alpha": 0.35
+          },
+          "at": [
+            392,
+            204
+          ],
+          "seed": 12,
+          "followLayer": null,
+          "pixelCount": 725
+        },
+        {
+          "id": "boombox_led",
+          "style": "pulse",
+          "intensity": [
+            0.4,
+            0.9
+          ],
+          "glow": {
+            "radius": 20,
+            "color": "#ff3333",
+            "alpha": 0.4
+          },
+          "at": [
+            588,
+            451
+          ],
+          "seed": 4,
+          "followLayer": null,
+          "pixelCount": 0
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "boombox_reels",
+          "at": [
+            588,
+            442
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 8,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "normal",
+          "path": null,
+          "startMs": 0,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "leaves",
+          "zone": {
+            "rect": [
+              0,
+              64,
+              1024,
+              448
+            ]
+          },
+          "density": 0.6,
+          "color": "#c89456",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "moths",
+          "zone": {
+            "rect": [
+              590,
+              160,
+              110,
+              100
+            ]
+          },
+          "density": 0.8,
+          "color": "#ffeaa0",
+          "depthLayer": "front",
+          "params": {
+            "center": [
+              645,
+              202
+            ]
+          }
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#e8c898",
+          "add": "#1a1208",
+          "sat": 0.15
+        },
+        {
+          "t": 0.35,
+          "mul": "#f0d4ac",
+          "add": "#100b05",
+          "sat": 0.45
+        },
+        {
+          "t": 0.7,
+          "mul": "#fbe4c8",
+          "add": "#050302",
+          "sat": 0.8
+        },
+        {
+          "t": 1.0,
+          "mul": "#ffffff",
+          "add": "#000000",
+          "sat": 1.05
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 1000,
+          "do": "sfx",
+          "args": {
+            "id": "wildernessSurvival"
+          }
+        },
+        {
+          "atMs": 2200,
+          "do": "lightOn",
+          "args": {
+            "id": "block_window_1"
+          }
+        },
+        {
+          "atMs": 3500,
+          "do": "sfx",
+          "args": {
+            "id": "bassBlast"
+          }
+        },
+        {
+          "atMs": 6600,
+          "do": "flash",
+          "args": {
+            "color": "#ffffff"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 470,
+        "sit": [
+          [
+            350,
+            465
+          ],
+          [
+            395,
+            465
+          ],
+          [
+            440,
+            465
+          ],
+          [
+            485,
+            465
+          ],
+          [
+            530,
+            465
+          ],
+          [
+            310,
+            468
+          ]
+        ]
+      },
+      "base": "assets/chronicle/flashback_2006/base.png",
+      "lightsAsset": "assets/chronicle/flashback_2006/lights.png"
+    },
+    "forest": {
+      "scene": "forest",
+      "pixelScale": 2,
+      "mood": "lush green, gold shafts",
+      "camera": {
+        "from": {
+          "x": 512,
+          "y": 270,
+          "zoom": 1.05
+        },
+        "to": {
+          "x": 520,
+          "y": 310,
+          "zoom": 1.15
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "fg_tree_left",
+          "kind": "near",
+          "path": "assets/chronicle/forest/layer_fg_tree_left.png",
+          "parallax": 1.25,
+          "anim": null,
+          "depth": 10
+        },
+        {
+          "id": "fg_tree_right",
+          "kind": "near",
+          "path": "assets/chronicle/forest/layer_fg_tree_right.png",
+          "parallax": 1.22,
+          "anim": null,
+          "depth": 9
+        },
+        {
+          "id": "fg_log_left",
+          "kind": "near",
+          "path": "assets/chronicle/forest/layer_fg_log_left.png",
+          "parallax": 1.15,
+          "anim": null,
+          "depth": 5
+        },
+        {
+          "id": "fg_rock_right",
+          "kind": "near",
+          "path": "assets/chronicle/forest/layer_fg_rock_right.png",
+          "parallax": 1.2,
+          "anim": null,
+          "depth": 6
+        }
+      ],
+      "regions": [
+        {
+          "id": "canopy_sway_oak",
+          "path": "assets/chronicle/forest/region_canopy_sway_oak.png",
+          "shader": "sway",
+          "params": {
+            "amp": 3,
+            "periodMs": 4200,
+            "anchor": "top"
+          }
+        },
+        {
+          "id": "canopy_sway_pine",
+          "path": "assets/chronicle/forest/region_canopy_sway_pine.png",
+          "shader": "sway",
+          "params": {
+            "amp": 2,
+            "periodMs": 3800,
+            "anchor": "top"
+          }
+        },
+        {
+          "id": "ferns_sway_fg_left",
+          "path": "assets/chronicle/forest/region_ferns_sway_fg_left.png",
+          "shader": "sway",
+          "params": {
+            "amp": 3,
+            "periodMs": 3600,
+            "anchor": "bottom"
+          }
+        },
+        {
+          "id": "ferns_sway_fg_center",
+          "path": "assets/chronicle/forest/region_ferns_sway_fg_center.png",
+          "shader": "sway",
+          "params": {
+            "amp": 3,
+            "periodMs": 3400,
+            "anchor": "bottom"
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "god_rays_main",
+          "style": "sunBloom",
+          "intensity": [
+            0.4,
+            0.9
+          ],
+          "glow": {
+            "radius": 140,
+            "color": "#f8f0c0",
+            "alpha": 0.35
+          },
+          "at": [
+            300,
+            140
+          ],
+          "seed": 5,
+          "followLayer": null,
+          "pixelCount": 1778
+        },
+        {
+          "id": "god_rays_right",
+          "style": "sunBloom",
+          "intensity": [
+            0.35,
+            0.85
+          ],
+          "glow": {
+            "radius": 120,
+            "color": "#fff4d0",
+            "alpha": 0.3
+          },
+          "at": [
+            420,
+            160
+          ],
+          "seed": 9,
+          "followLayer": null,
+          "pixelCount": 445
+        },
+        {
+          "id": "shrooms_left_trunk",
+          "style": "pulse",
+          "intensity": [
+            0.45,
+            0.95
+          ],
+          "glow": {
+            "radius": 55,
+            "color": "#b8f480",
+            "alpha": 0.35
+          },
+          "at": [
+            100,
+            270
+          ],
+          "seed": 12,
+          "followLayer": null,
+          "pixelCount": 1113
+        },
+        {
+          "id": "shrooms_right_trunk",
+          "style": "pulse",
+          "intensity": [
+            0.45,
+            0.95
+          ],
+          "glow": {
+            "radius": 60,
+            "color": "#a0f078",
+            "alpha": 0.35
+          },
+          "at": [
+            830,
+            290
+          ],
+          "seed": 16,
+          "followLayer": null,
+          "pixelCount": 1662
+        },
+        {
+          "id": "shrooms_right_ground",
+          "style": "candle",
+          "intensity": [
+            0.4,
+            0.85
+          ],
+          "glow": {
+            "radius": 40,
+            "color": "#d8ff90",
+            "alpha": 0.3
+          },
+          "at": [
+            795,
+            440
+          ],
+          "seed": 21,
+          "followLayer": null,
+          "pixelCount": 81
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "forest_moth",
+          "at": [
+            380,
+            220
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 6,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "normal",
+          "path": {
+            "to": [
+              440,
+              180
+            ],
+            "durationMs": 5000,
+            "ease": "sineInOut"
+          },
+          "startMs": 0,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "leaves",
+          "zone": {
+            "rect": [
+              80,
+              40,
+              860,
+              480
+            ]
+          },
+          "density": 0.9,
+          "color": "#92b347",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "dust",
+          "zone": {
+            "poly": [
+              [
+                160,
+                0
+              ],
+              [
+                380,
+                0
+              ],
+              [
+                580,
+                340
+              ],
+              [
+                320,
+                340
+              ]
+            ]
+          },
+          "density": 0.7,
+          "color": "#fff5cc",
+          "depthLayer": "behindNear",
+          "params": {}
+        },
+        {
+          "preset": "fireflies",
+          "zone": {
+            "rect": [
+              150,
+              240,
+              720,
+              280
+            ]
+          },
+          "density": 0.5,
+          "color": "#b8ff50",
+          "depthLayer": "behindNear",
+          "params": {}
+        },
+        {
+          "preset": "smoke",
+          "zone": {
+            "rect": [
+              0,
+              300,
+              1024,
+              180
+            ]
+          },
+          "density": 0.5,
+          "color": "#8ca892",
+          "depthLayer": "behindNear",
+          "params": {
+            "origin": [
+              512,
+              360
+            ]
+          }
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#e8f8e0",
+          "add": "#020803",
+          "sat": 1.05
+        },
+        {
+          "t": 0.5,
+          "mul": "#f4fce8",
+          "add": "#040902",
+          "sat": 1.1
+        },
+        {
+          "t": 1.0,
+          "mul": "#fff8e0",
+          "add": "#080b03",
+          "sat": 1.15
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 500,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 1300,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 2100,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 3000,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 3800,
+          "do": "join",
+          "args": {}
+        },
+        {
+          "atMs": 3800,
+          "do": "sfx",
+          "args": {
+            "id": "wildernessSurvival"
+          }
+        },
+        {
+          "atMs": 4100,
+          "do": "sfx",
+          "args": {
+            "id": "buff"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 445,
+        "walk": {
+          "from": [
+            140,
+            445
+          ],
+          "to": [
+            360,
+            445
+          ],
+          "startMs": 600,
+          "durationMs": 3600
+        },
+        "joinAt": [
+          530,
+          435
+        ]
+      },
+      "base": "assets/chronicle/forest/base.png",
+      "lightsAsset": "assets/chronicle/forest/lights.png"
+    },
+    "garage": {
+      "scene": "garage",
+      "pixelScale": 2,
+      "mood": "teal concrete gloom, cold fluorescent stutter, cyan projector beam",
+      "camera": {
+        "from": {
+          "x": 500,
+          "y": 300,
+          "zoom": 1.04
+        },
+        "to": {
+          "x": 546,
+          "y": 318,
+          "zoom": 1.12
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "shelf_tires_left",
+          "kind": "near",
+          "path": "assets/chronicle/garage/layer_shelf_tires_left.png",
+          "parallax": 1.15,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "canisters_right",
+          "kind": "near",
+          "path": "assets/chronicle/garage/layer_canisters_right.png",
+          "parallax": 1.18,
+          "anim": null,
+          "depth": 1
+        },
+        {
+          "id": "projector_housing",
+          "kind": "near",
+          "path": "assets/chronicle/garage/layer_projector_housing.png",
+          "parallax": 1.05,
+          "anim": {
+            "type": "bob",
+            "px": 2,
+            "periodMs": 3800,
+            "phase": 0.0
+          },
+          "depth": 2
+        }
+      ],
+      "regions": [
+        {
+          "id": "oil_slick_floor",
+          "path": "assets/chronicle/garage/region_oil_slick_floor.png",
+          "shader": "shimmer",
+          "params": {
+            "speed": 0.7,
+            "colors": [
+              "#183a37",
+              "#432850",
+              "#2c4a6f",
+              "#6b6228",
+              "#1a524c"
+            ]
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "fl_top_left",
+          "style": "fluorescentStutter",
+          "intensity": [
+            0.65,
+            1.0
+          ],
+          "glow": {
+            "radius": 95,
+            "color": "#f0eed4",
+            "alpha": 0.35
+          },
+          "at": [
+            197,
+            56
+          ],
+          "seed": 101,
+          "followLayer": null,
+          "pixelCount": 1640
+        },
+        {
+          "id": "fl_top_center",
+          "style": "fluorescentStutter",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 110,
+            "color": "#f1efd7",
+            "alpha": 0.4
+          },
+          "at": [
+            510,
+            56
+          ],
+          "seed": 102,
+          "followLayer": null,
+          "pixelCount": 1647
+        },
+        {
+          "id": "fl_top_right",
+          "style": "fluorescentStutter",
+          "intensity": [
+            0.65,
+            1.0
+          ],
+          "glow": {
+            "radius": 95,
+            "color": "#f2f0d7",
+            "alpha": 0.35
+          },
+          "at": [
+            812,
+            57
+          ],
+          "seed": 103,
+          "followLayer": null,
+          "pixelCount": 1710
+        },
+        {
+          "id": "fl_mid_left",
+          "style": "fluorescentStutter",
+          "intensity": [
+            0.6,
+            1.0
+          ],
+          "glow": {
+            "radius": 80,
+            "color": "#eae6ce",
+            "alpha": 0.3
+          },
+          "at": [
+            280,
+            112
+          ],
+          "seed": 104,
+          "followLayer": null,
+          "pixelCount": 642
+        },
+        {
+          "id": "fl_mid_center",
+          "style": "fluorescentStutter",
+          "intensity": [
+            0.6,
+            1.0
+          ],
+          "glow": {
+            "radius": 80,
+            "color": "#e3e7d6",
+            "alpha": 0.3
+          },
+          "at": [
+            515,
+            115
+          ],
+          "seed": 105,
+          "followLayer": null,
+          "pixelCount": 925
+        },
+        {
+          "id": "fl_mid_right",
+          "style": "fluorescentStutter",
+          "intensity": [
+            0.6,
+            1.0
+          ],
+          "glow": {
+            "radius": 80,
+            "color": "#e8e8d2",
+            "alpha": 0.3
+          },
+          "at": [
+            745,
+            113
+          ],
+          "seed": 106,
+          "followLayer": null,
+          "pixelCount": 1247
+        },
+        {
+          "id": "projector_lens",
+          "style": "monitor",
+          "intensity": [
+            0.75,
+            1.0
+          ],
+          "glow": {
+            "radius": 65,
+            "color": "#8ceaff",
+            "alpha": 0.5
+          },
+          "at": [
+            525,
+            134
+          ],
+          "seed": 107,
+          "followLayer": "projector_housing",
+          "pixelCount": 401
+        },
+        {
+          "id": "projector_screen_glow",
+          "style": "monitor",
+          "intensity": [
+            0.8,
+            1.0
+          ],
+          "glow": {
+            "radius": 130,
+            "color": "#8ee6ff",
+            "alpha": 0.35
+          },
+          "at": [
+            709,
+            238
+          ],
+          "seed": 108,
+          "followLayer": null,
+          "pixelCount": 15697
+        },
+        {
+          "id": "floor_projection_reflection",
+          "style": "monitor",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 90,
+            "color": "#78dfff",
+            "alpha": 0.25
+          },
+          "at": [
+            720,
+            420
+          ],
+          "seed": 109,
+          "followLayer": null,
+          "pixelCount": 9659
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "ufc_screen_fight",
+          "at": [
+            709,
+            238
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 8,
+          "loop": true,
+          "alpha": 0.95,
+          "blend": "normal",
+          "path": null,
+          "startMs": 0,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "dust",
+          "zone": {
+            "poly": [
+              [
+                515,
+                132
+              ],
+              [
+                614,
+                168
+              ],
+              [
+                804,
+                168
+              ],
+              [
+                804,
+                308
+              ],
+              [
+                614,
+                308
+              ],
+              [
+                515,
+                150
+              ]
+            ]
+          },
+          "density": 1.4,
+          "color": "#a0edff",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "dust",
+          "zone": {
+            "rect": [
+              80,
+              160,
+              860,
+              320
+            ]
+          },
+          "density": 0.35,
+          "color": "#c6d8e8",
+          "depthLayer": "front",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#d4eff6",
+          "add": "#020812",
+          "sat": 0.95
+        },
+        {
+          "t": 0.6,
+          "mul": "#e2f8fc",
+          "add": "#02070e",
+          "sat": 1.0
+        },
+        {
+          "t": 1.0,
+          "mul": "#d8f2f6",
+          "add": "#020810",
+          "sat": 0.95
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 1200,
+          "do": "sfx",
+          "args": {
+            "id": "encounter"
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "enemyIn",
+          "args": {
+            "id": "sasiadSzkodnik"
+          }
+        },
+        {
+          "atMs": 3300,
+          "do": "sfx",
+          "args": {
+            "id": "hit"
+          }
+        },
+        {
+          "atMs": 3350,
+          "do": "shake",
+          "args": {
+            "px": 3,
+            "ms": 200
+          }
+        },
+        {
+          "atMs": 4100,
+          "do": "sfx",
+          "args": {
+            "id": "crit"
+          }
+        },
+        {
+          "atMs": 4150,
+          "do": "shake",
+          "args": {
+            "px": 4,
+            "ms": 250
+          }
+        },
+        {
+          "atMs": 4800,
+          "do": "enemyOut",
+          "args": {
+            "id": "sasiadSzkodnik"
+          }
+        },
+        {
+          "atMs": 5100,
+          "do": "join",
+          "args": {}
+        },
+        {
+          "atMs": 5100,
+          "do": "sfx",
+          "args": {
+            "id": "notification"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 470,
+        "walk": {
+          "from": [
+            -40,
+            470
+          ],
+          "to": [
+            340,
+            470
+          ],
+          "startMs": 600,
+          "durationMs": 3800
+        },
+        "joinAt": [
+          560,
+          470
+        ],
+        "enemies": [
+          {
+            "id": "sasiadSzkodnik",
+            "at": [
+              780,
+              440
+            ],
+            "scale": 1,
+            "inMs": 2400,
+            "outMs": 4800,
+            "style": "popHitFade"
+          }
+        ]
+      },
+      "base": "assets/chronicle/garage/base.png",
+      "lightsAsset": "assets/chronicle/garage/lights.png"
+    },
+    "marina": {
+      "scene": "marina",
+      "pixelScale": 2,
+      "mood": "violet night, lantern-warm",
+      "camera": {
+        "from": {
+          "x": 512,
+          "y": 300,
+          "zoom": 1.05
+        },
+        "to": {
+          "x": 560,
+          "y": 320,
+          "zoom": 1.15
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "clouds",
+          "kind": "far",
+          "path": "assets/chronicle/marina/layer_clouds.png",
+          "parallax": 0.35,
+          "anim": {
+            "type": "drift",
+            "dx": 18,
+            "dy": 0
+          },
+          "depth": 1
+        },
+        {
+          "id": "lantern_mid_left",
+          "kind": "near",
+          "path": "assets/chronicle/marina/layer_lantern_mid_left.png",
+          "parallax": 1.06,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              373,
+              147
+            ],
+            "deg": 2.5,
+            "periodMs": 2400,
+            "phase": 0.4
+          },
+          "depth": 5
+        },
+        {
+          "id": "lantern_right",
+          "kind": "near",
+          "path": "assets/chronicle/marina/layer_lantern_right.png",
+          "parallax": 1.08,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              903,
+              158
+            ],
+            "deg": 2.5,
+            "periodMs": 2500,
+            "phase": 0.8
+          },
+          "depth": 6
+        },
+        {
+          "id": "fg_post_left",
+          "kind": "near",
+          "path": "assets/chronicle/marina/layer_fg_post_left.png",
+          "parallax": 1.25,
+          "anim": null,
+          "depth": 10
+        },
+        {
+          "id": "lantern_fg_left",
+          "kind": "near",
+          "path": "assets/chronicle/marina/layer_lantern_fg_left.png",
+          "parallax": 1.22,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              196,
+              214
+            ],
+            "deg": 3.5,
+            "periodMs": 2800,
+            "phase": 0.0
+          },
+          "depth": 12
+        },
+        {
+          "id": "fg_bollard_right",
+          "kind": "near",
+          "path": "assets/chronicle/marina/layer_fg_bollard_right.png",
+          "parallax": 1.28,
+          "anim": null,
+          "depth": 11
+        }
+      ],
+      "regions": [
+        {
+          "id": "water_surface",
+          "path": "assets/chronicle/marina/region_water_surface.png",
+          "shader": "water",
+          "params": {
+            "amp": 2,
+            "wavelength": 24,
+            "speed": 0.5,
+            "sparkle": 0.35,
+            "sparkleColor": "#ffdd88"
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "lantern_fg_left",
+          "style": "candle",
+          "intensity": [
+            0.55,
+            1.0
+          ],
+          "glow": {
+            "radius": 110,
+            "color": "#ffb85a",
+            "alpha": 0.4
+          },
+          "at": [
+            196,
+            272
+          ],
+          "seed": 3,
+          "followLayer": "lantern_fg_left",
+          "pixelCount": 888
+        },
+        {
+          "id": "lantern_mid_left",
+          "style": "candle",
+          "intensity": [
+            0.5,
+            0.95
+          ],
+          "glow": {
+            "radius": 75,
+            "color": "#ffae50",
+            "alpha": 0.35
+          },
+          "at": [
+            373,
+            187
+          ],
+          "seed": 7,
+          "followLayer": "lantern_mid_left",
+          "pixelCount": 280
+        },
+        {
+          "id": "lantern_right",
+          "style": "candle",
+          "intensity": [
+            0.45,
+            0.9
+          ],
+          "glow": {
+            "radius": 70,
+            "color": "#ffaa45",
+            "alpha": 0.3
+          },
+          "at": [
+            903,
+            188
+          ],
+          "seed": 11,
+          "followLayer": "lantern_right",
+          "pixelCount": 52
+        },
+        {
+          "id": "lantern_far_left",
+          "style": "candle",
+          "intensity": [
+            0.4,
+            0.85
+          ],
+          "glow": {
+            "radius": 50,
+            "color": "#ffb050",
+            "alpha": 0.25
+          },
+          "at": [
+            51,
+            187
+          ],
+          "seed": 15,
+          "followLayer": null,
+          "pixelCount": 105
+        },
+        {
+          "id": "reflection_right",
+          "style": "candle",
+          "intensity": [
+            0.4,
+            0.85
+          ],
+          "glow": {
+            "radius": 80,
+            "color": "#ffaa45",
+            "alpha": 0.28
+          },
+          "at": [
+            925,
+            440
+          ],
+          "seed": 11,
+          "followLayer": null,
+          "pixelCount": 1441
+        },
+        {
+          "id": "reflection_left",
+          "style": "candle",
+          "intensity": [
+            0.35,
+            0.8
+          ],
+          "glow": {
+            "radius": 60,
+            "color": "#ffb85a",
+            "alpha": 0.22
+          },
+          "at": [
+            46,
+            420
+          ],
+          "seed": 3,
+          "followLayer": null,
+          "pixelCount": 353
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "lantern_flame",
+          "at": [
+            196,
+            272
+          ],
+          "origin": [
+            0.5,
+            0.8
+          ],
+          "scale": 2,
+          "fps": 8,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "add",
+          "path": null,
+          "startMs": 0,
+          "endMs": null,
+          "followLayer": "lantern_fg_left",
+          "depth": "front"
+        },
+        {
+          "asset": "luki_boat",
+          "at": [
+            610,
+            310
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 4,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "normal",
+          "path": null,
+          "startMs": 0,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "behindNear"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "steam",
+          "zone": {
+            "rect": [
+              0,
+              200,
+              1024,
+              180
+            ]
+          },
+          "density": 0.6,
+          "color": "#8a9bb8",
+          "depthLayer": "behindNear",
+          "params": {}
+        },
+        {
+          "preset": "moths",
+          "zone": {
+            "rect": [
+              150,
+              220,
+              100,
+              110
+            ]
+          },
+          "density": 0.8,
+          "color": "#ffeec0",
+          "depthLayer": "front",
+          "params": {
+            "center": [
+              196,
+              272
+            ]
+          }
+        },
+        {
+          "preset": "embers",
+          "zone": {
+            "rect": [
+              160,
+              240,
+              120,
+              180
+            ]
+          },
+          "density": 0.4,
+          "color": "#ffb85a",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "fireflies",
+          "zone": {
+            "rect": [
+              0,
+              260,
+              1024,
+              260
+            ]
+          },
+          "density": 0.4,
+          "color": "#ffd070",
+          "depthLayer": "behindNear",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#e8e0f8",
+          "add": "#020108",
+          "sat": 1.05
+        },
+        {
+          "t": 0.5,
+          "mul": "#f4eaf0",
+          "add": "#05020a",
+          "sat": 1.08
+        },
+        {
+          "t": 1.0,
+          "mul": "#fff2ea",
+          "add": "#08040a",
+          "sat": 1.1
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 500,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 1200,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 2000,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 2800,
+          "do": "sfx",
+          "args": {
+            "id": "step"
+          }
+        },
+        {
+          "atMs": 3600,
+          "do": "join",
+          "args": {}
+        },
+        {
+          "atMs": 3600,
+          "do": "sfx",
+          "args": {
+            "id": "aquaRescue"
+          }
+        },
+        {
+          "atMs": 3900,
+          "do": "sfx",
+          "args": {
+            "id": "buff"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 480,
+        "walk": {
+          "from": [
+            210,
+            480
+          ],
+          "to": [
+            440,
+            480
+          ],
+          "startMs": 600,
+          "durationMs": 3800
+        },
+        "joinAt": [
+          560,
+          470
+        ]
+      },
+      "base": "assets/chronicle/marina/base.png",
+      "lightsAsset": "assets/chronicle/marina/lights.png"
+    },
+    "photo": {
+      "scene": "photo",
+      "pixelScale": 2,
+      "mood": "warm gold, nostalgic, timeless",
+      "camera": {
+        "from": {
+          "x": 512,
+          "y": 300,
+          "zoom": 1.02
+        },
+        "to": {
+          "x": 512,
+          "y": 340,
+          "zoom": 1.12
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "desk_surface",
+          "kind": "near",
+          "path": "assets/chronicle/photo/layer_desk_surface.png",
+          "parallax": 1.12,
+          "anim": null,
+          "depth": 1
+        }
+      ],
+      "regions": [
+        {
+          "id": "golden_trim_shimmer",
+          "path": "assets/chronicle/photo/region_golden_trim_shimmer.png",
+          "shader": "shimmer",
+          "params": {
+            "speed": 0.5,
+            "colors": [
+              "#ffeaa7",
+              "#d4af37",
+              "#f39c12"
+            ]
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "golden_frame_glint",
+          "style": "pulse",
+          "intensity": [
+            0.6,
+            1.0
+          ],
+          "glow": {
+            "radius": 50,
+            "color": "#ffd700",
+            "alpha": 0.35
+          },
+          "at": [
+            512,
+            480
+          ],
+          "seed": 4,
+          "followLayer": null,
+          "pixelCount": 313
+        },
+        {
+          "id": "photo_sun_glow",
+          "style": "sunBloom",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 120,
+            "color": "#ffe8a0",
+            "alpha": 0.4
+          },
+          "at": [
+            520,
+            240
+          ],
+          "seed": 8,
+          "followLayer": null,
+          "pixelCount": 7382
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "polaroid_2006",
+          "at": [
+            -140,
+            360
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 1,
+          "loop": false,
+          "alpha": 1.0,
+          "blend": "normal",
+          "path": {
+            "to": [
+              110,
+              360
+            ],
+            "durationMs": 1800,
+            "ease": "quadOut"
+          },
+          "startMs": 2200,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "dust",
+          "zone": {
+            "rect": [
+              100,
+              64,
+              824,
+              170
+            ]
+          },
+          "density": 0.6,
+          "color": "#ffebb5",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "dust",
+          "zone": {
+            "rect": [
+              20,
+              360,
+              200,
+              150
+            ]
+          },
+          "density": 0.5,
+          "color": "#ffe8b0",
+          "depthLayer": "front",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#ffffff",
+          "add": "#ffffff",
+          "sat": 0.0
+        },
+        {
+          "t": 0.08,
+          "mul": "#d0caa0",
+          "add": "#908860",
+          "sat": 0.0
+        },
+        {
+          "t": 0.25,
+          "mul": "#c8a474",
+          "add": "#3a2818",
+          "sat": 0.25
+        },
+        {
+          "t": 0.45,
+          "mul": "#e6be8a",
+          "add": "#181008",
+          "sat": 0.55
+        },
+        {
+          "t": 0.7,
+          "mul": "#f8e0c8",
+          "add": "#0a0604",
+          "sat": 0.9
+        },
+        {
+          "t": 1.0,
+          "mul": "#fff2dd",
+          "add": "#080402",
+          "sat": 1.05
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 0,
+          "do": "flash",
+          "args": {
+            "color": "#ffffff"
+          }
+        },
+        {
+          "atMs": 0,
+          "do": "sfx",
+          "args": {
+            "id": "confirm"
+          }
+        },
+        {
+          "atMs": 2200,
+          "do": "spriteStart",
+          "args": {
+            "asset": "polaroid_2006"
+          }
+        },
+        {
+          "atMs": 2300,
+          "do": "sfx",
+          "args": {
+            "id": "door"
+          }
+        },
+        {
+          "atMs": 4500,
+          "do": "sfx",
+          "args": {
+            "id": "buff"
+          }
+        },
+        {
+          "atMs": 7500,
+          "do": "sfx",
+          "args": {
+            "id": "confirm"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 500
+      },
+      "base": "assets/chronicle/photo/base.png",
+      "lightsAsset": "assets/chronicle/photo/lights.png"
+    },
+    "pub": {
+      "scene": "pub",
+      "pixelScale": 2,
+      "mood": "deep amber mahogany, warm swinging bulbs, violet Technics glow",
+      "camera": {
+        "from": {
+          "x": 480,
+          "y": 300,
+          "zoom": 1.05
+        },
+        "to": {
+          "x": 510,
+          "y": 325,
+          "zoom": 1.14
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "bulb_cord_1",
+          "kind": "near",
+          "path": "assets/chronicle/pub/layer_bulb_cord_1.png",
+          "parallax": 1.1,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              236,
+              0
+            ],
+            "deg": 1.5,
+            "periodMs": 3600,
+            "phase": 0.0
+          },
+          "depth": 0
+        },
+        {
+          "id": "bulb_cord_2",
+          "kind": "near",
+          "path": "assets/chronicle/pub/layer_bulb_cord_2.png",
+          "parallax": 1.08,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              391,
+              0
+            ],
+            "deg": 1.2,
+            "periodMs": 3300,
+            "phase": 0.25
+          },
+          "depth": 1
+        },
+        {
+          "id": "bulb_cord_3",
+          "kind": "near",
+          "path": "assets/chronicle/pub/layer_bulb_cord_3.png",
+          "parallax": 1.08,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              667,
+              0
+            ],
+            "deg": 1.2,
+            "periodMs": 3500,
+            "phase": 0.5
+          },
+          "depth": 2
+        },
+        {
+          "id": "bulb_cord_4",
+          "kind": "near",
+          "path": "assets/chronicle/pub/layer_bulb_cord_4.png",
+          "parallax": 1.1,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              857,
+              0
+            ],
+            "deg": 1.5,
+            "periodMs": 3900,
+            "phase": 0.75
+          },
+          "depth": 3
+        },
+        {
+          "id": "bar_stools_left",
+          "kind": "near",
+          "path": "assets/chronicle/pub/layer_bar_stools_left.png",
+          "parallax": 1.15,
+          "anim": null,
+          "depth": 4
+        }
+      ],
+      "regions": [
+        {
+          "id": "brass_rail_shimmer",
+          "path": "assets/chronicle/pub/region_brass_rail_shimmer.png",
+          "shader": "shimmer",
+          "params": {
+            "speed": 0.5,
+            "colors": [
+              "#d4af37",
+              "#f5d77f",
+              "#aa7c11",
+              "#e0b84c"
+            ]
+          }
+        },
+        {
+          "id": "amp_heat_haze",
+          "path": "assets/chronicle/pub/region_amp_heat_haze.png",
+          "shader": "haze",
+          "params": {
+            "amp": 1,
+            "speed": 0.8
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "bulb_far_left",
+          "style": "candle",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 110,
+            "color": "#ffa834",
+            "alpha": 0.45
+          },
+          "at": [
+            236,
+            122
+          ],
+          "seed": 301,
+          "followLayer": "bulb_cord_1",
+          "pixelCount": 837
+        },
+        {
+          "id": "bulb_mid_left",
+          "style": "candle",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 125,
+            "color": "#ffa834",
+            "alpha": 0.5
+          },
+          "at": [
+            391,
+            152
+          ],
+          "seed": 302,
+          "followLayer": "bulb_cord_2",
+          "pixelCount": 783
+        },
+        {
+          "id": "bulb_mid_right",
+          "style": "candle",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 125,
+            "color": "#ffa834",
+            "alpha": 0.5
+          },
+          "at": [
+            667,
+            152
+          ],
+          "seed": 303,
+          "followLayer": "bulb_cord_3",
+          "pixelCount": 536
+        },
+        {
+          "id": "bulb_far_right",
+          "style": "candle",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 110,
+            "color": "#ffa834",
+            "alpha": 0.45
+          },
+          "at": [
+            857,
+            152
+          ],
+          "seed": 304,
+          "followLayer": "bulb_cord_4",
+          "pixelCount": 414
+        },
+        {
+          "id": "technics_logo_left",
+          "style": "steady",
+          "intensity": [
+            0.85,
+            1.0
+          ],
+          "glow": {
+            "radius": 24,
+            "color": "#c840ff",
+            "alpha": 0.4
+          },
+          "at": [
+            420,
+            310
+          ],
+          "seed": 305,
+          "followLayer": null,
+          "pixelCount": 49
+        },
+        {
+          "id": "technics_logo_right",
+          "style": "steady",
+          "intensity": [
+            0.85,
+            1.0
+          ],
+          "glow": {
+            "radius": 24,
+            "color": "#c840ff",
+            "alpha": 0.4
+          },
+          "at": [
+            595,
+            310
+          ],
+          "seed": 306,
+          "followLayer": null,
+          "pixelCount": 70
+        },
+        {
+          "id": "strobe_led_left",
+          "style": "pulse",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 16,
+            "color": "#40a0ff",
+            "alpha": 0.6
+          },
+          "at": [
+            440,
+            330
+          ],
+          "seed": 307,
+          "followLayer": null,
+          "pixelCount": 43
+        },
+        {
+          "id": "strobe_led_right",
+          "style": "pulse",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 16,
+            "color": "#40a0ff",
+            "alpha": 0.6
+          },
+          "at": [
+            621,
+            330
+          ],
+          "seed": 308,
+          "followLayer": null,
+          "pixelCount": 40
+        },
+        {
+          "id": "mixer_vu_meters",
+          "style": "monitor",
+          "intensity": [
+            0.65,
+            1.0
+          ],
+          "glow": {
+            "radius": 30,
+            "color": "#50ff50",
+            "alpha": 0.35
+          },
+          "at": [
+            508,
+            322
+          ],
+          "seed": 309,
+          "followLayer": null,
+          "pixelCount": 72
+        },
+        {
+          "id": "beer_tap_highlight",
+          "style": "candle",
+          "intensity": [
+            0.75,
+            1.0
+          ],
+          "glow": {
+            "radius": 35,
+            "color": "#ffd060",
+            "alpha": 0.25
+          },
+          "at": [
+            236,
+            245
+          ],
+          "seed": 310,
+          "followLayer": null,
+          "pixelCount": 305
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "spinning_vinyl_deck",
+          "at": [
+            420,
+            327
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 12,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "normal",
+          "path": null,
+          "startMs": 0,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        },
+        {
+          "asset": "spinning_vinyl_deck",
+          "at": [
+            595,
+            327
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 12,
+          "loop": true,
+          "alpha": 1.0,
+          "blend": "normal",
+          "path": null,
+          "startMs": 0,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "dust",
+          "zone": {
+            "rect": [
+              180,
+              100,
+              720,
+              280
+            ]
+          },
+          "density": 0.65,
+          "color": "#ffd280",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "sparkles",
+          "zone": {
+            "rect": [
+              380,
+              285,
+              280,
+              85
+            ]
+          },
+          "density": 0.5,
+          "color": "#ffe699",
+          "depthLayer": "front",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#fcecd8",
+          "add": "#120600",
+          "sat": 1.05
+        },
+        {
+          "t": 0.5,
+          "mul": "#ffeedc",
+          "add": "#180800",
+          "sat": 1.1
+        },
+        {
+          "t": 1.0,
+          "mul": "#fae8d4",
+          "add": "#140600",
+          "sat": 1.05
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 800,
+          "do": "beatZoom",
+          "args": {
+            "bpm": 92
+          }
+        },
+        {
+          "atMs": 1600,
+          "do": "beatZoom",
+          "args": {
+            "bpm": 92
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "sfx",
+          "args": {
+            "id": "encounter"
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "enemyIn",
+          "args": {
+            "id": "autotuneHipster"
+          }
+        },
+        {
+          "atMs": 2400,
+          "do": "beatZoom",
+          "args": {
+            "bpm": 92
+          }
+        },
+        {
+          "atMs": 3200,
+          "do": "beatZoom",
+          "args": {
+            "bpm": 92
+          }
+        },
+        {
+          "atMs": 3600,
+          "do": "sfx",
+          "args": {
+            "id": "bassBlast"
+          }
+        },
+        {
+          "atMs": 3600,
+          "do": "shake",
+          "args": {
+            "px": 4,
+            "ms": 220
+          }
+        },
+        {
+          "atMs": 4000,
+          "do": "beatZoom",
+          "args": {
+            "bpm": 92
+          }
+        },
+        {
+          "atMs": 4400,
+          "do": "sfx",
+          "args": {
+            "id": "crit"
+          }
+        },
+        {
+          "atMs": 4800,
+          "do": "enemyOut",
+          "args": {
+            "id": "autotuneHipster"
+          }
+        },
+        {
+          "atMs": 4800,
+          "do": "beatZoom",
+          "args": {
+            "bpm": 92
+          }
+        },
+        {
+          "atMs": 5100,
+          "do": "join",
+          "args": {}
+        },
+        {
+          "atMs": 5100,
+          "do": "sfx",
+          "args": {
+            "id": "notification"
+          }
+        },
+        {
+          "atMs": 5600,
+          "do": "beatZoom",
+          "args": {
+            "bpm": 92
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 490,
+        "walk": {
+          "from": [
+            -40,
+            490
+          ],
+          "to": [
+            340,
+            490
+          ],
+          "startMs": 600,
+          "durationMs": 3800
+        },
+        "joinAt": [
+          560,
+          490
+        ],
+        "enemies": [
+          {
+            "id": "autotuneHipster",
+            "at": [
+              780,
+              430
+            ],
+            "scale": 1,
+            "inMs": 2400,
+            "outMs": 4800,
+            "style": "ghostFlash"
+          }
+        ]
+      },
+      "base": "assets/chronicle/pub/base.png",
+      "lightsAsset": "assets/chronicle/pub/lights.png"
+    },
+    "rift": {
+      "scene": "rift",
+      "pixelScale": 2,
+      "mood": "violet / magenta / cyan cosmic, electric",
+      "camera": {
+        "from": {
+          "x": 460,
+          "y": 320,
+          "zoom": 1.06
+        },
+        "to": {
+          "x": 580,
+          "y": 280,
+          "zoom": 1.16
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "cosmic_nebula_far",
+          "kind": "far",
+          "path": "assets/chronicle/rift/layer_cosmic_nebula_far.png",
+          "parallax": 0.4,
+          "anim": {
+            "type": "drift",
+            "dx": 8,
+            "dy": -2
+          },
+          "depth": -1
+        },
+        {
+          "id": "floating_rock_center",
+          "kind": "near",
+          "path": "assets/chronicle/rift/layer_floating_rock_center.png",
+          "parallax": 1.08,
+          "anim": {
+            "type": "bob",
+            "px": 4,
+            "periodMs": 2800,
+            "phase": 0.0
+          },
+          "depth": 1
+        },
+        {
+          "id": "floating_rock_left",
+          "kind": "near",
+          "path": "assets/chronicle/rift/layer_floating_rock_left.png",
+          "parallax": 1.12,
+          "anim": {
+            "type": "bob",
+            "px": 3,
+            "periodMs": 3400,
+            "phase": 0.4
+          },
+          "depth": 1
+        },
+        {
+          "id": "floating_rock_lower",
+          "kind": "near",
+          "path": "assets/chronicle/rift/layer_floating_rock_lower.png",
+          "parallax": 1.15,
+          "anim": {
+            "type": "bob",
+            "px": 3,
+            "periodMs": 2400,
+            "phase": 0.7
+          },
+          "depth": 2
+        }
+      ],
+      "regions": [
+        {
+          "id": "rift_vortex",
+          "path": "assets/chronicle/rift/region_rift_vortex.png",
+          "shader": "swirl",
+          "params": {
+            "center": [
+              540,
+              220
+            ],
+            "radius": 220,
+            "speed": 0.25,
+            "falloff": 1.5
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "rift_core_pulse",
+          "style": "pulse",
+          "intensity": [
+            0.6,
+            1.0
+          ],
+          "glow": {
+            "radius": 130,
+            "color": "#d946ef",
+            "alpha": 0.5
+          },
+          "at": [
+            540,
+            220
+          ],
+          "seed": 7,
+          "followLayer": null,
+          "pixelCount": 458
+        },
+        {
+          "id": "lightning_veins_cyan",
+          "style": "lightning",
+          "intensity": [
+            0.2,
+            1.0
+          ],
+          "glow": {
+            "radius": 90,
+            "color": "#06b6d4",
+            "alpha": 0.45
+          },
+          "at": [
+            380,
+            440
+          ],
+          "seed": 12,
+          "followLayer": null,
+          "pixelCount": 2233
+        },
+        {
+          "id": "lightning_spikes_right",
+          "style": "lightning",
+          "intensity": [
+            0.1,
+            1.0
+          ],
+          "glow": {
+            "radius": 100,
+            "color": "#a855f7",
+            "alpha": 0.4
+          },
+          "at": [
+            780,
+            300
+          ],
+          "seed": 19,
+          "followLayer": null,
+          "pixelCount": 2343
+        }
+      ],
+      "sprites": [],
+      "particles": [
+        {
+          "preset": "debrisSpiral",
+          "zone": {
+            "rect": [
+              200,
+              80,
+              680,
+              400
+            ]
+          },
+          "density": 1.4,
+          "color": "#c084fc",
+          "depthLayer": "front",
+          "params": {
+            "center": [
+              540,
+              220
+            ]
+          }
+        },
+        {
+          "preset": "dust",
+          "zone": {
+            "rect": [
+              100,
+              100,
+              824,
+              380
+            ]
+          },
+          "density": 1.0,
+          "color": "#67e8f9",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "embers",
+          "zone": {
+            "rect": [
+              250,
+              300,
+              500,
+              220
+            ]
+          },
+          "density": 1.2,
+          "color": "#f472b6",
+          "depthLayer": "front",
+          "params": {
+            "origin": [
+              540,
+              380
+            ]
+          }
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#e0b0ff",
+          "add": "#0a0520",
+          "sat": 1.1
+        },
+        {
+          "t": 0.5,
+          "mul": "#d0c0ff",
+          "add": "#100828",
+          "sat": 1.25
+        },
+        {
+          "t": 0.9,
+          "mul": "#f0e8ff",
+          "add": "#281840",
+          "sat": 1.2
+        },
+        {
+          "t": 1.0,
+          "mul": "#ffffff",
+          "add": "#ffffff",
+          "sat": 0.0
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 500,
+          "do": "sfx",
+          "args": {
+            "id": "encounter"
+          }
+        },
+        {
+          "atMs": 1400,
+          "do": "lightning",
+          "args": {
+            "x": 540,
+            "intensity": 1.0
+          }
+        },
+        {
+          "atMs": 1400,
+          "do": "shake",
+          "args": {
+            "px": 4,
+            "ms": 250
+          }
+        },
+        {
+          "atMs": 1400,
+          "do": "sfx",
+          "args": {
+            "id": "bassBlast"
+          }
+        },
+        {
+          "atMs": 2800,
+          "do": "lightning",
+          "args": {
+            "x": 720,
+            "intensity": 1.0
+          }
+        },
+        {
+          "atMs": 2800,
+          "do": "shake",
+          "args": {
+            "px": 6,
+            "ms": 300
+          }
+        },
+        {
+          "atMs": 2800,
+          "do": "sfx",
+          "args": {
+            "id": "hit"
+          }
+        },
+        {
+          "atMs": 4500,
+          "do": "lightning",
+          "args": {
+            "x": 620,
+            "intensity": 1.2
+          }
+        },
+        {
+          "atMs": 4500,
+          "do": "shake",
+          "args": {
+            "px": 8,
+            "ms": 400
+          }
+        },
+        {
+          "atMs": 4500,
+          "do": "sfx",
+          "args": {
+            "id": "crit"
+          }
+        },
+        {
+          "atMs": 6200,
+          "do": "sfx",
+          "args": {
+            "id": "ko"
+          }
+        },
+        {
+          "atMs": 6200,
+          "do": "shake",
+          "args": {
+            "px": 5,
+            "ms": 350
+          }
+        },
+        {
+          "atMs": 7200,
+          "do": "flash",
+          "args": {
+            "color": "#ffffff"
+          }
+        },
+        {
+          "atMs": 7200,
+          "do": "shake",
+          "args": {
+            "px": 10,
+            "ms": 600
+          }
+        },
+        {
+          "atMs": 7200,
+          "do": "sfx",
+          "args": {
+            "id": "buff"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 480,
+        "walk": {
+          "from": [
+            40,
+            480
+          ],
+          "to": [
+            260,
+            480
+          ],
+          "startMs": 400,
+          "durationMs": 2800
+        },
+        "enemies": [
+          {
+            "id": "panJanusz",
+            "at": [
+              680,
+              340
+            ],
+            "scale": 2,
+            "inMs": 1200,
+            "outMs": 7200,
+            "style": "bossHover"
+          },
+          {
+            "id": "kredyt",
+            "at": [
+              560,
+              410
+            ],
+            "scale": 1,
+            "inMs": 1500,
+            "outMs": 7000,
+            "style": "popHitFade"
+          },
+          {
+            "id": "audyt",
+            "at": [
+              760,
+              420
+            ],
+            "scale": 1,
+            "inMs": 1800,
+            "outMs": 7100,
+            "style": "popHitFade"
+          },
+          {
+            "id": "rwaKulszowa",
+            "at": [
+              860,
+              440
+            ],
+            "scale": 1,
+            "inMs": 2100,
+            "outMs": 7200,
+            "style": "popHitFade"
+          }
+        ]
+      },
+      "base": "assets/chronicle/rift/base.png",
+      "lightsAsset": "assets/chronicle/rift/lights.png"
+    },
+    "sunrise": {
+      "scene": "sunrise",
+      "pixelScale": 2,
+      "mood": "pink-gold, warm dawn, release",
+      "camera": {
+        "from": {
+          "x": 512,
+          "y": 280,
+          "zoom": 1.04
+        },
+        "to": {
+          "x": 524,
+          "y": 260,
+          "zoom": 1.12
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "distant_mist_band",
+          "kind": "far",
+          "path": "assets/chronicle/sunrise/layer_distant_mist_band.png",
+          "parallax": 0.5,
+          "anim": {
+            "type": "drift",
+            "dx": -16,
+            "dy": 0
+          },
+          "depth": -1
+        },
+        {
+          "id": "reeds_left",
+          "kind": "near",
+          "path": "assets/chronicle/sunrise/layer_reeds_left.png",
+          "parallax": 1.25,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              40,
+              576
+            ],
+            "deg": 2,
+            "periodMs": 3800,
+            "phase": 0.0
+          },
+          "depth": 1
+        },
+        {
+          "id": "reeds_right",
+          "kind": "near",
+          "path": "assets/chronicle/sunrise/layer_reeds_right.png",
+          "parallax": 1.28,
+          "anim": {
+            "type": "swing",
+            "pivot": [
+              980,
+              576
+            ],
+            "deg": 2,
+            "periodMs": 4200,
+            "phase": 0.5
+          },
+          "depth": 1
+        }
+      ],
+      "regions": [
+        {
+          "id": "lake_sparkle_water",
+          "path": "assets/chronicle/sunrise/region_lake_sparkle_water.png",
+          "shader": "water",
+          "params": {
+            "amp": 2,
+            "wavelength": 20,
+            "speed": 0.4,
+            "sparkle": 0.85,
+            "sparkleColor": "#fff5d0"
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "sun_bloom",
+          "style": "sunBloom",
+          "intensity": [
+            0.75,
+            1.0
+          ],
+          "glow": {
+            "radius": 160,
+            "color": "#ffe082",
+            "alpha": 0.55
+          },
+          "at": [
+            524,
+            236
+          ],
+          "seed": 5,
+          "followLayer": null,
+          "pixelCount": 8690
+        },
+        {
+          "id": "lake_sparkle_core",
+          "style": "pulse",
+          "intensity": [
+            0.6,
+            1.0
+          ],
+          "glow": {
+            "radius": 70,
+            "color": "#fff0b0",
+            "alpha": 0.35
+          },
+          "at": [
+            520,
+            360
+          ],
+          "seed": 11,
+          "followLayer": null,
+          "pixelCount": 9114
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "birds_v_formation",
+          "at": [
+            880,
+            100
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 6,
+          "loop": true,
+          "alpha": 0.85,
+          "blend": "normal",
+          "path": {
+            "to": [
+              120,
+              75
+            ],
+            "durationMs": 7600,
+            "ease": "linear"
+          },
+          "startMs": 400,
+          "endMs": null,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "dust",
+          "zone": {
+            "rect": [
+              300,
+              120,
+              440,
+              360
+            ]
+          },
+          "density": 0.8,
+          "color": "#fff2a8",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "sparkles",
+          "zone": {
+            "rect": [
+              420,
+              270,
+              210,
+              230
+            ]
+          },
+          "density": 1.2,
+          "color": "#ffffff",
+          "depthLayer": "front",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#f0c0b8",
+          "add": "#100608",
+          "sat": 0.9
+        },
+        {
+          "t": 0.5,
+          "mul": "#ffd4a8",
+          "add": "#120a06",
+          "sat": 1.05
+        },
+        {
+          "t": 1.0,
+          "mul": "#ffe8b8",
+          "add": "#140e06",
+          "sat": 1.1
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 0,
+          "do": "sfx",
+          "args": {
+            "id": "wildernessSurvival"
+          }
+        },
+        {
+          "atMs": 400,
+          "do": "spriteStart",
+          "args": {
+            "asset": "birds_v_formation"
+          }
+        },
+        {
+          "atMs": 3000,
+          "do": "sfx",
+          "args": {
+            "id": "buff"
+          }
+        },
+        {
+          "atMs": 7200,
+          "do": "sfx",
+          "args": {
+            "id": "confirm"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 500,
+        "sit": [
+          [
+            340,
+            502
+          ],
+          [
+            400,
+            498
+          ],
+          [
+            460,
+            495
+          ],
+          [
+            580,
+            495
+          ],
+          [
+            640,
+            498
+          ],
+          [
+            700,
+            502
+          ]
+        ]
+      },
+      "base": "assets/chronicle/sunrise/base.png",
+      "lightsAsset": "assets/chronicle/sunrise/lights.png"
+    },
+    "title_lake": {
+      "scene": "title_lake",
+      "pixelScale": 2,
+      "mood": "deep navy and teal night, moon silver, tiny warm campfire glow",
+      "camera": {
+        "from": {
+          "x": 350,
+          "y": 140,
+          "zoom": 1.18
+        },
+        "to": {
+          "x": 512,
+          "y": 320,
+          "zoom": 1.04
+        },
+        "ease": "sineInOut"
+      },
+      "layers": [
+        {
+          "id": "sky_stars",
+          "kind": "far",
+          "path": "assets/chronicle/title_lake/layer_sky_stars.png",
+          "parallax": 0.35,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "distant_shore_treeline",
+          "kind": "far",
+          "path": "assets/chronicle/title_lake/layer_distant_shore_treeline.png",
+          "parallax": 0.65,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "mid_trees_shore_left",
+          "kind": "near",
+          "path": "assets/chronicle/title_lake/layer_mid_trees_shore_left.png",
+          "parallax": 1.08,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "mid_trees_shore_right",
+          "kind": "near",
+          "path": "assets/chronicle/title_lake/layer_mid_trees_shore_right.png",
+          "parallax": 1.08,
+          "anim": null,
+          "depth": 0
+        },
+        {
+          "id": "fg_trees_framing",
+          "kind": "near",
+          "path": "assets/chronicle/title_lake/layer_fg_trees_framing.png",
+          "parallax": 1.25,
+          "anim": null,
+          "depth": 1
+        }
+      ],
+      "regions": [
+        {
+          "id": "lake_water",
+          "path": "assets/chronicle/title_lake/region_lake_water.png",
+          "shader": "water",
+          "params": {
+            "amp": 2,
+            "wavelength": 22,
+            "speed": 0.45,
+            "sparkle": 0.85,
+            "sparkleColor": "#e0f4ff"
+          }
+        },
+        {
+          "id": "pine_canopy_sway",
+          "path": "assets/chronicle/title_lake/region_pine_canopy_sway.png",
+          "shader": "sway",
+          "params": {
+            "amp": 2,
+            "periodMs": 4400,
+            "anchor": "top"
+          }
+        }
+      ],
+      "lights": [
+        {
+          "id": "moon",
+          "style": "steady",
+          "intensity": [
+            0.85,
+            1.0
+          ],
+          "glow": {
+            "radius": 130,
+            "color": "#c0e4ff",
+            "alpha": 0.45
+          },
+          "at": [
+            336,
+            102
+          ],
+          "seed": 1,
+          "followLayer": null,
+          "pixelCount": 527
+        },
+        {
+          "id": "campfire",
+          "style": "candle",
+          "intensity": [
+            0.55,
+            1.0
+          ],
+          "glow": {
+            "radius": 85,
+            "color": "#ff8426",
+            "alpha": 0.6
+          },
+          "at": [
+            672,
+            357
+          ],
+          "seed": 9,
+          "followLayer": null,
+          "pixelCount": 212
+        },
+        {
+          "id": "water_moon_path",
+          "style": "pulse",
+          "intensity": [
+            0.7,
+            1.0
+          ],
+          "glow": {
+            "radius": 90,
+            "color": "#76b8df",
+            "alpha": 0.3
+          },
+          "at": [
+            512,
+            420
+          ],
+          "seed": 5,
+          "followLayer": null,
+          "pixelCount": 2875
+        }
+      ],
+      "sprites": [
+        {
+          "asset": "shooting_star_anim",
+          "at": [
+            780,
+            110
+          ],
+          "origin": [
+            0.5,
+            0.5
+          ],
+          "scale": 2,
+          "fps": 12,
+          "loop": false,
+          "alpha": 0.95,
+          "blend": "add",
+          "path": null,
+          "startMs": 2800,
+          "endMs": 3800,
+          "followLayer": null,
+          "depth": "front"
+        }
+      ],
+      "particles": [
+        {
+          "preset": "embers",
+          "zone": {
+            "rect": [
+              635,
+              180,
+              75,
+              180
+            ]
+          },
+          "density": 0.85,
+          "color": "#ff8c30",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "fireflies",
+          "zone": {
+            "rect": [
+              120,
+              360,
+              260,
+              160
+            ]
+          },
+          "density": 0.7,
+          "color": "#a8ff60",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "fireflies",
+          "zone": {
+            "rect": [
+              680,
+              360,
+              240,
+              160
+            ]
+          },
+          "density": 0.6,
+          "color": "#92f558",
+          "depthLayer": "front",
+          "params": {}
+        },
+        {
+          "preset": "sparkles",
+          "zone": {
+            "rect": [
+              380,
+              360,
+              260,
+              120
+            ]
+          },
+          "density": 0.75,
+          "color": "#e2f6ff",
+          "depthLayer": "front",
+          "params": {}
+        }
+      ],
+      "grade": [
+        {
+          "t": 0.0,
+          "mul": "#ffffff",
+          "add": "#000000",
+          "sat": 1.0
+        },
+        {
+          "t": 1.0,
+          "mul": "#ffffff",
+          "add": "#000000",
+          "sat": 1.0
+        }
+      ],
+      "cues": [
+        {
+          "atMs": 800,
+          "do": "sfx",
+          "args": {
+            "id": "wildernessSurvival"
+          }
+        },
+        {
+          "atMs": 2200,
+          "do": "sfx",
+          "args": {
+            "id": "fireCrackle"
+          }
+        },
+        {
+          "atMs": 2800,
+          "do": "spriteStart",
+          "args": {
+            "asset": "shooting_star_anim"
+          }
+        },
+        {
+          "atMs": 3500,
+          "do": "sfx",
+          "args": {
+            "id": "levelup"
+          }
+        }
+      ],
+      "actors": {
+        "scale": 2,
+        "groundY": 480,
+        "sit": [
+          [
+            656,
+            375
+          ],
+          [
+            664,
+            378
+          ],
+          [
+            672,
+            380
+          ],
+          [
+            680,
+            379
+          ],
+          [
+            688,
+            376
+          ],
+          [
+            696,
+            374
+          ]
+        ]
+      },
+      "base": "assets/chronicle/title_lake/base.png",
+      "lightsAsset": "assets/chronicle/title_lake/lights.png"
+    }
+  }
+}

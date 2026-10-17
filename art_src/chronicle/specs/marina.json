@@ -1,0 +1,319 @@
+{
+  "scene": "marina",
+  "src": "public/assets/bg/battle_marina.png",
+  "pixelScale": 2,
+  "mood": "violet night, lantern-warm",
+
+  "camera": {
+    "from": { "x": 512, "y": 300, "zoom": 1.05 },
+    "to":   { "x": 560, "y": 320, "zoom": 1.15 },
+    "ease": "sineInOut"
+  },
+
+  "layers": [
+    {
+      "id": "clouds",
+      "kind": "far",
+      "mask": {
+        "poly": [
+          [0, 0],
+          [1024, 0],
+          [1024, 185],
+          [832, 126],
+          [700, 160],
+          [512, 175],
+          [256, 120],
+          [0, 40]
+        ],
+        "key": { "lumMin": 0.15 }
+      },
+      "parallax": 0.35,
+      "anim": { "type": "drift", "dx": 18, "dy": 0 },
+      "depth": 1
+    },
+    {
+      "id": "lantern_mid_left",
+      "kind": "near",
+      "mask": { "rect": [354, 146, 42, 72] },
+      "parallax": 1.06,
+      "fill": "smear",
+      "anim": { "type": "swing", "pivot": [373, 147], "deg": 2.5, "periodMs": 2400, "phase": 0.4 },
+      "depth": 5
+    },
+    {
+      "id": "lantern_right",
+      "kind": "near",
+      "mask": { "rect": [886, 156, 42, 62] },
+      "parallax": 1.08,
+      "fill": "smear",
+      "anim": { "type": "swing", "pivot": [903, 158], "deg": 2.5, "periodMs": 2500, "phase": 0.8 },
+      "depth": 6
+    },
+    {
+      "id": "fg_post_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [98, 64],
+          [176, 64],
+          [182, 350],
+          [180, 576],
+          [100, 576]
+        ]
+      },
+      "parallax": 1.25,
+      "fill": "dup",
+      "anim": null,
+      "depth": 10
+    },
+    {
+      "id": "lantern_fg_left",
+      "kind": "near",
+      "mask": { "rect": [164, 214, 66, 114] },
+      "parallax": 1.22,
+      "fill": "smear",
+      "anim": { "type": "swing", "pivot": [196, 214], "deg": 3.5, "periodMs": 2800, "phase": 0.0 },
+      "depth": 12
+    },
+    {
+      "id": "fg_bollard_right",
+      "kind": "near",
+      "mask": { "rect": [708, 418, 78, 158] },
+      "parallax": 1.28,
+      "fill": "dup",
+      "anim": null,
+      "depth": 11
+    }
+  ],
+
+  "lights": {
+    "named": [
+      {
+        "id": "lantern_fg_left",
+        "mask": { "rect": [168, 230, 58, 85] },
+        "key": { "lumMin": 0.68 },
+        "style": "candle",
+        "intensity": [0.55, 1.0],
+        "glow": { "radius": 110, "color": "#ffb85a", "alpha": 0.40 },
+        "at": [196, 272],
+        "followLayer": "lantern_fg_left",
+        "seed": 3
+      },
+      {
+        "id": "lantern_mid_left",
+        "mask": { "rect": [356, 160, 36, 56] },
+        "key": { "lumMin": 0.68 },
+        "style": "candle",
+        "intensity": [0.50, 0.95],
+        "glow": { "radius": 75, "color": "#ffae50", "alpha": 0.35 },
+        "at": [373, 187],
+        "followLayer": "lantern_mid_left",
+        "seed": 7
+      },
+      {
+        "id": "lantern_right",
+        "mask": { "rect": [890, 164, 32, 50] },
+        "key": { "lumMin": 0.68 },
+        "style": "candle",
+        "intensity": [0.45, 0.90],
+        "glow": { "radius": 70, "color": "#ffaa45", "alpha": 0.30 },
+        "at": [903, 188],
+        "followLayer": "lantern_right",
+        "seed": 11
+      },
+      {
+        "id": "lantern_far_left",
+        "mask": { "rect": [34, 164, 34, 48] },
+        "key": { "lumMin": 0.65 },
+        "style": "candle",
+        "intensity": [0.40, 0.85],
+        "glow": { "radius": 50, "color": "#ffb050", "alpha": 0.25 },
+        "at": [51, 187],
+        "seed": 15
+      },
+      {
+        "id": "reflection_right",
+        "mask": { "rect": [880, 380, 95, 140] },
+        "key": { "lumMin": 0.65 },
+        "style": "candle",
+        "intensity": [0.40, 0.85],
+        "glow": { "radius": 80, "color": "#ffaa45", "alpha": 0.28 },
+        "at": [925, 440],
+        "seed": 11
+      },
+      {
+        "id": "reflection_left",
+        "mask": { "rect": [20, 395, 65, 75] },
+        "key": { "lumMin": 0.65 },
+        "style": "candle",
+        "intensity": [0.35, 0.80],
+        "glow": { "radius": 60, "color": "#ffb85a", "alpha": 0.22 },
+        "at": [46, 420],
+        "seed": 3
+      }
+    ]
+  },
+
+  "regions": [
+    {
+      "id": "water_surface",
+      "mask": {
+        "polys": [
+          [
+            [0, 205],
+            [350, 205],
+            [330, 370],
+            [210, 420],
+            [195, 576],
+            [0, 576]
+          ],
+          [
+            [350, 205],
+            [940, 205],
+            [940, 260],
+            [350, 260]
+          ],
+          [
+            [580, 270],
+            [1024, 270],
+            [1024, 576],
+            [780, 576],
+            [630, 360],
+            [580, 330]
+          ]
+        ]
+      },
+      "shader": "water",
+      "params": {
+        "amp": 2,
+        "wavelength": 24,
+        "speed": 0.5,
+        "sparkle": 0.35,
+        "sparkleColor": "#ffdd88"
+      }
+    }
+  ],
+
+  "sprites": [
+    {
+      "asset": "lantern_flame",
+      "at": [196, 272],
+      "origin": [0.5, 0.8],
+      "scale": 2,
+      "fps": 8,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "add",
+      "path": null,
+      "startMs": 0,
+      "endMs": null,
+      "followLayer": "lantern_fg_left",
+      "depth": "front"
+    },
+    {
+      "asset": "luki_boat",
+      "at": [610, 310],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 4,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "normal",
+      "path": null,
+      "startMs": 0,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "behindNear"
+    }
+  ],
+
+  "particles": [
+    {
+      "preset": "steam",
+      "zone": { "rect": [0, 200, 1024, 180] },
+      "density": 0.6,
+      "color": "#8a9bb8",
+      "depthLayer": "behindNear",
+      "params": {}
+    },
+    {
+      "preset": "moths",
+      "zone": { "rect": [150, 220, 100, 110] },
+      "density": 0.8,
+      "color": "#ffeec0",
+      "depthLayer": "front",
+      "params": { "center": [196, 272] }
+    },
+    {
+      "preset": "embers",
+      "zone": { "rect": [160, 240, 120, 180] },
+      "density": 0.4,
+      "color": "#ffb85a",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "fireflies",
+      "zone": { "rect": [0, 260, 1024, 260] },
+      "density": 0.4,
+      "color": "#ffd070",
+      "depthLayer": "behindNear",
+      "params": {}
+    }
+  ],
+
+  "grade": [
+    { "t": 0.0, "mul": "#e8e0f8", "add": "#020108", "sat": 1.05 },
+    { "t": 0.5, "mul": "#f4eaf0", "add": "#05020a", "sat": 1.08 },
+    { "t": 1.0, "mul": "#fff2ea", "add": "#08040a", "sat": 1.10 }
+  ],
+
+  "cues": [
+    { "atMs": 500,  "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 1200, "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 2000, "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 2800, "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 3600, "do": "join", "args": {} },
+    { "atMs": 3600, "do": "sfx", "args": { "id": "aquaRescue" } },
+    { "atMs": 3900, "do": "sfx", "args": { "id": "buff" } }
+  ],
+
+  "actors": {
+    "scale": 2,
+    "groundY": 480,
+    "walk": {
+      "from": [210, 480],
+      "to": [440, 480],
+      "startMs": 600,
+      "durationMs": 3800
+    },
+    "joinAt": [560, 470]
+  },
+
+  "briefs": [
+    {
+      "id": "lantern_flame",
+      "kind": "sprite",
+      "frames": 4,
+      "frameSize": [16, 24],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 4 frames side by side in one horizontal row, equal spacing, small kerosene lantern flame flickering warmly, bright yellow-white core with soft amber-orange outer flame, solid flat magenta #FF00FF background, side view, matching palette of battle_marina.png",
+      "palette": "scene",
+      "priority": "must"
+    },
+    {
+      "id": "luki_boat",
+      "kind": "sprite",
+      "frames": 4,
+      "frameSize": [48, 24],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 4 frames side by side in one horizontal row, equal spacing, small aluminium motorboat gently bobbing in water, bright orange rescue lifebuoy hanging on the side, coiled ropes and emergency canister in stern, 3/4 perspective matching pier in battle_marina.png, solid flat magenta #FF00FF background, dusk violet reflections",
+      "palette": "scene",
+      "priority": "nice"
+    }
+  ],
+
+  "notes": "Shot 7: Marina. Rozdział 5 · Nocna Misja nad Rzeką · 'Łuki zatankował łódź. Kamizelki są. Nikt nie skacze po shotach.' The pack arrives at the riverside dock at dusk. Warm kerosene lanterns swing gently on wooden posts in the evening breeze, casting dancing reflections across the rippling water shader. River mist creeps across the far tree line while moths flutter around the lantern light. Łuki is ready at the moored rescue boat to ferry the squad across the lake to Oziem's camp."
+}

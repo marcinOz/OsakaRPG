@@ -1,0 +1,167 @@
+{
+  "scene": "flashback_2006",
+  "src": "GENERATED:flashback_2006_plate",
+  "pixelScale": 2,
+  "mood": "sepia nostalgia bleeding into warm 2006 summer dusk",
+  "camera": {
+    "from": { "x": 512, "y": 300, "zoom": 1.05 },
+    "to": { "x": 480, "y": 335, "zoom": 1.15 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "sky_clouds",
+      "kind": "far",
+      "mask": { "poly": [[0, 0], [1024, 0], [1024, 280], [0, 280]] },
+      "parallax": 0.35,
+      "anim": { "type": "drift", "dx": 16, "dy": 0 }
+    },
+    {
+      "id": "blokowisko_tower",
+      "kind": "far",
+      "mask": { "poly": [[260, 40], [540, 40], [540, 420], [260, 420]] },
+      "parallax": 0.65
+    },
+    {
+      "id": "tree_canopy_left",
+      "kind": "near",
+      "mask": { "poly": [[0, 0], [260, 0], [280, 220], [180, 340], [0, 340]] },
+      "parallax": 1.12,
+      "fill": "smear",
+      "anim": { "type": "sway", "amp": 2, "periodMs": 4200, "anchor": "top" }
+    },
+    {
+      "id": "bench_crew_fg",
+      "kind": "near",
+      "mask": { "poly": [[240, 360], [720, 360], [740, 520], [220, 520]] },
+      "parallax": 1.25,
+      "fill": "dup",
+      "depth": 1
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "street_lamp",
+        "mask": { "rect": [620, 180, 50, 45] },
+        "key": { "lumMin": 0.7 },
+        "style": "candle",
+        "intensity": [0.65, 1.0],
+        "glow": { "radius": 120, "color": "#ffaa33", "alpha": 0.5 },
+        "at": [645, 202],
+        "seed": 7
+      },
+      {
+        "id": "block_window_1",
+        "mask": { "rect": [380, 190, 24, 28] },
+        "key": { "lumMin": 0.65 },
+        "style": "steady",
+        "intensity": [0.0, 1.0],
+        "glow": { "radius": 40, "color": "#ffe090", "alpha": 0.35 },
+        "at": [392, 204],
+        "seed": 12
+      },
+      {
+        "id": "boombox_led",
+        "mask": { "rect": [580, 445, 16, 12] },
+        "key": { "lumMin": 0.6 },
+        "style": "pulse",
+        "intensity": [0.4, 0.9],
+        "glow": { "radius": 20, "color": "#ff3333", "alpha": 0.4 },
+        "at": [588, 451],
+        "seed": 4
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "tree_sway",
+      "mask": { "poly": [[0, 0], [240, 0], [250, 200], [160, 320], [0, 300]] },
+      "shader": "sway",
+      "params": { "amp": 3, "periodMs": 3800, "anchor": "top" }
+    },
+    {
+      "id": "lawn_sway",
+      "mask": { "poly": [[120, 440], [300, 440], [280, 500], [100, 500]] },
+      "shader": "sway",
+      "params": { "amp": 2, "periodMs": 2800, "anchor": "bottom" }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "boombox_reels",
+      "at": [588, 442],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 8,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "normal",
+      "path": null,
+      "startMs": 0,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "leaves",
+      "zone": { "rect": [0, 64, 1024, 448] },
+      "density": 0.6,
+      "color": "#c89456",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "moths",
+      "zone": { "rect": [590, 160, 110, 100] },
+      "density": 0.8,
+      "color": "#ffeaa0",
+      "depthLayer": "front",
+      "params": { "center": [645, 202] }
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#e8c898", "add": "#1a1208", "sat": 0.15 },
+    { "t": 0.35, "mul": "#f0d4ac", "add": "#100b05", "sat": 0.45 },
+    { "t": 0.70, "mul": "#fbe4c8", "add": "#050302", "sat": 0.8 },
+    { "t": 1.0, "mul": "#ffffff", "add": "#000000", "sat": 1.05 }
+  ],
+  "cues": [
+    { "atMs": 1000, "do": "sfx", "args": { "id": "wildernessSurvival" } },
+    { "atMs": 2200, "do": "lightOn", "args": { "id": "block_window_1" } },
+    { "atMs": 3500, "do": "sfx", "args": { "id": "bassBlast" } },
+    { "atMs": 6600, "do": "flash", "args": { "color": "#ffffff" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 470,
+    "sit": [[350, 465], [395, 465], [440, 465], [485, 465], [530, 465], [310, 468]]
+  },
+  "briefs": [
+    {
+      "id": "flashback_2006_plate",
+      "kind": "keyframe",
+      "frames": null,
+      "frameSize": null,
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art background painting, 1024x576 source resolution, retro 16-bit RPG cinematic aesthetic. Nostalgic 2006 Polish summer dusk scene outside a towering grey concrete residential slab block (wielka płyta blokowisko). Six teenage friends (Danny, Alior, Barti, Lisu, Oziem, Łuki, aged ~16-17, dressed in mid-2000s baggy hoodies, tracksuits, skate tees, cargo pants, headphones) seen from behind and three-quarter view, hanging out together on and around a classic green wooden park bench on an asphalt sidewalk. A vintage silver-black portable boombox cassette recorder rests on the curb beside them. A tall curved Polish sodium street lamp arches over the bench, casting a warm amber glow onto the group and ground. In the background, the tall concrete apartment block has scattered lit yellow windows, television glows, and laundry balconies against a warm pink-orange dusk gradient sky fading to dusky violet. Rich hand-crafted pixel art texture, cinematic mood, palette: sodium amber #FFAA33, concrete grey #70757D, dusk violet #2B2A4A, summer foliage #4A5B38, asphalt slate #3A3D40.",
+      "palette": "free",
+      "priority": "must"
+    },
+    {
+      "id": "boombox_reels",
+      "kind": "sprite",
+      "frames": 4,
+      "frameSize": [16, 12],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 4 frames side by side in one horizontal row, equal spacing, solid flat magenta #FF00FF background. Small retro cassette tape deck twin spinning reel spools rotating continuously, silver and black cassette housing with red recording indicator LED, pixel art 2px aesthetic, clean edges.",
+      "palette": "scene",
+      "priority": "nice"
+    }
+  ],
+  "notes": "Shot 0: 2006 flashback prologue establishing 'Ławka pod blokiem. Tu się zaczęło.' The shot opens in heavy nostalgic sepia tone with ambient summer dusk sounds. As time advances, colour bleeds into the scene, revealing the warm sodium street lamp glow, the green bench, and the 6 teenage friends. A block window lights up at 2.2s, and the boombox bass thumps softly at 3.5s. A white flash at 6.6s creates a match-cut transition to the crescent moon in Shot 1."
+}

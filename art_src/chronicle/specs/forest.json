@@ -1,0 +1,332 @@
+{
+  "scene": "forest",
+  "src": "public/assets/bg/battle_forest.png",
+  "pixelScale": 2,
+  "mood": "lush green, gold shafts",
+
+  "camera": {
+    "from": { "x": 512, "y": 270, "zoom": 1.05 },
+    "to":   { "x": 520, "y": 310, "zoom": 1.15 },
+    "ease": "sineInOut"
+  },
+
+  "layers": [
+    {
+      "id": "fg_tree_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [0, 0],
+          [170, 0],
+          [180, 260],
+          [210, 420],
+          [190, 576],
+          [0, 576]
+        ]
+      },
+      "parallax": 1.25,
+      "fill": "dup",
+      "anim": null,
+      "depth": 10
+    },
+    {
+      "id": "fg_tree_right",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [720, 0],
+          [1024, 0],
+          [1024, 576],
+          [710, 576],
+          [740, 420],
+          [780, 260]
+        ]
+      },
+      "parallax": 1.22,
+      "fill": "dup",
+      "anim": null,
+      "depth": 9
+    },
+    {
+      "id": "fg_log_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [110, 400],
+          [390, 410],
+          [390, 565],
+          [110, 565]
+        ]
+      },
+      "parallax": 1.15,
+      "fill": "dup",
+      "anim": null,
+      "depth": 5
+    },
+    {
+      "id": "fg_rock_right",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [660, 460],
+          [930, 450],
+          [930, 576],
+          [660, 576]
+        ]
+      },
+      "parallax": 1.20,
+      "fill": "dup",
+      "anim": null,
+      "depth": 6
+    }
+  ],
+
+  "lights": {
+    "named": [
+      {
+        "id": "god_rays_main",
+        "mask": {
+          "poly": [
+            [170, 0],
+            [290, 0],
+            [440, 280],
+            [330, 280]
+          ]
+        },
+        "key": { "lumMin": 0.65 },
+        "style": "sunBloom",
+        "intensity": [0.40, 0.90],
+        "glow": { "radius": 140, "color": "#f8f0c0", "alpha": 0.35 },
+        "at": [300, 140],
+        "seed": 5
+      },
+      {
+        "id": "god_rays_right",
+        "mask": {
+          "poly": [
+            [280, 0],
+            [380, 0],
+            [560, 330],
+            [450, 330]
+          ]
+        },
+        "key": { "lumMin": 0.65 },
+        "style": "sunBloom",
+        "intensity": [0.35, 0.85],
+        "glow": { "radius": 120, "color": "#fff4d0", "alpha": 0.30 },
+        "at": [420, 160],
+        "seed": 9
+      },
+      {
+        "id": "shrooms_left_trunk",
+        "mask": { "rect": [50, 150, 120, 290] },
+        "key": { "lumMin": 0.48 },
+        "style": "pulse",
+        "intensity": [0.45, 0.95],
+        "glow": { "radius": 55, "color": "#b8f480", "alpha": 0.35 },
+        "at": [100, 270],
+        "seed": 12
+      },
+      {
+        "id": "shrooms_right_trunk",
+        "mask": { "rect": [740, 220, 180, 180] },
+        "key": { "lumMin": 0.50 },
+        "style": "pulse",
+        "intensity": [0.45, 0.95],
+        "glow": { "radius": 60, "color": "#a0f078", "alpha": 0.35 },
+        "at": [830, 290],
+        "seed": 16
+      },
+      {
+        "id": "shrooms_right_ground",
+        "mask": { "rect": [765, 415, 60, 60] },
+        "key": { "lumMin": 0.45 },
+        "style": "candle",
+        "intensity": [0.40, 0.85],
+        "glow": { "radius": 40, "color": "#d8ff90", "alpha": 0.30 },
+        "at": [795, 440],
+        "seed": 21
+      }
+    ]
+  },
+
+  "regions": [
+    {
+      "id": "canopy_sway_oak",
+      "mask": {
+        "poly": [
+          [550, 0],
+          [1024, 0],
+          [1024, 190],
+          [780, 180],
+          [600, 140]
+        ]
+      },
+      "shader": "sway",
+      "params": {
+        "amp": 3,
+        "periodMs": 4200,
+        "anchor": "top"
+      }
+    },
+    {
+      "id": "canopy_sway_pine",
+      "mask": {
+        "poly": [
+          [180, 0],
+          [530, 0],
+          [520, 160],
+          [240, 160]
+        ]
+      },
+      "shader": "sway",
+      "params": {
+        "amp": 2,
+        "periodMs": 3800,
+        "anchor": "top"
+      }
+    },
+    {
+      "id": "ferns_sway_fg_left",
+      "mask": {
+        "poly": [
+          [0, 420],
+          [180, 420],
+          [180, 576],
+          [0, 576]
+        ]
+      },
+      "shader": "sway",
+      "params": {
+        "amp": 3,
+        "periodMs": 3600,
+        "anchor": "bottom"
+      }
+    },
+    {
+      "id": "ferns_sway_fg_center",
+      "mask": {
+        "poly": [
+          [460, 450],
+          [720, 450],
+          [720, 576],
+          [460, 576]
+        ]
+      },
+      "shader": "sway",
+      "params": {
+        "amp": 3,
+        "periodMs": 3400,
+        "anchor": "bottom"
+      }
+    }
+  ],
+
+  "sprites": [
+    {
+      "asset": "forest_moth",
+      "at": [380, 220],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 6,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "normal",
+      "path": {
+        "to": [440, 180],
+        "durationMs": 5000,
+        "ease": "sineInOut"
+      },
+      "startMs": 0,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+
+  "particles": [
+    {
+      "preset": "leaves",
+      "zone": { "rect": [80, 40, 860, 480] },
+      "density": 0.9,
+      "color": "#92b347",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "dust",
+      "zone": {
+        "poly": [
+          [160, 0],
+          [380, 0],
+          [580, 340],
+          [320, 340]
+        ]
+      },
+      "density": 0.7,
+      "color": "#fff5cc",
+      "depthLayer": "behindNear",
+      "params": {}
+    },
+    {
+      "preset": "fireflies",
+      "zone": { "rect": [150, 240, 720, 280] },
+      "density": 0.5,
+      "color": "#b8ff50",
+      "depthLayer": "behindNear",
+      "params": {}
+    },
+    {
+      "preset": "smoke",
+      "zone": { "rect": [0, 300, 1024, 180] },
+      "density": 0.5,
+      "color": "#8ca892",
+      "depthLayer": "behindNear",
+      "params": { "origin": [512, 360] }
+    }
+  ],
+
+  "grade": [
+    { "t": 0.0, "mul": "#e8f8e0", "add": "#020803", "sat": 1.05 },
+    { "t": 0.5, "mul": "#f4fce8", "add": "#040902", "sat": 1.10 },
+    { "t": 1.0, "mul": "#fff8e0", "add": "#080b03", "sat": 1.15 }
+  ],
+
+  "cues": [
+    { "atMs": 500,  "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 1300, "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 2100, "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 3000, "do": "sfx", "args": { "id": "step" } },
+    { "atMs": 3800, "do": "join", "args": {} },
+    { "atMs": 3800, "do": "sfx", "args": { "id": "wildernessSurvival" } },
+    { "atMs": 4100, "do": "sfx", "args": { "id": "buff" } }
+  ],
+
+  "actors": {
+    "scale": 2,
+    "groundY": 445,
+    "walk": {
+      "from": [140, 445],
+      "to": [360, 445],
+      "startMs": 600,
+      "durationMs": 3600
+    },
+    "joinAt": [530, 435]
+  },
+
+  "briefs": [
+    {
+      "id": "forest_moth",
+      "kind": "sprite",
+      "frames": 4,
+      "frameSize": [16, 16],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 4 frames side by side in one horizontal row, equal spacing, glowing emerald-green forest moth fluttering wings in gentle looping flight, solid flat magenta #FF00FF background, side/isometric angle, matching palette of battle_forest.png",
+      "palette": "scene",
+      "priority": "must"
+    }
+  ],
+
+  "notes": "Shot 8: Leśne Obozowisko. Rozdział 6 · Leśne Obozowisko · 'Za jeziorem, w głębi lasu, czekał Oziem.' The pack crosses into the deep primeval forest where Oziem has prepared the camp. Warm, breathing god-rays stream down through the dense spruce and mossy oak canopy, catching swirling dust motes and falling leaves. Bioluminescent polypore mushrooms pulse with gentle emerald light on the ancient trunks while lush foreground ferns sway in the forest air. Oziem joins the fellowship in the sunlit clearing."
+}

@@ -1,0 +1,181 @@
+{
+  "scene": "title_lake",
+  "src": "public/assets/bg/title.png",
+  "pixelScale": 2,
+  "mood": "deep navy and teal night, moon silver, tiny warm campfire glow",
+  "camera": {
+    "from": { "x": 350, "y": 140, "zoom": 1.18 },
+    "to": { "x": 512, "y": 320, "zoom": 1.04 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "sky_stars",
+      "kind": "far",
+      "mask": { "poly": [[0, 0], [1024, 0], [1024, 280], [760, 280], [640, 320], [360, 320], [240, 280], [0, 280]] },
+      "parallax": 0.35,
+      "anim": null
+    },
+    {
+      "id": "distant_shore_treeline",
+      "kind": "far",
+      "mask": { "poly": [[250, 270], [770, 270], [770, 365], [250, 365]] },
+      "parallax": 0.65
+    },
+    {
+      "id": "mid_trees_shore_left",
+      "kind": "near",
+      "mask": { "poly": [[80, 240], [330, 240], [350, 480], [80, 520]] },
+      "parallax": 1.08,
+      "fill": "dup"
+    },
+    {
+      "id": "mid_trees_shore_right",
+      "kind": "near",
+      "mask": { "poly": [[640, 260], [870, 260], [870, 520], [640, 430]] },
+      "parallax": 1.08,
+      "fill": "dup"
+    },
+    {
+      "id": "fg_trees_framing",
+      "kind": "near",
+      "mask": {
+        "polys": [
+          [[0, 0], [115, 0], [125, 576], [0, 576]],
+          [[885, 0], [1024, 0], [1024, 576], [870, 576]]
+        ]
+      },
+      "parallax": 1.25,
+      "fill": "dup",
+      "depth": 1
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "moon",
+        "mask": { "rect": [312, 64, 48, 76] },
+        "key": { "lumMin": 0.7 },
+        "style": "steady",
+        "intensity": [0.85, 1.0],
+        "glow": { "radius": 130, "color": "#c0e4ff", "alpha": 0.45 },
+        "at": [336, 102],
+        "seed": 1
+      },
+      {
+        "id": "campfire",
+        "mask": { "rect": [652, 336, 40, 42] },
+        "key": { "lumMin": 0.55 },
+        "style": "candle",
+        "intensity": [0.55, 1.0],
+        "glow": { "radius": 85, "color": "#ff8426", "alpha": 0.6 },
+        "at": [672, 357],
+        "seed": 9
+      },
+      {
+        "id": "water_moon_path",
+        "mask": { "poly": [[430, 360], [590, 360], [640, 480], [380, 480]] },
+        "key": { "lumMin": 0.5 },
+        "style": "pulse",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 90, "color": "#76b8df", "alpha": 0.3 },
+        "at": [512, 420],
+        "seed": 5
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "lake_water",
+      "mask": { "poly": [[350, 365], [665, 365], [740, 410], [820, 450], [950, 520], [1024, 576], [0, 576], [0, 520], [140, 470], [240, 420]] },
+      "shader": "water",
+      "params": { "amp": 2, "wavelength": 22, "speed": 0.45, "sparkle": 0.85, "sparkleColor": "#e0f4ff" }
+    },
+    {
+      "id": "pine_canopy_sway",
+      "mask": { "poly": [[0, 0], [120, 0], [130, 260], [80, 380], [0, 380]] },
+      "shader": "sway",
+      "params": { "amp": 2, "periodMs": 4400, "anchor": "top" }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "shooting_star_anim",
+      "at": [780, 110],
+      "origin": [0.5, 0.5],
+      "scale": 2,
+      "fps": 12,
+      "loop": false,
+      "alpha": 0.95,
+      "blend": "add",
+      "path": null,
+      "startMs": 2800,
+      "endMs": 3800,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "embers",
+      "zone": { "rect": [635, 180, 75, 180] },
+      "density": 0.85,
+      "color": "#ff8c30",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "fireflies",
+      "zone": { "rect": [120, 360, 260, 160] },
+      "density": 0.7,
+      "color": "#a8ff60",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "fireflies",
+      "zone": { "rect": [680, 360, 240, 160] },
+      "density": 0.6,
+      "color": "#92f558",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "sparkles",
+      "zone": { "rect": [380, 360, 260, 120] },
+      "density": 0.75,
+      "color": "#e2f6ff",
+      "depthLayer": "front",
+      "params": {}
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#ffffff", "add": "#000000", "sat": 1.0 },
+    { "t": 1.0, "mul": "#ffffff", "add": "#000000", "sat": 1.0 }
+  ],
+  "cues": [
+    { "atMs": 800, "do": "sfx", "args": { "id": "wildernessSurvival" } },
+    { "atMs": 2200, "do": "sfx", "args": { "id": "fireCrackle" } },
+    { "atMs": 2800, "do": "spriteStart", "args": { "asset": "shooting_star_anim" } },
+    { "atMs": 3500, "do": "sfx", "args": { "id": "levelup" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 480,
+    "sit": [[656, 375], [664, 378], [672, 380], [680, 379], [688, 376], [696, 374]]
+  },
+  "briefs": [
+    {
+      "id": "shooting_star_anim",
+      "kind": "sprite",
+      "frames": 6,
+      "frameSize": [32, 16],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 6 frames side by side in one horizontal row, equal spacing, solid flat magenta #FF00FF background. A bright white-cyan shooting star meteor streaking diagonally from upper-right to lower-left across the night sky, with glowing cyan sparkle dust tail fading out behind it, retro 16-bit RPG visual style.",
+      "palette": "scene",
+      "priority": "must"
+    }
+  ],
+  "notes": "Shot 1: Title card ('20 lat później · KRONIKA EKIPY'). Match-cut from the street lamp in Shot 0 directly to the crescent moon. Camera glides gracefully down-right from the moon to reveal the deep blue lake, moonlit shimmer path, and distant campfire where the crew gathers 20 years later. A shooting star darts across the sky as the title chord rings out."
+}

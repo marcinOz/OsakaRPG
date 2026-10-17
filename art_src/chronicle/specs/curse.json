@@ -1,0 +1,237 @@
+{
+  "scene": "curse",
+  "src": "public/assets/bg/campfire.png",
+  "pixelScale": 2,
+  "mood": "ice-blue / cyan, desaturated, cold, eerie",
+  "camera": {
+    "from": { "x": 512, "y": 320, "zoom": 1.04 },
+    "to": { "x": 512, "y": 360, "zoom": 1.14 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "night_sky_canopy",
+      "kind": "far",
+      "mask": {
+        "poly": [
+          [250, 0],
+          [780, 0],
+          [770, 160],
+          [670, 210],
+          [530, 220],
+          [360, 200],
+          [260, 140]
+        ]
+      },
+      "parallax": 0.6,
+      "fill": "dup",
+      "anim": {
+        "type": "drift",
+        "dx": -8,
+        "dy": 0
+      },
+      "depth": -1
+    },
+    {
+      "id": "foreground_trees_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [0, 0],
+          [210, 0],
+          [230, 180],
+          [180, 360],
+          [220, 576],
+          [0, 576]
+        ]
+      },
+      "parallax": 1.2,
+      "fill": "dup",
+      "anim": {
+        "type": "bob",
+        "px": 2,
+        "periodMs": 4800,
+        "phase": 0.0
+      },
+      "depth": 1
+    },
+    {
+      "id": "foreground_trees_right",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [810, 0],
+          [1024, 0],
+          [1024, 576],
+          [800, 576],
+          [830, 340],
+          [800, 170]
+        ]
+      },
+      "parallax": 1.22,
+      "fill": "dup",
+      "anim": {
+        "type": "bob",
+        "px": 2,
+        "periodMs": 5200,
+        "phase": 0.5
+      },
+      "depth": 1
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "dying_fire_glow",
+        "mask": { "rect": [460, 440, 110, 70] },
+        "key": { "lumMin": 0.55 },
+        "style": "candle",
+        "intensity": [0.2, 0.6],
+        "glow": { "radius": 80, "color": "#ff7c30", "alpha": 0.3 },
+        "at": [515, 475],
+        "seed": 3
+      },
+      {
+        "id": "blue_eruption_glow",
+        "mask": { "rect": [440, 420, 150, 100] },
+        "key": { "lumMin": 0.4 },
+        "style": "pulse",
+        "intensity": [0.6, 1.0],
+        "glow": { "radius": 150, "color": "#4deeea", "alpha": 0.7 },
+        "at": [515, 470],
+        "seed": 7
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "heat_haze",
+      "mask": {
+        "poly": [
+          [470, 340],
+          [560, 340],
+          [580, 440],
+          [450, 440]
+        ]
+      },
+      "shader": "haze",
+      "params": {
+        "amp": 3,
+        "speed": 1.4
+      }
+    },
+    {
+      "id": "eerie_ground_fog",
+      "mask": {
+        "poly": [
+          [120, 430],
+          [904, 430],
+          [980, 530],
+          [44, 530]
+        ]
+      },
+      "shader": "sway",
+      "params": {
+        "amp": 4,
+        "periodMs": 4200,
+        "anchor": "bottom"
+      }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "ice_blue_fire",
+      "at": [514, 480],
+      "origin": [0.5, 1.0],
+      "scale": 2,
+      "fps": 10,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "add",
+      "path": null,
+      "startMs": 2400,
+      "endMs": null,
+      "followLayer": null,
+      "depth": "front"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "snowFrost",
+      "zone": { "rect": [0, 64, 1024, 448] },
+      "density": 1.4,
+      "color": "#74eeff",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "smoke",
+      "zone": { "rect": [120, 360, 784, 160] },
+      "density": 1.2,
+      "color": "#2b4859",
+      "depthLayer": "front",
+      "params": { "origin": [512, 460] }
+    },
+    {
+      "preset": "embers",
+      "zone": { "rect": [440, 280, 150, 190] },
+      "density": 0.9,
+      "color": "#4deeea",
+      "depthLayer": "front",
+      "params": { "origin": [515, 470] }
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#e8b888", "add": "#100800", "sat": 0.95 },
+    { "t": 0.25, "mul": "#483838", "add": "#040204", "sat": 0.4 },
+    { "t": 0.32, "mul": "#181c28", "add": "#000004", "sat": 0.2 },
+    { "t": 0.35, "mul": "#4288b8", "add": "#08182c", "sat": 0.85 },
+    { "t": 1.0, "mul": "#32628a", "add": "#0a1c30", "sat": 0.7 }
+  ],
+  "cues": [
+    { "atMs": 0, "do": "sfx", "args": { "id": "fireCrackle" } },
+    { "atMs": 1600, "do": "sfx", "args": { "id": "smokeScreen" } },
+    { "atMs": 1800, "do": "lightOff", "args": { "id": "dying_fire_glow" } },
+    { "atMs": 2400, "do": "flash", "args": { "color": "#50e4ff" } },
+    { "atMs": 2400, "do": "shake", "args": { "px": 6, "ms": 500 } },
+    { "atMs": 2400, "do": "sfx", "args": { "id": "bassBlast" } },
+    { "atMs": 2400, "do": "lightOn", "args": { "id": "blue_eruption_glow" } },
+    { "atMs": 2400, "do": "spriteStart", "args": { "asset": "ice_blue_fire" } },
+    { "atMs": 3500, "do": "sfx", "args": { "id": "encounter" } },
+    { "atMs": 3500, "do": "enemyIn", "args": { "id": "panJanusz" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 474,
+    "sit": [
+      [370, 474],
+      [430, 470],
+      [490, 480],
+      [560, 482],
+      [620, 478],
+      [690, 470]
+    ],
+    "enemies": [
+      {
+        "id": "panJanusz",
+        "at": [514, 380],
+        "scale": 2,
+        "inMs": 3500,
+        "outMs": 7000,
+        "style": "riseFromFog"
+      }
+    ]
+  },
+  "briefs": [
+    {
+      "id": "ice_blue_fire",
+      "kind": "sprite",
+      "frames": 6,
+      "frameSize": [32, 48],
+      "palette": "scene",
+      "priority": "must",
+      "prompt": "Pixel art sprite sheet, 6 frames side by side in one horizontal row, equal spacing, roaring supernatural ice-blue fire flame erupting upwards, cyan and pale azure licking tongues with frosty cold white core, solid flat magenta #FF00FF background, side-view 2D retro RPG aesthetic matching 1024x576 dark forest clearing, palette icy cyan #4deeea, deep cobalt #001f3f, neon teal #74ee15 and cold white #f0ffff."
+    }
+  ],
+  "notes": "Direct continuation of Shot 9 framing. The cozy campfire gutters and dies out at 1.8 s into deep silence and darkness, followed at 2.4 s by a violent ice-blue fire eruption and camera shake. Cold fog and creeping frost invade the clearing as the towering silhouette of Pan Janusz rises menacingly behind the cursed flame with his megaphone."
+}

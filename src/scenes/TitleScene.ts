@@ -62,6 +62,13 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    if (typeof window !== 'undefined' && window.location.search.includes('chronicle')) {
+      this.time.delayedCall(50, () => {
+        this.scene.start('Chronicle');
+      });
+      return;
+    }
+
     applyCrtToCamera(this);
     const audioUnlocked = Audio.isUnlocked();
     if (audioUnlocked) {
@@ -147,19 +154,10 @@ export class TitleScene extends Phaser.Scene {
     });
 
     // Check existing save
-    const saveList = Saves.list();
-    const hasSave = saveList[0].exists;
-
-    const crtState = isCrtEnabled();
-    const menuItems = [
-      { label: 'NOWA GRA' },
-      { label: hasSave ? `KONTYNUUJ (${saveList[0].leader})` : 'KONTYNUUJ', disabled: !hasSave },
-      { label: `FILTR CRT: ${crtState ? 'WŁĄCZONY' : 'WYŁĄCZONY'}` },
-    ];
-
+    const menuItems = this.buildMenuItems();
     const menuW = 340;
     const menuX = (GAME_W - menuW) / 2;
-    const menuY = 260;
+    const menuY = 250;
     this.menu = new Menu(this, menuX, menuY, menuW, menuItems);
 
     this.inputHandler = new Input(this);
@@ -952,19 +950,28 @@ export class TitleScene extends Phaser.Scene {
         });
       }
     } else if (pick === 2) {
+      // KRONIKA EKIPY
+      this.cameras.main.fadeOut(400, 0, 3, 11);
+      this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+        this.scene.start('Chronicle');
+      });
+    } else if (pick === 3) {
       // Toggle CRT
       const newState = !isCrtEnabled();
       setCrtEnabled(this, newState);
-      const curSaveList = Saves.list();
-      const curHasSave = curSaveList[0].exists;
-      this.menu.setItems([
-        { label: 'NOWA GRA' },
-        {
-          label: curHasSave ? `KONTYNUUJ (${curSaveList[0].leader})` : 'KONTYNUUJ',
-          disabled: !curHasSave,
-        },
-        { label: `FILTR CRT: ${newState ? 'WŁĄCZONY' : 'WYŁĄCZONY'}` },
-      ]);
+      this.menu.setItems(this.buildMenuItems());
     }
+  }
+
+  private buildMenuItems(): { label: string; disabled?: boolean }[] {
+    const saveList = Saves.list();
+    const hasSave = saveList[0].exists;
+    const crtState = isCrtEnabled();
+    return [
+      { label: 'NOWA GRA' },
+      { label: hasSave ? `KONTYNUUJ (${saveList[0].leader})` : 'KONTYNUUJ', disabled: !hasSave },
+      { label: '★ KRONIKA EKIPY ★' },
+      { label: `FILTR CRT: ${crtState ? 'WŁĄCZONY' : 'WYŁĄCZONY'}` },
+    ];
   }
 }

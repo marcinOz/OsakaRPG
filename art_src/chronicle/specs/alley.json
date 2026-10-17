@@ -1,0 +1,277 @@
+{
+  "scene": "alley",
+  "src": "public/assets/bg/battle_alley.png",
+  "pixelScale": 2,
+  "mood": "wet blue-grey brick, single warm sodium street lamp, cold rainy fog",
+  "camera": {
+    "from": { "x": 490, "y": 300, "zoom": 1.04 },
+    "to": { "x": 520, "y": 320, "zoom": 1.12 },
+    "ease": "sineInOut"
+  },
+  "layers": [
+    {
+      "id": "distant_fog_alley",
+      "kind": "far",
+      "mask": { "poly": [[420, 0], [550, 0], [550, 320], [420, 320]] },
+      "parallax": 0.65,
+      "fill": "dup",
+      "anim": null,
+      "depth": 0
+    },
+    {
+      "id": "dumpster_left",
+      "kind": "near",
+      "mask": {
+        "poly": [
+          [302, 345],
+          [410, 345],
+          [425, 375],
+          [425, 435],
+          [308, 435]
+        ]
+      },
+      "parallax": 1.08,
+      "fill": "smear",
+      "anim": null,
+      "depth": 1
+    },
+    {
+      "id": "foreground_wall_left",
+      "kind": "near",
+      "mask": { "rect": [0, 0, 160, 576] },
+      "parallax": 1.22,
+      "fill": "smear",
+      "anim": null,
+      "depth": 2
+    },
+    {
+      "id": "foreground_wall_right",
+      "kind": "near",
+      "mask": { "rect": [870, 0, 154, 576] },
+      "parallax": 1.25,
+      "fill": "smear",
+      "anim": null,
+      "depth": 3
+    }
+  ],
+  "lights": {
+    "named": [
+      {
+        "id": "street_lamp_sodium",
+        "mask": { "rect": [334, 98, 48, 28] },
+        "key": { "lumMin": 0.75 },
+        "style": "neonBuzz",
+        "intensity": [0.75, 1.0],
+        "glow": { "radius": 160, "color": "#ffb03a", "alpha": 0.5 },
+        "at": [359, 111],
+        "followLayer": null,
+        "seed": 201
+      },
+      {
+        "id": "lamp_wall_cone",
+        "mask": {
+          "poly": [
+            [359, 111],
+            [220, 160],
+            [180, 340],
+            [380, 340],
+            [360, 160]
+          ]
+        },
+        "key": { "lumMin": 0.45 },
+        "style": "neonBuzz",
+        "intensity": [0.8, 1.0],
+        "glow": { "radius": 140, "color": "#e8942a", "alpha": 0.3 },
+        "at": [280, 240],
+        "followLayer": null,
+        "seed": 201
+      },
+      {
+        "id": "distant_lamp",
+        "mask": { "rect": [488, 248, 14, 16] },
+        "key": { "lumMin": 0.65 },
+        "style": "steady",
+        "intensity": [0.8, 1.0],
+        "glow": { "radius": 45, "color": "#f0c060", "alpha": 0.35 },
+        "at": [494, 255],
+        "followLayer": null,
+        "seed": 202
+      },
+      {
+        "id": "puddle_lamp_reflection",
+        "mask": { "rect": [480, 465, 30, 20] },
+        "key": { "lumMin": 0.7 },
+        "style": "neonBuzz",
+        "intensity": [0.7, 1.0],
+        "glow": { "radius": 40, "color": "#ffb840", "alpha": 0.35 },
+        "at": [494, 475],
+        "followLayer": null,
+        "seed": 201
+      }
+    ]
+  },
+  "regions": [
+    {
+      "id": "puddle_water_ripples",
+      "mask": {
+        "poly": [
+          [440, 465],
+          [490, 462],
+          [540, 460],
+          [600, 460],
+          [670, 462],
+          [745, 470],
+          [765, 495],
+          [775, 530],
+          [740, 545],
+          [680, 550],
+          [615, 554],
+          [550, 550],
+          [510, 545],
+          [465, 535],
+          [420, 510],
+          [405, 485]
+        ]
+      },
+      "shader": "water",
+      "params": {
+        "amp": 1,
+        "wavelength": 16,
+        "speed": 0.6,
+        "sparkle": 0.35,
+        "sparkleColor": "#dceeff"
+      }
+    }
+  ],
+  "sprites": [
+    {
+      "asset": "alley_cat",
+      "at": [820, 445],
+      "origin": [0.5, 1.0],
+      "scale": 2,
+      "fps": 8,
+      "loop": true,
+      "alpha": 1.0,
+      "blend": "normal",
+      "path": {
+        "to": [250, 445],
+        "durationMs": 6500,
+        "ease": "linear"
+      },
+      "startMs": 400,
+      "endMs": 7000,
+      "followLayer": null,
+      "depth": "behindNear"
+    }
+  ],
+  "particles": [
+    {
+      "preset": "rain",
+      "zone": { "rect": [420, 80, 240, 340] },
+      "density": 0.7,
+      "color": "#54687a",
+      "depthLayer": "behindNear",
+      "params": { "speed": 18, "angle": 78, "length": 8 }
+    },
+    {
+      "preset": "rain",
+      "zone": { "rect": [160, 56, 720, 460] },
+      "density": 1.0,
+      "color": "#7894aa",
+      "depthLayer": "front",
+      "params": { "speed": 26, "angle": 78, "length": 14 }
+    },
+    {
+      "preset": "rain",
+      "zone": { "rect": [0, 56, 1024, 464] },
+      "density": 1.4,
+      "color": "#a8c8e0",
+      "depthLayer": "front",
+      "params": { "speed": 36, "angle": 78, "length": 22 }
+    },
+    {
+      "preset": "rainSplash",
+      "zone": { "rect": [180, 430, 700, 120] },
+      "density": 1.2,
+      "color": "#b0d0e8",
+      "depthLayer": "front",
+      "params": {}
+    },
+    {
+      "preset": "steam",
+      "zone": { "rect": [380, 390, 120, 90] },
+      "density": 0.8,
+      "color": "#8ea4b8",
+      "depthLayer": "behindNear",
+      "params": { "origin": [430, 460] }
+    },
+    {
+      "preset": "smoke",
+      "zone": { "rect": [500, 370, 140, 110] },
+      "density": 1.6,
+      "color": "#8ea4b8",
+      "depthLayer": "front",
+      "params": { "origin": [560, 450] }
+    }
+  ],
+  "grade": [
+    { "t": 0.0, "mul": "#c8d8e8", "add": "#040810", "sat": 0.9 },
+    { "t": 0.6, "mul": "#d4e4f0", "add": "#03060c", "sat": 0.95 },
+    { "t": 1.0, "mul": "#c8d8e8", "add": "#040810", "sat": 0.9 }
+  ],
+  "cues": [
+    { "atMs": 1400, "do": "sfx", "args": { "id": "encounter" } },
+    { "atMs": 1600, "do": "enemyIn", "args": { "id": "kark" } },
+    { "atMs": 1800, "do": "enemyIn", "args": { "id": "straznik" } },
+    { "atMs": 3400, "do": "sfx", "args": { "id": "smokeScreen" } },
+    { "atMs": 3400, "do": "shake", "args": { "px": 2, "ms": 160 } },
+    { "atMs": 3800, "do": "sfx", "args": { "id": "crit" } },
+    { "atMs": 4200, "do": "enemyOut", "args": { "id": "kark" } },
+    { "atMs": 4500, "do": "enemyOut", "args": { "id": "straznik" } },
+    { "atMs": 4900, "do": "join", "args": {} },
+    { "atMs": 4900, "do": "sfx", "args": { "id": "notification" } }
+  ],
+  "actors": {
+    "scale": 2,
+    "groundY": 470,
+    "walk": {
+      "from": [-40, 470],
+      "to": [340, 470],
+      "startMs": 600,
+      "durationMs": 3800
+    },
+    "joinAt": [560, 470],
+    "enemies": [
+      {
+        "id": "kark",
+        "at": [460, 370],
+        "scale": 1,
+        "inMs": 1600,
+        "outMs": 5200,
+        "style": "silhouette"
+      },
+      {
+        "id": "straznik",
+        "at": [530, 370],
+        "scale": 1,
+        "inMs": 1800,
+        "outMs": 5400,
+        "style": "silhouette"
+      }
+    ]
+  },
+  "briefs": [
+    {
+      "id": "alley_cat",
+      "kind": "sprite",
+      "frames": 6,
+      "frameSize": [32, 20],
+      "editOf": null,
+      "removeMask": null,
+      "prompt": "Pixel art sprite sheet, 6 frames in a single horizontal row, equal spacing, solid flat magenta #FF00FF background. Sleek black stray cat with subtle dark-slate highlights and glowing amber-green eyes, walking stealthily from right to left in profile view. Natural feline stepping cycle, swaying tail tip, paws lightly stepping on wet ground. Palette matched to the cool blue-grey brick and cobblestone tones of battle_alley.png.",
+      "palette": "scene",
+      "priority": "must"
+    }
+  ],
+  "notes": "Atmospheric rain-slicked alleyway: 3-depth parallax rain with ground splashes, water ripple shader displacing street lamp and night sky reflections in cobblestone puddles. Rising steam from manholes. An eerie stray cat prowls across the wet bricks. Distant silhouettes of Kark and Strażnik emerge from the cold fog before Lisu bursts through a tactical smoke screen to join the crew."
+}
